@@ -10,7 +10,7 @@ from database import SessionLocal, engine
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="BioChain Direct / MandiSpread AI API",
+    title="MandiRoute",
     description="Backend API for HackGrid 2026",
     version="1.0.0"
 )
