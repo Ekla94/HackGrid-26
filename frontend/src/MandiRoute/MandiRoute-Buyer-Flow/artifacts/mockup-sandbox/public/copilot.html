@@ -270,12 +270,6 @@
                         <p class="text-[#a7ad99] text-xs">Yield: ${h.yield_per_acre} q/ac | Score: ${h.trust}%</p>
                     </div>
                 `).join('');
-                const timelineHtml = payload.history_timeline.map(h => `
-                    <div class="border-l-2 border-[#d4aa57]/50 pl-3 py-1 mb-2">
-                        <p class="text-[#f4ecd9] font-bold text-sm">${h.season}: ${h.crop}</p>
-                        <p class="text-[#a7ad99] text-xs">Yield: ${h.yield_per_acre} q/ac | Score: ${h.trust}%</p>
-                    </div>
-                `).join('');
                 document.getElementById('ci-timeline').innerHTML = timelineHtml;
 
                 // CI Map Logic
