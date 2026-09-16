@@ -27,11 +27,13 @@ export default function Arbitrage() {
     };
 
     return (
-        <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4 border border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-800">Arbitrage Margins</h2>
-            <p className="text-gray-500 text-sm">Compare wholesale market prices to maximize net profits.</p>
+        <div className="w-full min-h-screen bg-gray-50 flex flex-col">
+            <div className="bg-green-600 text-white p-4 pt-8 pb-4 rounded-b-3xl shadow-lg mb-4">
+                <h2 className="text-2xl font-bold">Arbitrage Margins</h2>
+                <p className="text-green-100 text-sm opacity-90">Maximize net profits on the go.</p>
+            </div>
             
-            <div className="space-y-2">
+            <div className="px-5 space-y-5 flex-1">
                 <label className="block text-sm font-medium text-gray-700">Select Crop</label>
                 <select 
                     value={crop} 

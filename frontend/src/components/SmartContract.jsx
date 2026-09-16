@@ -44,12 +44,14 @@ export default function SmartContract() {
     };
 
     return (
-        <div className="p-6 max-w-2xl mx-auto bg-white rounded-xl shadow-md border border-gray-100 my-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-1">AI Smart Contract Generator</h2>
-            <p className="text-gray-500 text-sm mb-6">Instantly draft secure B2B agricultural agreements.</p>
+        <div className="w-full min-h-screen bg-gray-50 flex flex-col pb-20">
+            <div className="bg-blue-600 text-white p-4 pt-8 pb-4 rounded-b-3xl shadow-lg mb-4">
+                <h2 className="text-2xl font-bold mb-1">AI Smart Contract</h2>
+                <p className="text-blue-100 text-sm">Draft secure B2B agreements instantly.</p>
+            </div>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="px-5 space-y-5 flex-1">
+                <div className="flex flex-col gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">FPO Name</label>
                         <input 
