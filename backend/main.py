@@ -69,9 +69,7 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     if intent == "VERIFIED_CROP":
         crop = "Onions" if "onion" in msg else "Tomatoes"
         payload = agent_tools.verify_biochain(db, "FMR-007", crop)
-    elif intent == "FARMER_CROP_INTELLIGENCE":
-                instruction = "Write 1 very short sentence advising against their last crop family, and recommend the best rotation-safe crop."
-            elif intent == "FOUND_ARBITRAGE":
+    elif intent == "FOUND_ARBITRAGE":
         crop = "onion" if "onion" in msg else "tomato"
         payload = agent_tools.calculate_arbitrage(crop, "nashik", 1000.0)
     elif intent == "FARMER_CROP_INTELLIGENCE":
@@ -99,6 +97,8 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
                 instruction = "Write 1 very short sentence confirming the best market, gross revenue, and net profit."
             elif intent == "VERIFIED_CROP":
                 instruction = "Write 1 very short sentence confirming the Farmer ID, crop, and trust score."
+            elif intent == "FARMER_CROP_INTELLIGENCE":
+                instruction = "Write 1 very short sentence advising against their last crop family, and recommend the best rotation-safe crop."
             elif intent == "RAG_INSIGHT":
                 instruction = "Write a short, natural sentence summarizing the total number of recent trades and the average trust score. Do not list individual trades."
             
