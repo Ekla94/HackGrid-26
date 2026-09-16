@@ -1375,23 +1375,22 @@ function FarmerPayoutScreen({ onBack }: { onBack: () => void }) {
 }
 
 
+export const handleGenerateContract = async (fpo: string, buyer: string, crop: string, tons: number | string) => {
+  try {
+    const res = await fetch("http://localhost:8000/api/contract", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fpo, buyer, crop, tons: parseInt(String(tons)) || 50 })
+    });
+    const data = await res.json();
+    console.log("Contract generated:", data.contract);
+  } catch (e) {
+    console.error("API Error:", e);
+  }
+};
+
 export function BuyerFlow() {
   const [contractData, setContractData] = useState(null);
-  
-  const handleGenerateContract = async (fpo, buyer, crop, tons) => {
-    try {
-      const res = await fetch("http://localhost:8000/api/contract", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fpo, buyer, crop, tons: parseInt(tons) || 50 })
-      });
-      const data = await res.json();
-      setContractData(data.contract);
-      console.log("Contract generated:", data.contract);
-    } catch (e) {
-      console.error("API Error:", e);
-    }
-  };
 
   const [screen, setScreen] = useState<FlowScreen>("welcome");
   const [role, setRole] = useState<BuyerRole>("buyer");

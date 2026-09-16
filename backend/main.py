@@ -6,6 +6,9 @@ from pydantic import BaseModel
 from database import SessionLocal, engine, Base
 from sqlalchemy.orm import Session
 import agent_tools
+from schemas import ContractCreate
+from models import Contract, ContractStatus
+import datetime
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -101,3 +104,36 @@ Data: {payload}
         "action_type": intent,
         "payload": payload
     }
+
+@app.post("/api/contract")
+def generate_contract(req: ContractCreate, db: Session = Depends(get_db)):
+    total = req.tons * 1000 * 48.0
+    text = f"""====================================================
+B2B AGRICULTURAL FORWARD CONTRACT (MOCK GENERATOR)
+====================================================
+Date: {datetime.datetime.now().strftime('%Y-%m-%d')}
+Seller (FPO): {req.fpo}
+Buyer:        {req.buyer}
+Commodity:    {req.crop.upper()} ({req.tons} Metric Tons)
+Valuation:    INR {total:,.2f}
+
+AI CLAUSE GENERATION:
+1. Advance Escrow: 30% secured prior to transit dispatch.
+2. Weighbridge Release: 70% released upon physical mandi delivery.
+3. Spoilage Limit: Maximum allowable transit loss capped at 4%.
+===================================================="""
+    
+    new_contract = Contract(
+        buyer_id=1,
+        seller_id=2,
+        batch_id=1,
+        total_amount=total,
+        contract_text=text,
+        status=ContractStatus.SIGNED,
+        escrow_released=False
+    )
+    db.add(new_contract)
+    db.commit()
+    db.refresh(new_contract)
+
+    return {"contract": text, "status": "SIGNED", "engine": "mock-engine", "contract_id": new_contract.id}
