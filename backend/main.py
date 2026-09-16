@@ -57,7 +57,7 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     intent = "RAG_INSIGHT"
     if "verify" in msg or "check" in msg or "layer" in msg:
         intent = "VERIFIED_CROP"
-    elif "arbitrage" in msg or "margin" in msg or "market" in msg or "best buyer" in msg:
+    elif "arbitrage" in msg or "margin" in msg or "market" in msg or "best buyer" in msg or "price" in msg or "best" in msg:
         intent = "FOUND_ARBITRAGE"
     elif "contract" in msg or "draft" in msg or "agreement" in msg:
         intent = "DRAFTED_CONTRACT"
@@ -84,22 +84,22 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     if local_generator is not None:
         try:
             # Construct a safe prompt combining the intent and the payload
-            instruction = "Explain this data simply in 2 sentences."
+            instruction = "Explain this data simply."
             if intent == "FOUND_ARBITRAGE":
-                instruction = "State the best market to sell at, the exact gross revenue, and the exact net profit using the numbers from the data."
+                instruction = "Write a natural, conversational response confirming the best market was found. Explicitly state the best market name, the gross revenue, and the net profit. Make it sound helpful and professional."
             elif intent == "VERIFIED_CROP":
-                instruction = "State the farmer ID, crop, and the final trust score percentage using the numbers from the data."
+                instruction = "Write a natural, conversational response confirming the crop verification. Mention the Farmer ID, the crop name, and the final trust score percentage. Make it sound like a helpful assistant."
             elif intent == "RAG_INSIGHT":
-                instruction = "Summarize the recent trades and trust scores using the exact numbers from the data."
+                instruction = "Write a short, natural sentence summarizing the total number of recent trades and the average trust score. Do not list individual trades."
             
             prompt = f"""<|system|>
-You are KhetiNex, an AI broker for farmers. {instruction} Do not add extra information.
+You are KhetiNex, an AI broker for farmers. {instruction}
 <|user|>
 Action: {intent}
 Data: {payload}
 <|assistant|>
 """
-            output = local_generator(prompt, max_new_tokens=100, do_sample=False, return_full_text=False)
+            output = local_generator(prompt, max_new_tokens=200, do_sample=False, return_full_text=False)
             agent_message = output[0]['generated_text'].strip()
             if "<|assistant|>" in agent_message:
                 agent_message = agent_message.split("<|assistant|>")[-1].strip()
