@@ -87,3 +87,17 @@ class Contract(Base):
 
     # Relationships
     batch = relationship("CropBatch", back_populates="contracts")
+
+class BioChainVerification(Base):
+    __tablename__ = 'biochain_verifications'
+    id = Column(Integer, primary_key=True, index=True)
+    farmer_id = Column(String, index=True)
+    crop_name = Column(String)
+    trust_score = Column(Integer)
+    is_verified = Column(Boolean)
+    field_score = Column(Float)
+    ndvi_score = Column(Float)
+    ai_score = Column(Float)
+    sensor_score = Column(Float)
+    trace_score = Column(Float)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)

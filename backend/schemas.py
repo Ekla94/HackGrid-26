@@ -37,3 +37,18 @@ class ContractResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class BioChainVerifyRequest(BaseModel):
+    farmer_id: str
+    crop_name: str
+    kyc_valid: bool
+    gps_match: bool
+    ndvi_value: float
+    pest_probability: float
+    chemical_residue: float
+    blockchain_hash: str
+
+class RecommendRequest(BaseModel):
+    farmer_id: str
+    last_crop: str
+    current_trust_score: int

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MandiSpread AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-8 text-gray-800">
+    <div class="max-w-4xl mx-auto mb-8">
+        <h1 class="text-3xl font-extrabold text-green-700 text-center mb-2">MandiSpread AI</h1>
+        <p class="text-center text-gray-500 mb-8">Advanced Analytics, BioChain Verification & Smart Contracts for Indian Agriculture</p>
+        
+        <!-- AI Database Insights Component -->
+        <div class="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl shadow-sm border border-green-100 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-green-800">Local AI Database Insights</h2>
+                    <p class="text-sm text-green-600">Powered by HuggingFace Transformers & SQLite</p>
+                </div>
+                <button id="insights-btn" class="py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded shadow transition duration-150">
+                    Generate Report
+                </button>
+            </div>
+            <div id="insights-result" class="hidden p-4 bg-white rounded-lg border border-green-200">
+                <p id="insights-text" class="text-gray-800 font-medium leading-relaxed"></p>
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <p class="text-xs font-semibold text-gray-500 mb-1">RAW SQLITE DATA FED TO AI:</p>
+                    <pre id="insights-raw" class="text-[10px] text-gray-400 font-mono whitespace-pre-wrap"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Arbitrage Component -->
+    <div class="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4 border border-gray-100 mb-8">
+        <h2 class="text-2xl font-bold text-gray-800">Arbitrage Margins</h2>
+        <p class="text-gray-500 text-sm">Compare wholesale market prices to maximize net profits.</p>
+        
+        <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Select Crop</label>
+            <select id="crop-select" class="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500">
+                <option value="">-- Choose a crop --</option>
+                <option value="Tomato">Tomato</option>
+                <option value="Onion">Onion</option>
+                <option value="Potato">Potato</option>
+                <option value="Wheat">Wheat</option>
+            </select>
+        </div>
+
+        <button id="calc-btn" class="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded shadow transition duration-150 disabled:opacity-50" disabled>
+            Calculate Margins
+        </button>
+
+        <div id="arb-error" class="hidden p-3 bg-red-50 text-red-700 rounded text-sm"></div>
+
+        <div id="arb-result" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-center fade-in">
+            <h3 class="text-sm font-semibold text-green-800 uppercase tracking-wide">Estimated Net Profit</h3>
+            <p id="arb-profit" class="text-3xl font-extrabold text-green-600 mt-2">---</p>
+            <p id="arb-details" class="text-xs text-green-700 mt-2"></p>
+        </div>
+    </div>
+
+    <!-- Smart Contract Component -->
+    <div class="p-6 max-w-2xl mx-auto bg-white rounded-xl shadow-md border border-gray-100">
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">AI Smart Contract Generator</h2>
+        <p class="text-gray-500 text-sm mb-6">Instantly draft secure B2B agricultural agreements.</p>
+        
+        <form id="contract-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">FPO Name</label>
+                    <input type="text" id="fpo-input" required placeholder="e.g., Kisan Samridhi FPO" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Buyer Name</label>
+                    <input type="text" id="buyer-input" required placeholder="e.g., FreshMart India" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Crop</label>
+                    <input type="text" id="contract-crop-input" required placeholder="e.g., Tomato" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Quantity (Tons)</label>
+                    <input type="number" id="tons-input" required min="1" placeholder="e.g., 50" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+            </div>
+
+            <button type="submit" id="contract-btn" class="w-full mt-4 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded shadow transition duration-150 disabled:opacity-50 flex items-center justify-center">
+                Generate Smart Contract
+            </button>
+        </form>
+
+        <div id="contract-error" class="hidden mt-4 p-3 bg-red-50 text-red-700 rounded text-sm"></div>
+
+        <div id="contract-result-container" class="hidden mt-6 fade-in">
+            <h3 class="font-semibold text-gray-700 mb-2">Drafted Agreement</h3>
+            <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg h-64 overflow-y-auto">
+                <pre id="contract-text" class="whitespace-pre-wrap font-mono text-sm text-gray-800"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- BioChain Component -->
+    <div class="p-6 max-w-2xl mx-auto bg-white rounded-xl shadow-md border border-gray-100 mt-8 mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">BioChain Intelligence Hub</h2>
+        <p class="text-gray-500 text-sm mb-6">5-Layer Crop Verification & Marketplace Matching.</p>
+        
+        <form id="biochain-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Farmer ID</label>
+                    <input type="text" id="farmer-id" required value="FRM-8842" class="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Crop</label>
+                    <input type="text" id="last-crop" required value="Corn" class="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500" />
+                </div>
+            </div>
+            <button type="submit" id="biochain-btn" class="w-full mt-4 py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded shadow transition duration-150 flex items-center justify-center">
+                Run AI Verification & Matching
+            </button>
+        </form>
+
+        <div id="biochain-error" class="hidden mt-4 p-3 bg-red-50 text-red-700 rounded text-sm"></div>
+
+        <div id="biochain-result" class="hidden mt-6 space-y-4 fade-in">
+            <!-- 5-Layer Sequence Verification -->
+            <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <h3 class="font-bold text-gray-800 mb-3 text-sm tracking-wide border-b pb-2">5-LAYER CROP VERIFICATION</h3>
+                <ul class="space-y-2 text-sm">
+                    <li class="flex justify-between items-center"><span class="text-gray-600">① Farmer & Field Verification</span><span id="layer-1" class="font-bold text-green-600">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-gray-600">② Satellite / NDVI Verification</span><span id="layer-2" class="font-bold text-green-600">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-gray-600">③ AI Camera Inspection</span><span id="layer-3" class="font-bold text-green-600">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-gray-600">④ Sensor / Lab Verification</span><span id="layer-4" class="font-bold text-green-600">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-gray-600">⑤ Traceability + Cross-Check</span><span id="layer-5" class="font-bold text-green-600">--</span></li>
+                </ul>
+            </div>
+
+            <!-- Trust Score -->
+            <div class="p-4 bg-green-50 border border-green-200 rounded-lg text-center">
+                <h3 class="font-semibold text-green-800 uppercase tracking-wide text-sm">BioChain Verified Batch Profile</h3>
+                <p id="trust-score-val" class="text-4xl font-extrabold text-green-600 mt-2">--</p>
+                <p id="trust-status" class="text-sm font-bold text-green-700 mt-1"></p>
+                <p id="db-record" class="text-xs text-gray-500 mt-2"></p>
+            </div>
+            <!-- Recommendations -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                    <h4 class="font-semibold text-emerald-800 text-sm">Best Crop Rotation</h4>
+                    <p id="rec-crop" class="text-xl font-bold text-emerald-900 mt-1">--</p>
+                    <p id="rec-crop-desc" class="text-xs text-emerald-700 mt-2"></p>
+                </div>
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 text-sm">Marketplace Match</h4>
+                    <p id="rec-buyer" class="text-xl font-bold text-blue-900 mt-1">--</p>
+                    <p id="rec-buyer-desc" class="text-xs text-blue-700 mt-2"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:8000';
+
+        // Arbitrage Logic
+        const cropSelect = document.getElementById('crop-select');
+        const calcBtn = document.getElementById('calc-btn');
+        const arbError = document.getElementById('arb-error');
+        const arbResult = document.getElementById('arb-result');
+        const arbProfit = document.getElementById('arb-profit');
+        const arbDetails = document.getElementById('arb-details');
+
+        cropSelect.addEventListener('change', (e) => {
+            calcBtn.disabled = !e.target.value;
+        });
+
+        calcBtn.addEventListener('click', async () => {
+            const crop = cropSelect.value;
+            if (!crop) return;
+
+            calcBtn.disabled = true;
+            calcBtn.textContent = 'Calculating...';
+            arbError.classList.add('hidden');
+            arbResult.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/arbitrage?crop=${encodeURIComponent(crop)}&fpo_location=Pune`);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const data = await response.json();
+                
+                arbProfit.textContent = `₹${data.profit ? data.profit.toLocaleString() : '---'}`;
+                arbDetails.textContent = data.details || 'Based on real-time APMC data';
+                arbResult.classList.remove('hidden');
+            } catch (err) {
+                arbError.textContent = 'Failed to fetch arbitrage data. Please ensure the backend is running.';
+                arbError.classList.remove('hidden');
+            } finally {
+                calcBtn.disabled = false;
+                calcBtn.textContent = 'Calculate Margins';
+            }
+        });
+
+        // Contract Logic
+        const contractForm = document.getElementById('contract-form');
+        const contractBtn = document.getElementById('contract-btn');
+        const contractError = document.getElementById('contract-error');
+        const contractResContainer = document.getElementById('contract-result-container');
+        const contractText = document.getElementById('contract-text');
+
+        contractForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const payload = {
+                fpo: document.getElementById('fpo-input').value,
+                buyer: document.getElementById('buyer-input').value,
+                crop: document.getElementById('contract-crop-input').value,
+                tons: parseInt(document.getElementById('tons-input').value, 10) || 0
+            };
+
+            contractBtn.disabled = true;
+            contractBtn.textContent = 'Generating Contract...';
+            contractError.classList.add('hidden');
+            contractResContainer.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/contract`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error('Failed to generate contract');
+                const data = await response.json();
+                
+                contractText.textContent = data.contract || data.text || JSON.stringify(data, null, 2);
+                contractResContainer.classList.remove('hidden');
+            } catch (err) {
+                contractError.textContent = 'Failed to generate contract. Please check your backend connection.';
+                contractError.classList.remove('hidden');
+            } finally {
+                contractBtn.disabled = false;
+                contractBtn.textContent = 'Generate Smart Contract';
+            }
+        });
+        // BioChain Logic
+        const biochainForm = document.getElementById('biochain-form');
+        const biochainBtn = document.getElementById('biochain-btn');
+        const biochainError = document.getElementById('biochain-error');
+        const biochainResult = document.getElementById('biochain-result');
+
+        biochainForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            biochainBtn.disabled = true;
+            biochainBtn.textContent = 'Verifying...';
+            biochainError.classList.add('hidden');
+            biochainResult.classList.add('hidden');
+
+            try {
+                // 1. Verify
+                const verifyRes = await fetch(`${BASE_URL}/api/biochain/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        farmer_id: document.getElementById('farmer-id').value,
+                        crop_name: 'Corn',
+                        kyc_valid: true,
+                        gps_match: true,
+                        ndvi_value: 0.75,
+                        pest_probability: 0.05,
+                        chemical_residue: 0.02,
+                        blockchain_hash: '0xabc123'
+                    })
+                });
+                if (!verifyRes.ok) throw new Error('Verification failed');
+                const vData = await verifyRes.json();
+
+                // 2. Recommend
+                const recRes = await fetch(`${BASE_URL}/api/biochain/recommend`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        farmer_id: document.getElementById('farmer-id').value,
+                        last_crop: document.getElementById('last-crop').value,
+                        current_trust_score: vData.trustScore
+                    })
+                });
+                if (!recRes.ok) throw new Error('Recommendation failed');
+                const rData = await recRes.json();
+
+                // Populate 5-Layer UI
+                document.getElementById('layer-1').textContent = `Passed (${(vData.breakdown.field * 100).toFixed(0)}%) ✓`;
+                document.getElementById('layer-2').textContent = `Passed (${(vData.breakdown.ndvi * 100).toFixed(0)}%) ✓`;
+                document.getElementById('layer-3').textContent = `Passed (${(vData.breakdown.ai * 100).toFixed(0)}%) ✓`;
+                document.getElementById('layer-4').textContent = `Passed (${(vData.breakdown.sensor * 100).toFixed(0)}%) ✓`;
+                document.getElementById('layer-5').textContent = `Passed (${(vData.breakdown.trace * 100).toFixed(0)}%) ✓`;
+
+                // Populate Trust Score UI
+                document.getElementById('trust-score-val').textContent = vData.trustScore;
+                document.getElementById('trust-status').textContent = vData.isVerified ? 'VERIFIED PREMIUM' : 'STANDARD GRADE';
+                document.getElementById('db-record').textContent = `DB Record ID: #${vData.id}`;
+                
+                document.getElementById('rec-crop').textContent = rData.bestCrop.name;
+                document.getElementById('rec-crop-desc').textContent = `${(rData.bestCrop.score * 100).toFixed(0)}% Match - Optimal for soil recovery.`;
+                
+                document.getElementById('rec-buyer').textContent = rData.bestBuyer.name;
+                document.getElementById('rec-buyer-desc').textContent = `${(rData.bestBuyer.pricePremium * 100 - 100).toFixed(0)}% Price Premium - ${rData.bestBuyer.distance}km away.`;
+
+                biochainResult.classList.remove('hidden');
+            } catch (err) {
+                biochainError.textContent = 'Failed to run BioChain algorithms. Check backend connection.';
+                biochainError.classList.remove('hidden');
+            } finally {
+                biochainBtn.disabled = false;
+                biochainBtn.textContent = 'Run AI Verification & Matching';
+            }
+        });
+        // AI Database Insights Logic
+        const insightsBtn = document.getElementById('insights-btn');
+        const insightsResult = document.getElementById('insights-result');
+        const insightsText = document.getElementById('insights-text');
+        const insightsRaw = document.getElementById('insights-raw');
+
+        insightsBtn.addEventListener('click', async () => {
+            insightsBtn.disabled = true;
+            insightsBtn.textContent = 'Analyzing DB...';
+            insightsResult.classList.add('hidden');
+
+            try {
+                const res = await fetch(`${BASE_URL}/api/insights`);
+                if (!res.ok) throw new Error('Failed to fetch insights');
+                const data = await res.json();
+                
+                insightsText.textContent = data.insight;
+                insightsRaw.textContent = data.raw_data;
+                insightsResult.classList.remove('hidden');
+            } catch (err) {
+                insightsText.textContent = 'Failed to connect to the SQLite / AI backend.';
+                insightsRaw.textContent = '';
+                insightsResult.classList.remove('hidden');
+            } finally {
+                insightsBtn.disabled = false;
+                insightsBtn.textContent = 'Generate Report';
+            }
+        });
+    </script>
+</body>
+</html>
