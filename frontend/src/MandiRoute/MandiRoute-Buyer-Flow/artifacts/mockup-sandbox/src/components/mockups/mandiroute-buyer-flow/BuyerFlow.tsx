@@ -1472,9 +1472,9 @@ export function BuyerFlow() {
         onClick={() => setIsCopilotOpen(true)}
         style={{
           position: "fixed", bottom: "24px", right: "24px", zIndex: 9999,
-          backgroundColor: "#16a34a", color: "white", padding: "16px 24px",
+          background: "linear-gradient(135deg, #e5ba61, #b17b35)", color: "#121511", padding: "16px 24px",
           borderRadius: "9999px", boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
-          border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px",
+          border: "1px solid rgba(243,207,122,.55)", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px",
           fontWeight: "bold", fontSize: "16px"
         }}
       >
@@ -1486,20 +1486,20 @@ export function BuyerFlow() {
       {isCopilotOpen && (
         <div style={{
           position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
-          backgroundColor: "rgba(0,0,0,0.7)", zIndex: 10000,
+          backgroundColor: "rgba(18,21,17,0.85)", zIndex: 10000, backdropFilter: "blur(4px)",
           display: "flex", alignItems: "center", justifyContent: "center", padding: "24px"
         }}>
           <div style={{
-            backgroundColor: "white", width: "100%", maxWidth: "1280px", height: "90%",
+            backgroundColor: "#1b2119", width: "100%", maxWidth: "1280px", height: "90%",
             borderRadius: "16px", overflow: "hidden", display: "flex", flexDirection: "column",
-            border: "4px solid #16a34a"
+            border: "1px solid rgba(212,170,87,.3)"
           }}>
-            <div style={{ backgroundColor: "#166534", padding: "16px 24px", display: "flex", justifyContent: "space-between", color: "white" }}>
-              <h3 style={{ margin: 0, display: "flex", alignItems: "center", fontSize: "18px", fontWeight: "bold" }}>
+            <div style={{ backgroundColor: "#22291f", padding: "16px 24px", display: "flex", justifyContent: "space-between", color: "#f4ecd9", borderBottom: "1px solid rgba(212,170,87,.1)" }}>
+              <h3 style={{ margin: 0, display: "flex", alignItems: "center", fontSize: "18px", fontWeight: "bold", color: "#d4aa57", letterSpacing: "0.05em" }}>
                 <svg width="20" height="20" style={{ marginRight: "8px" }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 KhetiNex Autonomous Copilot
               </h3>
-              <button onClick={() => setIsCopilotOpen(false)} style={{ background: "none", border: "none", color: "white", fontSize: "24px", cursor: "pointer" }}>✕</button>
+              <button onClick={() => setIsCopilotOpen(false)} style={{ background: "none", border: "none", color: "#f4ecd9", fontSize: "24px", cursor: "pointer" }}>✕</button>
             </div>
             <iframe src="/copilot.html" style={{ flex: 1, border: "none", width: "100%", height: "100%" }} title="AI Copilot" />
           </div>
