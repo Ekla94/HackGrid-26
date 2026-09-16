@@ -1245,38 +1245,74 @@ function QcScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }
 }
 
 function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [scan, setScan] = useState(false);
+  const [aiVerified, setAiVerified] = useState(false);
+  const [textInput, setTextInput] = useState("");
+
   return (
-    <ScreenShell current="qc" title="Proof of quality" eyebrow="07 / Certify" onBack={onBack} role="farmer">
+    <ScreenShell current="qc" title="AI Verification" eyebrow="07 / AI Agent" onBack={onBack} role="farmer">
       <div style={{ paddingTop: 20 }}>
-        <SectionTitle kicker="Lot WHT–SEH–042 · Wheat" title="Give the buyer a clear signal." body="A quick field and grain check turns your listing into a verified, easier-to-settle lot." />
-        <div style={{ padding: 16, borderRadius: 20, background: "linear-gradient(145deg, rgba(212,170,87,.14), rgba(27,33,25,.88))", border: "1px solid rgba(212,170,87,.25)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <IconBadge icon={ScanLine} />
-            <div style={{ flex: 1 }}>
-              <div style={{ color: parchment, fontSize: 13, fontWeight: 800 }}>BioTrace field scan</div>
-              <div style={{ marginTop: 4, color: muted, fontSize: 10 }}>Block C · Sentinel-2 imagery · synced 11:36 IST</div>
+        <SectionTitle 
+          kicker="Lot WHT-SEH-042 • Wheat" 
+          title="Just tell us about your crop." 
+          body="No complex forms or scans. Just describe your harvest in your own words, and our AI Agent will verify and list it for you." 
+        />
+        
+        {!aiVerified ? (
+          <div style={{ marginTop: 20 }}>
+            <textarea
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              placeholder="e.g., I have 1000kg of healthy wheat ready for pickup next week in Sehore..."
+              style={{
+                width: "100%", height: 120, boxSizing: "border-box", background: "rgba(18,21,17,.8)",
+                border: "1px solid rgba(212,170,87,.3)", borderRadius: 14, padding: "16px",
+                color: "#f4ecd9", fontSize: 14, fontFamily: "inherit", outline: "none", resize: "none"
+              }}
+            />
+            <button 
+              type="button" 
+              onClick={() => { if(textInput.length > 5) setAiVerified(true); }}
+              style={{ 
+                width: "100%", marginTop: 15, minHeight: 50, borderRadius: 14, 
+                border: "1px solid rgba(243,207,122,.55)", 
+                background: textInput.length > 5 ? "linear-gradient(135deg, #e5ba61, #b17b35)" : "rgba(255,255,255,.05)", 
+                color: textInput.length > 5 ? "#121511" : "#6f776b", 
+                fontSize: 14, fontWeight: 800, cursor: textInput.length > 5 ? "pointer" : "not-allowed" 
+              }}
+            >
+              Ask AI to Verify
+            </button>
+          </div>
+        ) : (
+          <div style={{ marginTop: 20, padding: 16, borderRadius: 20, background: "rgba(18,21,17,.8)", border: "1px solid rgba(136,154,107,.4)" }}>
+            <div style={{ display: "flex", gap: 12 }}>
+              <IconBadge icon={Sparkles} tone="green" />
+              <div>
+                <div style={{ color: "#add4a8", fontSize: 13, fontWeight: 800 }}>KhetiNex Agent</div>
+                <div style={{ marginTop: 6, color: "#f4ecd9", fontSize: 13, lineHeight: 1.4 }}>
+                  "I've analyzed your description. Your wheat parameters look excellent! I've graded it as FAQ standard and verified the lot for buyers automatically."
+                </div>
+              </div>
             </div>
-            <StatusPill tone="green">{scan ? "Captured" : "Ready"}</StatusPill>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginTop: 17 }}>
-            <div style={{ padding: 12, borderRadius: 14, background: "rgba(18,21,17,.6)", border: "1px solid rgba(255,255,255,.08)" }}><div style={{ color: muted, fontSize: 9, textTransform: "uppercase", letterSpacing: ".08em" }}>Crop health</div><div style={{ marginTop: 5, color: goldBright, fontSize: 20, fontWeight: 800 }}>0.84</div><div style={{ marginTop: 3, color: "#add4a8", fontSize: 10 }}>Healthy</div></div>
-            <div style={{ padding: 12, borderRadius: 14, background: "rgba(18,21,17,.6)", border: "1px solid rgba(255,255,255,.08)" }}><div style={{ color: muted, fontSize: 9, textTransform: "uppercase", letterSpacing: ".08em" }}>Moisture estimate</div><div style={{ marginTop: 5, color: goldBright, fontSize: 20, fontWeight: 800 }}>11.6%</div><div style={{ marginTop: 3, color: "#add4a8", fontSize: 10 }}>Within buyer range</div></div>
-          </div>
-          <button type="button" onClick={() => setScan(true)} style={{ width: "100%", marginTop: 15, minHeight: 44, borderRadius: 13, border: "1px solid rgba(212,170,87,.32)", background: "rgba(212,170,87,.1)", color: goldBright, fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
-            {scan ? "Field proof captured" : "Capture field proof"}
-          </button>
-        </div>
-        <div style={{ marginTop: 17, color: gold, fontSize: 10, textTransform: "uppercase", letterSpacing: ".16em", fontWeight: 800 }}>Diagnostic result</div>
-        <div style={{ marginTop: 9 }}>
-          <ListRow icon={BadgeCheck} title="Grade FAQ · Clean grain" detail="Visual inspection passed · no visible damage signal" tone="green" right={<Check size={16} color="#a8d2a5" />} />
-          <ListRow icon={CloudSun} title="Harvest window" detail="Ready from 20 Jun · forecast remains dry" tone="olive" right={<StatusPill tone="olive">Stable</StatusPill>} />
-          <ListRow icon={Truck} title="Pickup route" detail="Sehore farm → Pune APMC · 640 km" right={<StatusPill tone="gold">Planned</StatusPill>} />
-        </div>
-        <div style={{ marginTop: 20 }}>
-          <PrimaryButton onClick={onNext} disabled={!scan} icon={PackageCheck}>Create verified lot</PrimaryButton>
-        </div>
-        <div style={{ marginTop: 13, color: "#6f776b", textAlign: "center", fontSize: 10 }}>The buyer sees this proof before accepting your offer.</div>
+        )}
+
+        {aiVerified && (
+          <>
+            <div style={{ marginTop: 24, color: "#d4aa57", fontSize: 10, textTransform: "uppercase", letterSpacing: ".16em", fontWeight: 800 }}>
+              AI Extracted Data
+            </div>
+            <div style={{ marginTop: 9 }}>
+              <ListRow icon={BadgeCheck} title="Grade FAQ • Clean grain" detail="Text verified • no visible damage mentioned" tone="green" right={<Check size={16} color="#a8d2a5" />} />
+              <ListRow icon={CloudSun} title="Harvest window" detail="Ready next week • AI weather check: Dry" tone="olive" right={<StatusPill tone="olive">Stable</StatusPill>} />
+              <ListRow icon={Truck} title="Pickup route" detail="Sehore farm → Pune APMC" right={<StatusPill tone="gold">Planned</StatusPill>} />
+            </div>
+            <div style={{ marginTop: 20 }}>
+              <PrimaryButton onClick={onNext} icon={PackageCheck}>Create verified lot</PrimaryButton>
+            </div>
+          </>
+        )}
+        
       </div>
     </ScreenShell>
   );
