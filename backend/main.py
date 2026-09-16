@@ -84,8 +84,16 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     if local_generator is not None:
         try:
             # Construct a safe prompt combining the intent and the payload
+            instruction = "Explain this data simply in 2 sentences."
+            if intent == "FOUND_ARBITRAGE":
+                instruction = "State the best market to sell at, the exact gross revenue, and the exact net profit using the numbers from the data."
+            elif intent == "VERIFIED_CROP":
+                instruction = "State the farmer ID, crop, and the final trust score percentage using the numbers from the data."
+            elif intent == "RAG_INSIGHT":
+                instruction = "Summarize the recent trades and trust scores using the exact numbers from the data."
+            
             prompt = f"""<|system|>
-You are KhetiNex, an AI broker for farmers. Explain this data simply in 2 sentences.
+You are KhetiNex, an AI broker for farmers. {instruction} Do not add extra information.
 <|user|>
 Action: {intent}
 Data: {payload}
