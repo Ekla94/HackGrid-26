@@ -70,7 +70,7 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
         crop = "Onions" if "onion" in msg else "Tomatoes"
         payload = agent_tools.verify_biochain(db, "FMR-007", crop)
     elif intent == "FARMER_CROP_INTELLIGENCE":
-                instruction = "Write a friendly, advisory response. Mention the farmer's last crop and its family, warn them against planting the same family again due to soil depletion, and explicitly state the top recommended rotation-safe crop and its projected profit margin."
+                instruction = "Write 1 very short sentence advising against their last crop family, and recommend the best rotation-safe crop."
             elif intent == "FOUND_ARBITRAGE":
         crop = "onion" if "onion" in msg else "tomato"
         payload = agent_tools.calculate_arbitrage(crop, "nashik", 1000.0)
@@ -96,9 +96,9 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
             # Construct a safe prompt combining the intent and the payload
             instruction = "Explain this data simply."
             if intent == "FOUND_ARBITRAGE":
-                instruction = "Write a natural, conversational response confirming the best market was found. Explicitly state the best market name, the gross revenue, and the net profit. Make it sound helpful and professional."
+                instruction = "Write 1 very short sentence confirming the best market, gross revenue, and net profit."
             elif intent == "VERIFIED_CROP":
-                instruction = "Write a natural, conversational response confirming the crop verification. Mention the Farmer ID, the crop name, and the final trust score percentage. Make it sound like a helpful assistant."
+                instruction = "Write 1 very short sentence confirming the Farmer ID, crop, and trust score."
             elif intent == "RAG_INSIGHT":
                 instruction = "Write a short, natural sentence summarizing the total number of recent trades and the average trust score. Do not list individual trades."
             
@@ -109,7 +109,7 @@ Action: {intent}
 Data: {payload}
 <|assistant|>
 """
-            output = local_generator(prompt, max_new_tokens=200, do_sample=False, return_full_text=False)
+            output = local_generator(prompt, max_new_tokens=65, do_sample=False, return_full_text=False)
             agent_message = output[0]['generated_text'].strip()
             if "<|assistant|>" in agent_message:
                 agent_message = agent_message.split("<|assistant|>")[-1].strip()

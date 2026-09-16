@@ -139,7 +139,11 @@
                         <button class="mt-3 w-full bg-gradient-to-br from-[#e5ba61] to-[#b17b35] text-[#121511] font-bold text-xs py-2 rounded shadow-sm hover:opacity-90">Plan Forward Contract</button>
                     </div>
                 </div>
+
+                </div>
             </div>
+            <!-- Regional Map -->
+            <div id="map-ci" class="w-full h-48 bg-[#22291f] rounded-lg shadow-sm z-0 relative mt-4"></div>
         </div>
 
         <!-- RAG Insights Layer -->
@@ -266,7 +270,33 @@
                         <p class="text-[#a7ad99] text-xs">Yield: ${h.yield_per_acre} q/ac | Score: ${h.trust}%</p>
                     </div>
                 `).join('');
+                const timelineHtml = payload.history_timeline.map(h => `
+                    <div class="border-l-2 border-[#d4aa57]/50 pl-3 py-1 mb-2">
+                        <p class="text-[#f4ecd9] font-bold text-sm">${h.season}: ${h.crop}</p>
+                        <p class="text-[#a7ad99] text-xs">Yield: ${h.yield_per_acre} q/ac | Score: ${h.trust}%</p>
+                    </div>
+                `).join('');
                 document.getElementById('ci-timeline').innerHTML = timelineHtml;
+
+                // CI Map Logic
+                let coords = [20.0110, 73.7903]; // Nashik default
+                if (payload.farmer_profile.cluster.includes("Kolar")) {
+                    coords = [13.1367, 78.1292];
+                }
+                
+                if (!window.ciMap) {
+                    window.ciMap = L.map('map-ci').setView(coords, 7);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.ciMap);
+                } else {
+                    window.ciMap.setView(coords, 7);
+                }
+                
+                // Add marker showing the dominant crop
+                const popupContent = `<b>${payload.farmer_profile.cluster}</b><br>Dominant Crop: ${payload.regional_benchmark.highest_yield_crop}`;
+                L.marker(coords).addTo(window.ciMap).bindPopup(popupContent).openPopup();
+                
+                setTimeout(() => window.ciMap.invalidateSize(), 150);
+            }
             }
             else if (action === 'RAG_INSIGHT') {
                 document.getElementById('rag-data').textContent = payload.raw_context;
