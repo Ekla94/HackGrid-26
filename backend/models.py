@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, DateTime, Enum
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, DateTime, Enum, Date
 from sqlalchemy.orm import relationship
 import enum
 import datetime
@@ -101,3 +101,29 @@ class BioChainVerification(Base):
     sensor_score = Column(Float)
     trace_score = Column(Float)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class Farmer(Base):
+    __tablename__ = "farmers"
+    id = Column(Integer, primary_key=True, index=True)
+    farmer_id = Column(String, unique=True, index=True)
+    name = Column(String)
+    land_size_acres = Column(Float)
+    cluster = Column(String)
+    
+    harvests = relationship("HarvestRecord", back_populates="farmer")
+
+class HarvestRecord(Base):
+    __tablename__ = "harvest_records"
+    id = Column(Integer, primary_key=True, index=True)
+    farmer_id = Column(String, ForeignKey("farmers.farmer_id"))
+    crop_name = Column(String)
+    crop_family = Column(String)
+    season = Column(String)
+    yield_per_acre = Column(Float)
+    quality_grade = Column(String)
+    trust_score = Column(Float)
+    net_profit_margin = Column(Float)
+    harvest_date = Column(Date)
+    
+    farmer = relationship("Farmer", back_populates="harvests")

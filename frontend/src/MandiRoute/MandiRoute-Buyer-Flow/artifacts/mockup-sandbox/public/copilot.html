@@ -41,6 +41,7 @@
                 <button onclick="sendPrompt('Find best mandi arbitrage for Tomatoes')" class="text-xs bg-[#121511] hover:bg-[#22291f] text-[#a7ad99] border border-[#d4aa57]/30 rounded-full px-3 py-1 transition">📈 Arbitrage Margins</button>
                 <button onclick="sendPrompt('Draft a B2B contract for 500 MT Onions')" class="text-xs bg-[#121511] hover:bg-[#22291f] text-[#a7ad99] border border-[#d4aa57]/30 rounded-full px-3 py-1 transition">📝 Draft Smart Contract</button>
                 <button onclick="sendPrompt('Show RAG insights from past trades')" class="text-xs bg-[#121511] hover:bg-[#22291f] text-[#a7ad99] border border-[#d4aa57]/30 rounded-full px-3 py-1 transition">📊 Past Trade Insights</button>
+                <button onclick="sendPrompt('What should Farmer FRM-8842 plant next?')" class="text-xs bg-[#121511] hover:bg-[#22291f] text-[#a7ad99] border border-[#d4aa57]/30 rounded-full px-3 py-1 transition">🌱 Crop Intelligence</button>
             </div>
             <form id="chat-form" class="flex items-center">
                 <input type="text" id="chat-input" class="flex-1 border border-[#d4aa57]/30 bg-[#121511] text-[#f4ecd9] rounded-l-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4aa57]" placeholder="Ask KhetiNex to execute a task...">
@@ -106,6 +107,38 @@
             </div>
             <div id="contract-doc" class="bg-[#1b2119] p-8 rounded-lg shadow-sm border border-[#d4aa57]/20 font-serif text-sm text-[#f4ecd9] whitespace-pre-wrap leading-relaxed">
                 --
+            </div>
+        </div>
+
+        
+        <!-- Crop Intelligence Layer -->
+        <div id="canvas-FARMER_CROP_INTELLIGENCE" class="canvas-pane max-w-3xl mx-auto space-y-4">
+            <h2 class="text-2xl font-bold text-[#f4ecd9] border-b border-[#d4aa57]/20 pb-2">Crop Intelligence & Rotation</h2>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Farmer Timeline -->
+                <div class="bg-[#1b2119] p-4 rounded-lg shadow-sm border border-[#d4aa57]/20">
+                    <h3 class="text-sm font-bold text-[#a7ad99] uppercase mb-3" id="ci-farmer-name">Farmer History</h3>
+                    <div id="ci-timeline" class="space-y-3"></div>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Regional Benchmark -->
+                    <div class="bg-[#22291f] p-4 rounded-lg shadow-sm border-l-4 border-[#889a6b]">
+                        <h3 class="text-xs font-bold text-[#a7ad99] uppercase">Regional Benchmark (<span id="ci-cluster">--</span>)</h3>
+                        <p class="text-[#f4ecd9] mt-2 text-sm">Top Performer: <span id="ci-bench-crop" class="font-bold text-[#e5ba61]">--</span></p>
+                        <p class="text-[#a7ad99] text-xs">Avg Yield: <span id="ci-bench-yield">--</span> q/acre | Quality: <span id="ci-bench-qual">--</span>%</p>
+                    </div>
+
+                    <!-- Recommendation -->
+                    <div class="bg-[#1b2119] p-4 rounded-lg shadow-sm border border-[#889a6b]/50 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-[#889a6b]/20 text-[#add4a8] text-[10px] px-2 py-1 font-bold rounded-bl-lg" id="ci-rot-safe">ROTATION SAFE</div>
+                        <h3 class="text-xs font-bold text-[#a7ad99] uppercase">Optimal Next Crop</h3>
+                        <p class="text-2xl font-bold text-[#add4a8] mt-1" id="ci-rec-crop">--</p>
+                        <p class="text-[#f4ecd9] text-sm">Projected Margin: <span id="ci-rec-margin" class="font-bold text-[#e5ba61]">--</span>%</p>
+                        <button class="mt-3 w-full bg-gradient-to-br from-[#e5ba61] to-[#b17b35] text-[#121511] font-bold text-xs py-2 rounded shadow-sm hover:opacity-90">Plan Forward Contract</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -213,6 +246,27 @@
             }
             else if (action === 'DRAFTED_CONTRACT') {
                 document.getElementById('contract-doc').textContent = payload.contract_text;
+            }
+            else if (action === 'FARMER_CROP_INTELLIGENCE') {
+                document.getElementById('ci-farmer-name').textContent = payload.farmer_profile.name + ' History';
+                document.getElementById('ci-cluster').textContent = payload.farmer_profile.cluster;
+                document.getElementById('ci-bench-crop').textContent = payload.regional_benchmark.highest_yield_crop;
+                document.getElementById('ci-bench-yield').textContent = payload.regional_benchmark.highest_yield_value;
+                document.getElementById('ci-bench-qual').textContent = payload.regional_benchmark.highest_quality_value;
+                
+                const best_rec = payload.recommended_crops[0];
+                document.getElementById('ci-rec-crop').textContent = best_rec.crop;
+                document.getElementById('ci-rec-margin').textContent = best_rec.projected_profit_margin;
+                document.getElementById('ci-rot-safe').textContent = best_rec.rotation_safe ? 'ROTATION SAFE' : 'HIGH RISK';
+                document.getElementById('ci-rot-safe').className = best_rec.rotation_safe ? 'absolute top-0 right-0 bg-[#889a6b]/20 text-[#add4a8] text-[10px] px-2 py-1 font-bold rounded-bl-lg' : 'absolute top-0 right-0 bg-[#d58365]/20 text-[#e6a18d] text-[10px] px-2 py-1 font-bold rounded-bl-lg';
+                
+                const timelineHtml = payload.history_timeline.map(h => `
+                    <div class="border-l-2 border-[#d4aa57]/50 pl-3 py-1 mb-2">
+                        <p class="text-[#f4ecd9] font-bold text-sm">${h.season}: ${h.crop}</p>
+                        <p class="text-[#a7ad99] text-xs">Yield: ${h.yield_per_acre} q/ac | Score: ${h.trust}%</p>
+                    </div>
+                `).join('');
+                document.getElementById('ci-timeline').innerHTML = timelineHtml;
             }
             else if (action === 'RAG_INSIGHT') {
                 document.getElementById('rag-data').textContent = payload.raw_context;

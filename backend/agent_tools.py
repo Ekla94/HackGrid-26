@@ -1,7 +1,7 @@
 import datetime
 import random
 from sqlalchemy.orm import Session
-from models import Contract, BioChainVerification, ContractStatus
+from models import Contract, Farmer, HarvestRecord, BioChainVerification, ContractStatus
 
 def verify_biochain(db: Session, farmer_id: str, crop_name: str):
     # Simulated validation points based on real hackathon metrics
@@ -155,4 +155,87 @@ def get_rag_insights(db: Session):
     return {
         "raw_context": context,
         "trades_analyzed": len(contracts) + len(verifications)
+    }
+
+
+def get_farmer_history_and_recommendations(farmer_identifier: str, db: Session):
+    # Find farmer
+    farmer = db.query(Farmer).filter((Farmer.farmer_id == farmer_identifier) | (Farmer.name.ilike(f"%{farmer_identifier}%"))).first()
+    
+    if not farmer:
+        # Fallback to a known farmer for the hackathon demo if not found
+        farmer = db.query(Farmer).first()
+
+    if not farmer:
+        return {"error": "No farmer data found in database."}
+        
+    # Get farmer's harvest history
+    history = db.query(HarvestRecord).filter(HarvestRecord.farmer_id == farmer.farmer_id).order_by(HarvestRecord.harvest_date.desc()).limit(3).all()
+    
+    last_crop = history[0].crop_name if history else "Unknown"
+    last_family = history[0].crop_family if history else "Unknown"
+    
+    history_timeline = []
+    for h in history:
+        history_timeline.append({
+            "season": h.season,
+            "crop": h.crop_name,
+            "yield_per_acre": h.yield_per_acre,
+            "quality": h.quality_grade,
+            "trust": h.trust_score,
+            "profit_margin": h.net_profit_margin
+        })
+
+    # Regional Benchmark
+    regional_harvests = db.query(HarvestRecord).join(Farmer).filter(Farmer.cluster == farmer.cluster).all()
+    
+    best_yield_record = max(regional_harvests, key=lambda x: x.yield_per_acre, default=None)
+    best_quality_record = max(regional_harvests, key=lambda x: x.trust_score, default=None)
+    
+    regional_benchmark = {
+        "highest_yield_crop": best_yield_record.crop_name if best_yield_record else "N/A",
+        "highest_yield_value": best_yield_record.yield_per_acre if best_yield_record else 0,
+        "highest_quality_crop": best_quality_record.crop_name if best_quality_record else "N/A",
+        "highest_quality_value": best_quality_record.trust_score if best_quality_record else 0,
+    }
+
+    # Generate Recommendations
+    potential_crops = [
+        {"crop": "Tomato", "family": "Solanaceae", "base_yield": 125.0, "base_profit": 16.0},
+        {"crop": "Onion", "family": "Alliaceae", "base_yield": 105.0, "base_profit": 18.5},
+        {"crop": "Chilli", "family": "Solanaceae", "base_yield": 45.0, "base_profit": 22.0},
+        {"crop": "Soybean", "family": "Fabaceae", "base_yield": 12.0, "base_profit": 25.0},
+    ]
+    
+    recommendations = []
+    for pc in potential_crops:
+        # Rotation Logic: 40% penalty if same family
+        is_safe = pc["family"] != last_family
+        yield_proj = pc["base_yield"] * (1.0 if is_safe else 0.6)
+        profit_proj = pc["base_profit"] * (1.0 if is_safe else 0.6)
+        
+        recommendations.append({
+            "crop": pc["crop"],
+            "family": pc["family"],
+            "projected_yield": round(yield_proj, 1),
+            "projected_profit_margin": round(profit_proj, 1),
+            "rotation_safe": is_safe,
+            "warning": "High risk of soil depletion/pests" if not is_safe else "Optimal for soil health"
+        })
+        
+    # Sort by profit margin
+    recommendations.sort(key=lambda x: x["projected_profit_margin"], reverse=True)
+
+    return {
+        "farmer_profile": {
+            "id": farmer.farmer_id,
+            "name": farmer.name,
+            "land_size": farmer.land_size_acres,
+            "cluster": farmer.cluster,
+            "last_crop": last_crop,
+            "last_family": last_family
+        },
+        "history_timeline": history_timeline,
+        "regional_benchmark": regional_benchmark,
+        "recommended_crops": recommendations
     }

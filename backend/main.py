@@ -59,6 +59,8 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
         intent = "VERIFIED_CROP"
     elif "arbitrage" in msg or "margin" in msg or "market" in msg or "best buyer" in msg or "price" in msg or "best" in msg:
         intent = "FOUND_ARBITRAGE"
+    elif "yield" in msg or "plant" in msg or "history" in msg or "recommend" in msg or "intelligence" in msg:
+        intent = "FARMER_CROP_INTELLIGENCE"
     elif "contract" in msg or "draft" in msg or "agreement" in msg:
         intent = "DRAFTED_CONTRACT"
 
@@ -67,9 +69,17 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     if intent == "VERIFIED_CROP":
         crop = "Onions" if "onion" in msg else "Tomatoes"
         payload = agent_tools.verify_biochain(db, "FMR-007", crop)
-    elif intent == "FOUND_ARBITRAGE":
+    elif intent == "FARMER_CROP_INTELLIGENCE":
+                instruction = "Write a friendly, advisory response. Mention the farmer's last crop and its family, warn them against planting the same family again due to soil depletion, and explicitly state the top recommended rotation-safe crop and its projected profit margin."
+            elif intent == "FOUND_ARBITRAGE":
         crop = "onion" if "onion" in msg else "tomato"
         payload = agent_tools.calculate_arbitrage(crop, "nashik", 1000.0)
+    elif intent == "FARMER_CROP_INTELLIGENCE":
+        # Extract farmer id if present (FRM-XXXX)
+        import re
+        match = re.search(r"FRM-\d+", msg.upper())
+        fid = match.group(0) if match else "FRM-8842"
+        payload = agent_tools.get_farmer_history_and_recommendations(fid, db)
     elif intent == "DRAFTED_CONTRACT":
         crop = "Onions" if "onion" in msg else "Tomatoes"
         tons = 500 if "500" in msg else 10
