@@ -83,16 +83,16 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     
     if local_generator is not None:
         try:
-            # Tightly constrained prompt
+            # Construct a safe prompt combining the intent and the payload
             prompt = f"""<|system|>
-You are KhetiNex, a strict and concise AI broker. Summarize this data in exactly 1-2 conversational sentences. Speak directly to the user. Do not include any system tags or repeat the data.
+You are KhetiNex, an AI broker for farmers. Explain this data simply in 2 sentences.
 <|user|>
-Data to summarize: {payload}
+Action: {intent}
+Data: {payload}
 <|assistant|>
 """
-            # return_full_text=False forces the model to ONLY output the generated answer, removing the prompt entirely!
-            output = local_generator(prompt, max_new_tokens=60, do_sample=True, temperature=0.2, top_p=0.9, return_full_text=False)
-            agent_message = output[0]['generated_text'].strip()
+            output = local_generator(prompt, max_new_tokens=100, do_sample=True, temperature=0.6)
+            agent_message = output[0]['generated_text'].split("<|assistant|>\\n")[-1].strip()
         except Exception as e:
             agent_message = f"I've successfully executed {intent}, but my language generator encountered an error: {str(e)}"
     else:
