@@ -1,9 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import datetime
+from database import SessionLocal, engine, Base
+from models import Contract, ContractStatus
+from sqlalchemy.orm import Session
 
-app = FastAPI(title="MandiSpread API Engine", version="1.0.0")
+# Create tables if they don't exist
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="KhetiNex API Engine", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,6 +19,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Dependency to get DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 class ContractRequest(BaseModel):
     fpo: str
     buyer: str
@@ -21,7 +35,7 @@ class ContractRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"status": "ONLINE", "system": "MandiSpread Core Engine"}
+    return {"status": "ONLINE", "system": "KhetiNex Core Engine"}
 
 @app.get("/api/arbitrage")
 def calculate_arbitrage(crop: str, source_city: str, quantity_kg: float):
@@ -42,7 +56,7 @@ def calculate_arbitrage(crop: str, source_city: str, quantity_kg: float):
     }
 
 @app.post("/api/contract")
-def generate_contract(req: ContractRequest):
+def generate_contract(req: ContractRequest, db: Session = Depends(get_db)):
     total = req.tons * 1000 * 48.0
     text = f"""====================================================
 B2B AGRICULTURAL FORWARD CONTRACT (GENAI ESCROW)
@@ -58,4 +72,19 @@ AI CLAUSE GENERATION:
 2. Weighbridge Release: 70% released upon physical mandi delivery.
 3. Spoilage Limit: Maximum allowable transit loss capped at 4%.
 ===================================================="""
-    return {"contract": text, "status": "DRAFT", "engine": "genai-edge-node"}
+    
+    # Save to the SQLite Database to prove it works!
+    new_contract = Contract(
+        buyer_id=1,   # Dummy ID
+        seller_id=2,  # Dummy ID
+        batch_id=1,   # Dummy ID
+        total_amount=total,
+        contract_text=text,
+        status=ContractStatus.SIGNED,
+        escrow_released=False
+    )
+    db.add(new_contract)
+    db.commit()
+    db.refresh(new_contract)
+
+    return {"contract": text, "status": "SIGNED", "engine": "genai-edge-node", "contract_id": new_contract.id}
