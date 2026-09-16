@@ -91,8 +91,10 @@ Action: {intent}
 Data: {payload}
 <|assistant|>
 """
-            output = local_generator(prompt, max_new_tokens=100, do_sample=True, temperature=0.6)
-            agent_message = output[0]['generated_text'].split("<|assistant|>\\n")[-1].strip()
+            output = local_generator(prompt, max_new_tokens=100, do_sample=False, return_full_text=False)
+            agent_message = output[0]['generated_text'].strip()
+            if "<|assistant|>" in agent_message:
+                agent_message = agent_message.split("<|assistant|>")[-1].strip()
         except Exception as e:
             agent_message = f"I've successfully executed {intent}, but my language generator encountered an error: {str(e)}"
     else:

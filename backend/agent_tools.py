@@ -103,8 +103,10 @@ Draft a B2B Agricultural Forward Contract between Seller: {fpo} and Buyer: {buye
     text = ""
     if ai_model is not None:
         try:
-            output = ai_model(prompt, max_new_tokens=250, do_sample=True, temperature=0.7)
-            text = output[0]['generated_text'].split("<|assistant|>\\n")[-1].strip()
+            output = ai_model(prompt, max_new_tokens=250, do_sample=False, return_full_text=False)
+            text = output[0]['generated_text'].strip()
+            if "<|assistant|>" in text:
+                text = text.split("<|assistant|>")[-1].strip()
         except Exception as e:
             text = f"AI Error: {str(e)}"
     else:
