@@ -3,9 +3,9 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # We use SQLite for the hackathon as it requires no separate server setup
-# and stores everything in a local file (mandispread.db) inside the backend folder.
+# and stores everything in a local file (khetinex.db) inside the backend folder.
 # It is extremely fast to set up and perfect for MVP prototypes.
-SQLALCHEMY_DATABASE_URL = "sqlite:///./mandispread.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./khetinex.db"
 
 # Setting check_same_thread=False is needed for SQLite when used with FastAPI
 engine = create_engine(

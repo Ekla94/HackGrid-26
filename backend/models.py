@@ -56,7 +56,7 @@ class CropBatch(Base):
 
 class MarketPrice(Base):
     __tablename__ = "market_prices"
-    # Related to Module 2: MandiSpread Price-Arbitrage Engine
+    # Related to Module 2: KhetiNex Price-Arbitrage Engine
 
     id = Column(Integer, primary_key=True, index=True)
     crop_name = Column(String, index=True)
