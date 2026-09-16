@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-from .models import UserRole, ContractStatus
+from models import UserRole, ContractStatus
 
 # --- Module 2 Schemas ---
 
@@ -20,10 +20,10 @@ class ArbitrageResponse(BaseModel):
 # --- Module 4 Schemas ---
 
 class ContractCreate(BaseModel):
-    buyer_id: int
-    seller_id: int
-    batch_id: int
-    total_amount: float
+    fpo: str
+    buyer: str
+    crop: str
+    tons: int
 
 class ContractResponse(BaseModel):
     id: int
