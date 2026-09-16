@@ -42,6 +42,7 @@
                 <button onclick="sendPrompt('Draft a B2B contract for 500 MT Onions')" class="text-xs bg-[#121511] hover:bg-[#22291f] text-[#a7ad99] border border-[#d4aa57]/30 rounded-full px-3 py-1 transition">📝 Draft Smart Contract</button>
                 <button onclick="sendPrompt('Show RAG insights from past trades')" class="text-xs bg-[#121511] hover:bg-[#22291f] text-[#a7ad99] border border-[#d4aa57]/30 rounded-full px-3 py-1 transition">📊 Past Trade Insights</button>
                 <button onclick="sendPrompt('What should Farmer FRM-8842 plant next?')" class="text-xs bg-[#121511] hover:bg-[#22291f] text-[#a7ad99] border border-[#d4aa57]/30 rounded-full px-3 py-1 transition">🌱 Crop Intelligence</button>
+                <button onclick="sendPrompt('Show me the database for Review 2')" class="text-xs bg-[#121511] hover:bg-[#22291f] text-[#a7ad99] border border-[#d4aa57]/30 rounded-full px-3 py-1 transition">🗄️ View Database</button>
             </div>
             <form id="chat-form" class="flex items-center">
                 <input type="text" id="chat-input" class="flex-1 border border-[#d4aa57]/30 bg-[#121511] text-[#f4ecd9] rounded-l-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4aa57]" placeholder="Ask KhetiNex to execute a task...">
@@ -144,6 +145,46 @@
             </div>
             <!-- Regional Map -->
             <div id="map-ci" class="w-full h-48 bg-[#22291f] rounded-lg shadow-sm z-0 relative mt-4"></div>
+        </div>
+
+        
+        <!-- Database View Layer -->
+        <div id="canvas-VIEW_DATABASE" class="canvas-pane max-w-3xl mx-auto space-y-4">
+            <h2 class="text-2xl font-bold text-[#f4ecd9] border-b border-[#d4aa57]/20 pb-2">KhetiNex Database Explorer</h2>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Farmers Table -->
+                <div class="bg-[#1b2119] p-4 rounded-lg shadow-sm border border-[#d4aa57]/20">
+                    <h3 class="text-sm font-bold text-[#a7ad99] uppercase mb-3"><svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg> Farmers Table</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-[#f4ecd9]">
+                            <thead class="text-[#a7ad99] border-b border-[#889a6b]/30">
+                                <tr><th class="pb-1">ID</th><th class="pb-1">Name</th><th class="pb-1">Cluster</th></tr>
+                            </thead>
+                            <tbody id="db-farmers-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Harvests Table -->
+                <div class="bg-[#1b2119] p-4 rounded-lg shadow-sm border border-[#d4aa57]/20">
+                    <h3 class="text-sm font-bold text-[#a7ad99] uppercase mb-3"><svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg> Harvests Table</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-[#f4ecd9]">
+                            <thead class="text-[#a7ad99] border-b border-[#889a6b]/30">
+                                <tr><th class="pb-1">Farmer</th><th class="pb-1">Crop</th><th class="pb-1">Yield</th></tr>
+                            </thead>
+                            <tbody id="db-harvests-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-[#22291f] p-4 rounded-lg border border-[#889a6b]/50">
+                <h3 class="text-xs font-bold text-[#a7ad99] uppercase mb-2">System Status</h3>
+                <p class="text-sm text-[#add4a8]">✅ Connected to SQLite (khetinex.db)</p>
+                <p class="text-xs text-[#6f776b] mt-1">Live data queried by Agent Core.</p>
+            </div>
         </div>
 
         <!-- RAG Insights Layer -->
@@ -290,6 +331,13 @@
                 L.marker(coords).addTo(window.ciMap).bindPopup(popupContent).openPopup();
                 
                 setTimeout(() => window.ciMap.invalidateSize(), 150);
+            }
+            else if (action === 'VIEW_DATABASE') {
+                const fBody = payload.farmers.map(f => `<tr class="border-b border-[#889a6b]/10"><td class="py-1">${f.id}</td><td>${f.name}</td><td>${f.cluster}</td></tr>`).join('');
+                document.getElementById('db-farmers-body').innerHTML = fBody;
+                
+                const hBody = payload.harvests.map(h => `<tr class="border-b border-[#889a6b]/10"><td class="py-1">${h.farmer}</td><td>${h.crop}</td><td class="text-[#e5ba61]">${h.yield}</td></tr>`).join('');
+                document.getElementById('db-harvests-body').innerHTML = hBody;
             }
             else if (action === 'RAG_INSIGHT') {
                 document.getElementById('rag-data').textContent = payload.raw_context;

@@ -239,3 +239,15 @@ def get_farmer_history_and_recommendations(farmer_identifier: str, db: Session):
         "regional_benchmark": regional_benchmark,
         "recommended_crops": recommendations
     }
+
+
+def get_database_summary(db: Session):
+    farmers = db.query(Farmer).all()
+    harvests = db.query(HarvestRecord).limit(5).all()
+    contracts = db.query(Contract).limit(5).all()
+    
+    return {
+        "farmers": [{"id": f.farmer_id, "name": f.name, "cluster": f.cluster, "acres": f.land_size_acres} for f in farmers],
+        "harvests": [{"farmer": h.farmer_id, "crop": h.crop_name, "yield": h.yield_per_acre, "grade": h.quality_grade} for h in harvests],
+        "contracts": [{"id": c.id, "seller": c.seller_id, "buyer": c.buyer_id, "amount": c.total_amount, "status": c.status.value if hasattr(c.status, 'value') else str(c.status)} for c in contracts]
+    }

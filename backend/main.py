@@ -61,6 +61,8 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
         intent = "FOUND_ARBITRAGE"
     elif "yield" in msg or "plant" in msg or "history" in msg or "recommend" in msg or "intelligence" in msg:
         intent = "FARMER_CROP_INTELLIGENCE"
+    elif "database" in msg or "schema" in msg or "review" in msg:
+        intent = "VIEW_DATABASE"
     elif "contract" in msg or "draft" in msg or "agreement" in msg:
         intent = "DRAFTED_CONTRACT"
 
@@ -78,6 +80,8 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
         match = re.search(r"FRM-\d+", msg.upper())
         fid = match.group(0) if match else "FRM-8842"
         payload = agent_tools.get_farmer_history_and_recommendations(fid, db)
+    elif intent == "VIEW_DATABASE":
+        payload = agent_tools.get_database_summary(db)
     elif intent == "DRAFTED_CONTRACT":
         crop = "Onions" if "onion" in msg else "Tomatoes"
         tons = 500 if "500" in msg else 10
@@ -99,6 +103,8 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
                 instruction = "Write 1 very short sentence confirming the Farmer ID, crop, and trust score."
             elif intent == "FARMER_CROP_INTELLIGENCE":
                 instruction = "Write 1 very short sentence advising against their last crop family, and recommend the best rotation-safe crop."
+            elif intent == "VIEW_DATABASE":
+                instruction = "Write 1 short sentence presenting the database tables."
             elif intent == "RAG_INSIGHT":
                 instruction = "Write a short, natural sentence summarizing the total number of recent trades and the average trust score. Do not list individual trades."
             
