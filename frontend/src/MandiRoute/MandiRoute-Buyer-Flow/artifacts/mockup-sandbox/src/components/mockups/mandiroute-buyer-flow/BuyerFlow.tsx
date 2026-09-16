@@ -1389,7 +1389,7 @@ export const handleGenerateContract = async (fpo: string, buyer: string, crop: s
   }
 };
 
-export function BuyerFlow() {
+function BuyerFlowInternal() {
   const [contractData, setContractData] = useState(null);
 
   const [screen, setScreen] = useState<FlowScreen>("welcome");
@@ -1458,4 +1458,53 @@ export function BuyerFlow() {
     return <FarmerPayoutScreen onBack={back} />;
   }
   return <SettlementScreen onBack={back} />;
+}
+
+export function BuyerFlow() {
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <BuyerFlowInternal />
+
+      {/* Floating Action Button */}
+      <button
+        onClick={() => setIsCopilotOpen(true)}
+        style={{
+          position: "fixed", bottom: "24px", right: "24px", zIndex: 9999,
+          backgroundColor: "#16a34a", color: "white", padding: "16px 24px",
+          borderRadius: "9999px", boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
+          border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px",
+          fontWeight: "bold", fontSize: "16px"
+        }}
+      >
+        <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+        <span>KhetiNex AI</span>
+      </button>
+
+      {/* Modal Overlay */}
+      {isCopilotOpen && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+          backgroundColor: "rgba(0,0,0,0.7)", zIndex: 10000,
+          display: "flex", alignItems: "center", justifyContent: "center", padding: "24px"
+        }}>
+          <div style={{
+            backgroundColor: "white", width: "100%", maxWidth: "1280px", height: "90%",
+            borderRadius: "16px", overflow: "hidden", display: "flex", flexDirection: "column",
+            border: "4px solid #16a34a"
+          }}>
+            <div style={{ backgroundColor: "#166534", padding: "16px 24px", display: "flex", justifyContent: "space-between", color: "white" }}>
+              <h3 style={{ margin: 0, display: "flex", alignItems: "center", fontSize: "18px", fontWeight: "bold" }}>
+                <svg width="20" height="20" style={{ marginRight: "8px" }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                KhetiNex Autonomous Copilot
+              </h3>
+              <button onClick={() => setIsCopilotOpen(false)} style={{ background: "none", border: "none", color: "white", fontSize: "24px", cursor: "pointer" }}>✕</button>
+            </div>
+            <iframe src="/copilot.html" style={{ flex: 1, border: "none", width: "100%", height: "100%" }} title="AI Copilot" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
