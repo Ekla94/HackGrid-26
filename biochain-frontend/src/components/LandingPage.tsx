@@ -6,56 +6,56 @@ interface LandingPageProps {
 
 export default function LandingPage({ onNavigate }: LandingPageProps) {
   return (
-    <div className="flex flex-col min-h-screen bg-black font-sans w-full text-zinc-200 overflow-x-hidden">
+    <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-black font-sans w-full text-stone-800 dark:text-zinc-200 overflow-x-hidden transition-colors duration-500">
       {/* Hero Section */}
-      <section className="relative bg-zinc-950 text-white overflow-hidden py-24 sm:py-32 flex-1 border-b border-amber-500/20">
+      <section className="relative bg-emerald-50 dark:bg-zinc-950 text-stone-900 dark:text-white overflow-hidden py-24 sm:py-32 flex-1 border-b border-emerald-500/20 dark:border-amber-500/20 transition-colors duration-500">
         <div className="absolute inset-0 overflow-hidden">
-           <div className="absolute inset-0 bg-black opacity-60"></div>
-           {/* Abstract gold shapes */}
-           <div className="absolute top-0 right-0 w-96 h-96 bg-amber-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-blob"></div>
-           <div className="absolute bottom-0 left-0 w-96 h-96 bg-yellow-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-blob animation-delay-2000"></div>
+           <div className="absolute inset-0 bg-stone-100 dark:bg-black opacity-60 dark:opacity-60 transition-colors duration-500"></div>
+           {/* Abstract shapes */}
+           <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-600 dark:bg-amber-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-20 animate-blob transition-colors duration-500"></div>
+           <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-500 dark:bg-yellow-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-20 animate-blob animation-delay-2000 transition-colors duration-500"></div>
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest mb-6 opacity-0 animate-slide-up-fade">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-600/10 dark:bg-amber-500/10 border border-emerald-600/30 dark:border-amber-500/30 text-emerald-700 dark:text-amber-400 text-xs font-bold uppercase tracking-widest mb-6 opacity-0 animate-slide-up-fade">
             Autonomous Agri-Brokerage & BioChain Exchange
           </div>
           
-          <h1 className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter mb-4 leading-none text-white opacity-0 animate-slide-up-fade animation-delay-500">
+          <h1 className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter mb-4 leading-none text-stone-900 dark:text-white opacity-0 animate-slide-up-fade animation-delay-500">
             Welcome to <br className="hidden md:block"/>
             <div className="relative inline-block mt-2">
-              <span className="absolute -inset-2 bg-gradient-to-r from-amber-500 to-yellow-600 blur-2xl opacity-20 animate-pulse rounded-full"></span>
-              <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-500 to-orange-500 bg-size-200 animate-text-shimmer animate-glow font-extrabold tracking-widest">
+              <span className="absolute -inset-2 bg-gradient-to-r from-emerald-500 to-green-600 dark:from-amber-500 dark:to-yellow-600 blur-2xl opacity-20 animate-pulse rounded-full transition-colors duration-500"></span>
+              <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 dark:from-amber-300 dark:via-yellow-500 dark:to-orange-500 bg-size-200 animate-text-shimmer animate-glow font-extrabold tracking-widest">
                 KhetiNex
               </span>
             </div>
           </h1>
           
-          <p className="mt-6 text-xl sm:text-2xl text-zinc-400 max-w-3xl mx-auto mb-12 leading-relaxed opacity-0 animate-slide-up-fade animation-delay-1000">
+          <p className="mt-6 text-xl sm:text-2xl text-stone-600 dark:text-zinc-400 max-w-3xl mx-auto mb-12 leading-relaxed opacity-0 animate-slide-up-fade animation-delay-1000">
             Direct institutional commodity trading, AI forward smart contracts, cross-mandi arbitrage, and multi-spectral satellite proof on an immutable blockchain ledger.
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 opacity-0 animate-slide-up-fade animation-delay-2000">
             <button 
               onClick={() => onNavigate('portal')}
-              className="px-7 py-3.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-extrabold rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2.5 text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
+              className="px-7 py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 dark:from-amber-500 dark:to-yellow-600 hover:from-emerald-400 hover:to-green-500 dark:hover:from-amber-400 dark:hover:to-yellow-500 text-white dark:text-black font-extrabold rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(5,150,105,0.3)] dark:shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(5,150,105,0.5)] dark:hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2.5 text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
             >
               Open Trading Desk <ArrowRight className="w-5 h-5" />
             </button>
             <button 
               onClick={() => onNavigate('arbitrage')}
-              className="px-7 py-3.5 bg-zinc-900 border border-amber-500/50 hover:bg-zinc-800 text-amber-400 font-bold rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
+              className="px-7 py-3.5 bg-white dark:bg-zinc-900 border border-emerald-500/50 dark:border-amber-500/50 hover:bg-stone-50 dark:hover:bg-zinc-800 text-emerald-700 dark:text-amber-400 font-bold rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer shadow-sm"
             >
               Mandi Arbitrage Engine
             </button>
             <button 
               onClick={() => onNavigate('contracts')}
-              className="px-7 py-3.5 bg-zinc-900 border border-zinc-700 hover:border-amber-500 text-zinc-200 font-bold rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
+              className="px-7 py-3.5 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 hover:border-emerald-500 dark:hover:border-amber-500 text-stone-700 dark:text-zinc-200 font-bold rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer shadow-sm"
             >
               AI Contract Studio
             </button>
             <button 
               onClick={() => onNavigate('dashboard')}
-              className="px-7 py-3.5 bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-white font-semibold rounded-full transition-all duration-300 flex items-center justify-center text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
+              className="px-7 py-3.5 bg-stone-50/60 dark:bg-zinc-900/60 border border-stone-200 dark:border-zinc-800 hover:border-emerald-600 dark:hover:border-zinc-600 text-stone-600 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-white font-semibold rounded-full transition-all duration-300 flex items-center justify-center text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
             >
               Verification Hub
             </button>
@@ -64,49 +64,49 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-black" id="features">
+      <section className="py-24 bg-stone-100 dark:bg-black transition-colors duration-500" id="features">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-4xl font-bold text-white tracking-tight">Why Choose KhetiNex?</h2>
-            <p className="mt-4 text-xl text-zinc-400 max-w-2xl mx-auto">Our 5-Layer Verification ensures trust from farm to fork, empowering farmers and guaranteeing quality for buyers.</p>
+            <h2 className="text-4xl font-bold text-stone-900 dark:text-white tracking-tight">Why Choose KhetiNex?</h2>
+            <p className="mt-4 text-xl text-stone-600 dark:text-zinc-400 max-w-2xl mx-auto">Our 5-Layer Verification ensures trust from farm to fork, empowering farmers and guaranteeing quality for buyers.</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="p-8 bg-zinc-950 rounded-3xl border border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
-              <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mb-6 border border-amber-500/20">
+            <div className="p-8 bg-white dark:bg-zinc-950 rounded-3xl border border-stone-200 dark:border-zinc-800 shadow-sm hover:border-emerald-500/50 dark:hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(5,150,105,0.1)] dark:hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+              <div className="w-16 h-16 bg-emerald-600/10 dark:bg-amber-500/10 text-emerald-600 dark:text-amber-500 rounded-2xl flex items-center justify-center mb-6 border border-emerald-600/20 dark:border-amber-500/20">
                 <Globe className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Satellite & NDVI Sync</h3>
-              <p className="text-zinc-400 text-lg leading-relaxed">Continuous monitoring of crop health through multi-spectral satellite imagery to guarantee biomass volume and health directly from space.</p>
+              <h3 className="text-2xl font-bold text-stone-900 dark:text-white mb-4">Satellite & NDVI Sync</h3>
+              <p className="text-stone-600 dark:text-zinc-400 text-lg leading-relaxed">Continuous monitoring of crop health through multi-spectral satellite imagery to guarantee biomass volume and health directly from space.</p>
             </div>
             
-            <div className="p-8 bg-zinc-950 rounded-3xl border border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
-              <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mb-6 border border-amber-500/20">
+            <div className="p-8 bg-white dark:bg-zinc-950 rounded-3xl border border-stone-200 dark:border-zinc-800 shadow-sm hover:border-emerald-500/50 dark:hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(5,150,105,0.1)] dark:hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+              <div className="w-16 h-16 bg-emerald-600/10 dark:bg-amber-500/10 text-emerald-600 dark:text-amber-500 rounded-2xl flex items-center justify-center mb-6 border border-emerald-600/20 dark:border-amber-500/20">
                 <Shield className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Immutable Blockchain</h3>
-              <p className="text-zinc-400 text-lg leading-relaxed">Every verification step is hashed on our BioChain, providing an unalterable audit trail for premium buyers and preventing fraud.</p>
+              <h3 className="text-2xl font-bold text-stone-900 dark:text-white mb-4">Immutable Blockchain</h3>
+              <p className="text-stone-600 dark:text-zinc-400 text-lg leading-relaxed">Every verification step is hashed on our BioChain, providing an unalterable audit trail for premium buyers and preventing fraud.</p>
             </div>
 
-            <div className="p-8 bg-zinc-950 rounded-3xl border border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
-              <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mb-6 border border-amber-500/20">
+            <div className="p-8 bg-white dark:bg-zinc-950 rounded-3xl border border-stone-200 dark:border-zinc-800 shadow-sm hover:border-emerald-500/50 dark:hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(5,150,105,0.1)] dark:hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+              <div className="w-16 h-16 bg-emerald-600/10 dark:bg-amber-500/10 text-emerald-600 dark:text-amber-500 rounded-2xl flex items-center justify-center mb-6 border border-emerald-600/20 dark:border-amber-500/20">
                 <TrendingUp className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">AI-Driven Arbitrage</h3>
-              <p className="text-zinc-400 text-lg leading-relaxed">Our autonomous Copilot dynamically identifies the most profitable markets and buyers for your specific verified crop profile.</p>
+              <h3 className="text-2xl font-bold text-stone-900 dark:text-white mb-4">AI-Driven Arbitrage</h3>
+              <p className="text-stone-600 dark:text-zinc-400 text-lg leading-relaxed">Our autonomous Copilot dynamically identifies the most profitable markets and buyers for your specific verified crop profile.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-zinc-950 py-20 border-t border-b border-zinc-900">
+      <section className="bg-stone-50 dark:bg-zinc-950 py-20 border-t border-b border-stone-200 dark:border-zinc-900 transition-colors duration-500">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">Ready to maximize your yield value?</h2>
-          <p className="text-xl text-zinc-400 mb-10">Join thousands of verified farmers on the BioChain network.</p>
+          <h2 className="text-3xl font-bold text-stone-900 dark:text-white mb-6">Ready to maximize your yield value?</h2>
+          <p className="text-xl text-stone-600 dark:text-zinc-400 mb-10">Join thousands of verified farmers on the BioChain network.</p>
           <button 
             onClick={() => onNavigate('registration')}
-            className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(245,158,11,0.6)] text-lg"
+            className="px-8 py-4 bg-emerald-600 dark:bg-amber-500 hover:bg-emerald-500 dark:hover:bg-amber-400 text-white dark:text-black font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_0_15px_rgba(5,150,105,0.4)] dark:shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(5,150,105,0.6)] dark:hover:shadow-[0_0_25px_rgba(245,158,11,0.6)] text-lg"
           >
             Get Started Now
           </button>
@@ -114,17 +114,17 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black text-zinc-500 py-12">
+      <footer className="bg-white dark:bg-black text-stone-500 dark:text-zinc-500 py-12 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center">
-            <Leaf className="w-8 h-8 text-amber-500 mr-3" />
-            <span className="font-bold text-2xl tracking-wide text-white">KhetiNex</span>
+            <Leaf className="w-8 h-8 text-emerald-600 dark:text-amber-500 mr-3" />
+            <span className="font-bold text-2xl tracking-wide text-stone-900 dark:text-white">KhetiNex</span>
           </div>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-amber-500 transition-colors">Platform</a>
-            <a href="#" className="hover:text-amber-500 transition-colors">Technology</a>
-            <a href="#" className="hover:text-amber-500 transition-colors">About Us</a>
-            <a href="#" className="hover:text-amber-500 transition-colors">Contact</a>
+            <a href="#" className="hover:text-emerald-600 dark:hover:text-amber-500 transition-colors">Platform</a>
+            <a href="#" className="hover:text-emerald-600 dark:hover:text-amber-500 transition-colors">Technology</a>
+            <a href="#" className="hover:text-emerald-600 dark:hover:text-amber-500 transition-colors">About Us</a>
+            <a href="#" className="hover:text-emerald-600 dark:hover:text-amber-500 transition-colors">Contact</a>
           </div>
           <div className="text-sm">
             &copy; {new Date().getFullYear()} KhetiNex. All rights reserved.

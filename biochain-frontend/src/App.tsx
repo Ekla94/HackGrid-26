@@ -17,7 +17,8 @@ import {
   X, 
   Sparkles,
   ArrowRight,
-  Crown
+  Sun,
+  Moon
 } from 'lucide-react';
 
 export type AppView = 'home' | 'portal' | 'arbitrage' | 'contracts' | 'dashboard' | 'registration';
@@ -28,6 +29,7 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
   const [isPro, setIsPro] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [contractParams, setContractParams] = useState<{ crop: string; tons: number }>({
     crop: 'Soybean',
     tons: 50,
@@ -63,9 +65,10 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col w-full bg-black text-zinc-100 font-sans overflow-x-hidden">
-      {/* Website Navigation Header */}
-      <header className="bg-zinc-950/90 backdrop-blur-md sticky top-0 z-40 w-full shadow-lg border-b border-amber-500/20">
+    <div className={`${isDarkMode ? 'dark' : ''}`}>
+      <div className="min-h-screen flex flex-col w-full bg-stone-50 dark:bg-black text-stone-900 dark:text-zinc-100 font-sans overflow-x-hidden transition-colors duration-500">
+        {/* Website Navigation Header */}
+        <header className="bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md sticky top-0 z-40 w-full shadow-lg border-b border-emerald-500/20 dark:border-amber-500/20 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             
@@ -74,14 +77,14 @@ function App() {
               className="flex items-center cursor-pointer group"
               onClick={() => { setView('home'); setMobileMenuOpen(false); }}
             >
-              <div className="bg-amber-500/10 p-2.5 rounded-xl mr-3 group-hover:bg-amber-500/20 transition-all border border-amber-500/30 group-hover:border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
-                <Leaf className="w-6 h-6 text-amber-500 transition-transform group-hover:scale-105" />
+              <div className="bg-emerald-600/10 dark:bg-amber-500/10 p-2.5 rounded-xl mr-3 group-hover:bg-emerald-600/20 dark:group-hover:bg-amber-500/20 transition-all border border-emerald-600/30 dark:border-amber-500/30 group-hover:border-emerald-600/50 dark:group-hover:border-amber-500/50 shadow-[0_0_15px_rgba(5,150,105,0.15)] dark:shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+                <Leaf className="w-6 h-6 text-emerald-600 dark:text-amber-500 transition-transform group-hover:scale-105" />
               </div>
               <div className="flex flex-col">
-                <span className="font-extrabold text-2xl tracking-tight text-white group-hover:text-amber-400 transition-colors">
+                <span className="font-extrabold text-2xl tracking-tight text-stone-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-amber-400 transition-colors">
                   KhetiNex
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500/80 -mt-1">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-700/80 dark:text-amber-500/80 -mt-1">
                   BioChain Exchange
                 </span>
               </div>
@@ -97,15 +100,15 @@ function App() {
                     onClick={() => setView(item.id as AppView)}
                     className={`relative text-[10px] xl:text-xs uppercase tracking-wider font-bold transition-all duration-300 ease-in-out px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg flex items-center gap-1.5 cursor-pointer ${
                       isActive 
-                        ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.15)] scale-105' 
-                        : 'text-zinc-400 hover:text-white hover:bg-zinc-900/60 hover:scale-105'
+                        ? 'text-emerald-700 dark:text-amber-400 bg-emerald-600/10 dark:bg-amber-500/10 border border-emerald-600/30 dark:border-amber-500/30 shadow-[0_0_10px_rgba(5,150,105,0.15)] dark:shadow-[0_0_10px_rgba(245,158,11,0.15)] scale-105' 
+                        : 'text-stone-500 dark:text-zinc-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200/60 dark:hover:bg-zinc-900/60 hover:scale-105'
                     }`}
                   >
                     <item.icon className="w-3.5 h-3.5 shrink-0" />
                     <span className="hidden xl:inline">{item.label}</span>
                     <span className="xl:hidden">{item.label.split(' ')[0]}</span>
                     {item.badge && (
-                      <span className="ml-0.5 text-[8px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      <span className="ml-0.5 text-[8px] px-1 py-0.5 rounded bg-emerald-600/20 dark:bg-amber-500/20 text-emerald-700 dark:text-amber-300 border border-emerald-600/30 dark:border-amber-500/30">
                         {item.badge}
                       </span>
                     )}
@@ -116,14 +119,21 @@ function App() {
             
             {/* Header Right Actions */}
             <div className="hidden lg:flex items-center gap-2 xl:gap-3">
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className="p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors text-stone-600 dark:text-zinc-400 hover:text-stone-900 dark:hover:text-white shrink-0"
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+
               {isPro ? (
-                <div className="flex items-center gap-1 text-[10px] xl:text-xs uppercase font-bold text-amber-500 bg-amber-900/20 px-3 py-1.5 rounded-full border border-amber-500/30 transition-all duration-300 shrink-0">
+                <div className="flex items-center gap-1 text-[10px] xl:text-xs uppercase font-bold text-emerald-700 dark:text-amber-500 bg-emerald-900/10 dark:bg-amber-900/20 px-3 py-1.5 rounded-full border border-emerald-500/30 dark:border-amber-500/30 transition-all duration-300 shrink-0">
                   <Crown className="w-3.5 h-3.5" /> PRO
                 </div>
               ) : (
                 <button 
                   onClick={() => setIsSubModalOpen(true)}
-                  className="text-[10px] xl:text-xs uppercase font-bold text-black bg-white hover:bg-zinc-200 px-3 py-1.5 xl:px-4 xl:py-2 rounded-full transition-all duration-300 hover:scale-105 cursor-pointer shrink-0"
+                  className="text-[10px] xl:text-xs uppercase font-bold text-white dark:text-black bg-stone-900 dark:bg-white hover:bg-stone-700 dark:hover:bg-zinc-200 px-3 py-1.5 xl:px-4 xl:py-2 rounded-full transition-all duration-300 hover:scale-105 cursor-pointer shrink-0"
                 >
                   Upgrade
                 </button>
@@ -131,15 +141,15 @@ function App() {
 
               <button 
                 onClick={() => setIsCopilotOpen(true)}
-                className="flex items-center gap-1.5 text-[10px] xl:text-xs uppercase tracking-wider font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-3 py-1.5 xl:px-4 xl:py-2.5 rounded-full transition-all duration-300 hover:border-amber-400 hover:scale-105 shadow-[0_0_15px_rgba(245,158,11,0.15)] border border-amber-500/40 cursor-pointer shrink-0"
+                className="flex items-center gap-1.5 text-[10px] xl:text-xs uppercase tracking-wider font-bold text-emerald-600 dark:text-amber-400 bg-emerald-600/10 dark:bg-amber-500/10 hover:bg-emerald-600/20 dark:hover:bg-amber-500/20 px-3 py-1.5 xl:px-4 xl:py-2.5 rounded-full transition-all duration-300 hover:border-emerald-600 dark:hover:border-amber-400 hover:scale-105 shadow-[0_0_15px_rgba(5,150,105,0.15)] dark:shadow-[0_0_15px_rgba(245,158,11,0.15)] border border-emerald-500/40 dark:border-amber-500/40 cursor-pointer shrink-0"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-amber-400" />
                 Copilot
               </button>
               
               <button 
                 onClick={() => setView('portal')}
-                className="text-[10px] xl:text-xs uppercase tracking-wider font-extrabold bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black px-4 py-1.5 xl:px-5 xl:py-2.5 rounded-full transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] cursor-pointer flex items-center gap-1 shrink-0"
+                className="text-[10px] xl:text-xs uppercase tracking-wider font-extrabold bg-gradient-to-r from-emerald-500 to-green-600 dark:from-amber-500 dark:to-yellow-600 hover:from-emerald-400 hover:to-green-500 dark:hover:from-amber-400 dark:hover:to-yellow-500 text-white dark:text-black px-4 py-1.5 xl:px-5 xl:py-2.5 rounded-full transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(5,150,105,0.3)] dark:shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(5,150,105,0.5)] dark:hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] cursor-pointer flex items-center gap-1 shrink-0"
               >
                 Trade
                 <ArrowRight className="w-3 h-3 xl:w-3.5 xl:h-3.5" />
