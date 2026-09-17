@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MapPin, Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function FarmerRegistration() {

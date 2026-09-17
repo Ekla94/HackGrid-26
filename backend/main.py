@@ -129,3 +129,26 @@ def biochain_recommend(req: dict, db: Session = Depends(get_db)):
         "bestCrop": {"name": "Soybeans", "score": 0.95},
         "bestBuyer": {"name": "AgriFoods Inc", "pricePremium": 1.15, "qualityReq": 85, "distance": 45}
     }
+
+@app.get("/api/arbitrage")
+def get_arbitrage(crop: str = "Tomato", fpo_location: str = "Nashik", quantity_kg: float = 1000.0):
+    result = agent_tools.calculate_arbitrage(crop, fpo_location, quantity_kg)
+    result["profit"] = result.get("net_profit", 0)
+    result["market"] = f"{result.get('best_market')} APMC"
+    result["details"] = f"Gross revenue: INR {result.get('gross_revenue', 0):,.0f}, Freight cost: INR {result.get('transport_cost', 0):,.0f}"
+    return result
+
+@app.get("/api/logistics")
+def get_logistics():
+    return {
+        "active_fleets": 24,
+        "cold_storage_units": 8,
+        "avg_freight_per_km": 35.0,
+        "monitored_corridors": [
+            {"corridor": "Nashik - Mumbai", "distance_km": 165, "transit_hours": 4.5, "status": "OPTIMAL", "cost_inr": 5775},
+            {"corridor": "Pune - Mumbai", "distance_km": 150, "transit_hours": 3.8, "status": "OPTIMAL", "cost_inr": 5250},
+            {"corridor": "Agra - Delhi", "distance_km": 210, "transit_hours": 4.2, "status": "HEAVY_TRAFFIC", "cost_inr": 7350},
+            {"corridor": "Bangalore - Chennai", "distance_km": 340, "transit_hours": 6.5, "status": "OPTIMAL", "cost_inr": 11900}
+        ]
+    }
+

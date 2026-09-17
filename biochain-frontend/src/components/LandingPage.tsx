@@ -1,15 +1,14 @@
-import React from 'react';
 import { ArrowRight, Shield, TrendingUp, Globe, Leaf } from 'lucide-react';
 
 interface LandingPageProps {
-  onNavigate: (view: 'registration' | 'dashboard') => void;
+  onNavigate: (view: 'registration' | 'dashboard' | 'portal' | 'arbitrage' | 'contracts') => void;
 }
 
 export default function LandingPage({ onNavigate }: LandingPageProps) {
   return (
     <div className="flex flex-col min-h-screen bg-black font-sans w-full text-zinc-200">
       {/* Hero Section */}
-      <section className="relative bg-zinc-950 text-white overflow-hidden py-32 flex-1 border-b border-amber-500/20">
+      <section className="relative bg-zinc-950 text-white overflow-hidden py-24 sm:py-32 flex-1 border-b border-amber-500/20">
         <div className="absolute inset-0 overflow-hidden">
            <div className="absolute inset-0 bg-black opacity-60"></div>
            {/* Abstract gold shapes */}
@@ -17,25 +16,40 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
            <div className="absolute bottom-0 left-0 w-96 h-96 bg-yellow-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-blob animation-delay-2000"></div>
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-white">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest mb-6">
+            Autonomous Agri-Brokerage & BioChain Exchange
+          </div>
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-white">
             Transforming Agriculture with <br className="hidden md:block"/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-600">BioChain Trust</span>
           </h1>
-          <p className="mt-6 text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto mb-12 leading-relaxed">
-            The autonomous platform connecting farmers to buyers with verifiable satellite, AI, and blockchain data for maximum profitability.
+          <p className="mt-4 sm:mt-6 text-lg sm:text-2xl text-zinc-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+            Direct institutional commodity trading, AI forward smart contracts, cross-mandi arbitrage, and multi-spectral satellite proof on an immutable blockchain ledger.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-6">
+          <div className="flex flex-wrap justify-center gap-4">
             <button 
-              onClick={() => onNavigate('registration')}
-              className="px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-bold rounded-full transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-3 text-lg transform hover:-translate-y-1"
+              onClick={() => onNavigate('portal')}
+              className="px-7 py-3.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-extrabold rounded-full transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2.5 text-base transform hover:-translate-y-0.5 cursor-pointer"
             >
-              Register as Farmer <ArrowRight className="w-6 h-6" />
+              Open Trading Desk <ArrowRight className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={() => onNavigate('arbitrage')}
+              className="px-7 py-3.5 bg-zinc-900 border border-amber-500/50 hover:bg-zinc-800 text-amber-400 font-bold rounded-full transition-all flex items-center justify-center gap-2 text-base transform hover:-translate-y-0.5 cursor-pointer"
+            >
+              Mandi Arbitrage Engine
+            </button>
+            <button 
+              onClick={() => onNavigate('contracts')}
+              className="px-7 py-3.5 bg-zinc-900 border border-zinc-700 hover:border-amber-500 text-zinc-200 font-bold rounded-full transition-all flex items-center justify-center gap-2 text-base transform hover:-translate-y-0.5 cursor-pointer"
+            >
+              AI Contract Studio
             </button>
             <button 
               onClick={() => onNavigate('dashboard')}
-              className="px-8 py-4 bg-zinc-900 border border-amber-500/50 hover:bg-zinc-800 text-amber-500 font-bold rounded-full transition-all flex items-center justify-center gap-3 text-lg transform hover:-translate-y-1"
+              className="px-7 py-3.5 bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-white font-semibold rounded-full transition-all flex items-center justify-center text-base cursor-pointer"
             >
-              Explore Dashboard
+              Verification Hub
             </button>
           </div>
         </div>

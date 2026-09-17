@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Satellite, Camera, TestTubes, Link as ChainLink, CheckCircle2, Sprout, TrendingUp, Truck, ShieldCheck } from 'lucide-react';
 
 export default function BioChainDashboard() {
