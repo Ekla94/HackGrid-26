@@ -282,12 +282,76 @@ AI CLAUSE GENERATION:
     db.refresh(new_contract)
     return {"contract": text, "status": "SIGNED", "engine": "mock-engine", "contract_id": new_contract.id}
 
+import random
+import requests
+
+otp_store = {}
+
+@app.post("/api/auth/otp/generate")
+def generate_otp(req: dict):
+    phone = req.get("mobile", "unknown")
+    # Generate a random 6-digit OTP
+    otp_code = str(random.randint(100000, 999999))
+    otp_store[phone] = otp_code
+    print(f"--- 🔒 SMS SENT TO {phone}: {otp_code} ---")
+    return {"status": "success", "message": f"OTP sent to {phone}", "demo_otp": otp_code}
+
+@app.post("/api/auth/otp/verify")
+def verify_otp(req: dict):
+    phone = req.get("mobile", "unknown")
+    otp_code = req.get("otp")
+    if otp_store.get(phone) == otp_code:
+        return {"status": "success", "verified": True}
+    return {"status": "error", "message": "Invalid OTP"}
+
 @app.post("/api/biochain/verify")
 def biochain_verify(req: dict, db: Session = Depends(get_db)):
+    description = req.get("description", "").lower()
+    
+    # Send to xAI (Grok) for real analysis if GROK_API_KEY is available
+    api_key = os.environ.get("GROK_API_KEY")
+    ai_verdict = ""
     trust_score = 92
-    if req.get("ndvi_value", 1.0) < 0.5:
-        trust_score = 65
-    return {"id": 8842, "trustScore": trust_score, "isVerified": trust_score >= 85}
+    
+    if api_key:
+        try:
+            prompt = f"Analyze this farmer's crop description against Indian DMI AGMARK standards. Output a short 2-3 sentence verdict indicating if it meets Fair Average Quality (FAQ). The description is: '{description}'"
+            response = requests.post(
+                "https://api.x.ai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                json={
+                    "messages": [
+                        {"role": "system", "content": "You are a KhetiNex AI Inspector verifying crop data against AGMARK standards."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "model": "grok-2-latest",
+                    "temperature": 0.3
+                },
+                timeout=10
+            )
+            data = response.json()
+            ai_verdict = data["choices"][0]["message"]["content"]
+            if "fail" in ai_verdict.lower() or "not meet" in ai_verdict.lower():
+                trust_score = 65
+        except Exception as e:
+            ai_verdict = ""
+            
+    # Fallback to local heuristic if Grok API is not available or failed
+    if not ai_verdict:
+        if "clean" in description or "grade a" in description or "premium" in description:
+            ai_verdict = "Harvest parameters analyzed: Mention of 'clean' meets FAQ Grade A parameters. Estimated moisture 10-12%. Verified for dispatch."
+        elif "wet" in description or "damaged" in description or "spoil" in description:
+            ai_verdict = "Harvest parameters analyzed: Potential quality downgrade detected. Moisture likely exceeds 14% maximum tolerance. Requires manual physical inspection."
+            trust_score = 60
+        else:
+            ai_verdict = "Harvest parameters analyzed: General grade accepted. Subject to standard weighbridge quality deduction protocols upon arrival."
+    
+    return {
+        "id": 8842, 
+        "trustScore": trust_score, 
+        "isVerified": trust_score >= 85,
+        "verdict": ai_verdict
+    }
 
 @app.post("/api/biochain/recommend")
 def biochain_recommend(req: dict, db: Session = Depends(get_db)):

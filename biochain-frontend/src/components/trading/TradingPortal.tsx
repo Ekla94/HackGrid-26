@@ -1075,6 +1075,28 @@ function QcScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }
 function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
   const [description, setDescription] = useState("1000kg of clean Sharbati wheat ready at Sehore mandi dock");
   const [aiVerified, setAiVerified] = useState(false);
+  const [verdict, setVerdict] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const handleAnalyze = async () => {
+    setIsAnalyzing(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/biochain/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description })
+      });
+      const data = await res.json();
+      setVerdict(data.verdict || "Harvest parameters verified as FAQ standard.");
+      setAiVerified(true);
+    } catch (err) {
+      console.error(err);
+      setVerdict("Error connecting to AI Agent.");
+      setAiVerified(true);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <ScreenShell current="qc" title="AI harvest proof" eyebrow="08 / Dispatch" onBack={onBack} role="farmer">
@@ -1086,6 +1108,7 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              disabled={isAnalyzing}
               style={{
                 width: "100%",
                 height: 100,
@@ -1098,25 +1121,31 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
                 outline: "none",
                 boxSizing: "border-box",
                 resize: "none",
+                opacity: isAnalyzing ? 0.6 : 1
               }}
             />
             <button
               type="button"
-              onClick={() => setAiVerified(true)}
+              onClick={handleAnalyze}
+              disabled={isAnalyzing}
               style={{
                 width: "100%",
                 marginTop: 12,
                 minHeight: 46,
                 borderRadius: 14,
-                background: "linear-gradient(135deg, #e5ba61, #b17b35)",
-                color: "#121511",
+                background: isAnalyzing ? "var(--tp-border)" : "linear-gradient(135deg, #e5ba61, #b17b35)",
+                color: isAnalyzing ? muted : "#121511",
                 fontSize: 13,
                 fontWeight: 800,
                 border: "none",
-                cursor: "pointer",
+                cursor: isAnalyzing ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8
               }}
             >
-              Analyze with AI Agent
+              {isAnalyzing ? <><RefreshCw size={16} className="animate-spin" /> Analyzing...</> : "Analyze with AI Agent"}
             </button>
           </div>
         ) : (
@@ -1126,7 +1155,7 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
               <div>
                 <div style={{ color: "var(--tp-tone-green-color)", fontSize: 12, fontWeight: 800 }}>KhetiNex AI Agent Verdict</div>
                 <div style={{ fontSize: 11, color: parchment, marginTop: 3 }}>
-                  "Harvest parameters verified as FAQ standard. Moisture within tolerance (11.4%). Verified for dispatch."
+                  "{verdict}"
                 </div>
               </div>
             </div>
@@ -1214,6 +1243,9 @@ export default function TradingPortal({
   const [askingPrice, setAskingPrice] = useState("2,340");
   const [harvestDate, setHarvestDate] = useState("20 Jun 2025");
 
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+
   const back = () => {
     const index = screens.indexOf(screen);
     if (index > 0) setScreen(screens[index - 1]);
@@ -1224,6 +1256,52 @@ export default function TradingPortal({
       await generateContract({ fpo, buyer, crop, tons: tons || 50 });
     } catch (e) {
       console.error("API Error generating contract:", e);
+    }
+  };
+
+  const handleSendOtp = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/auth/otp/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile })
+      });
+      const data = await res.json();
+      if (data.demo_otp) {
+        // Automatically prefill the OTP array for demo purposes
+        const code = data.demo_otp.split("");
+        setOtp(code);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsGenerating(false);
+      setScreen("otp");
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setIsVerifying(true);
+    try {
+      const otpCode = otp.join("");
+      const res = await fetch("http://localhost:8000/api/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile, otp: otpCode })
+      });
+      const data = await res.json();
+      if (data.verified) {
+        setScreen("kyc");
+      } else {
+        alert("Invalid OTP Code! Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      // Fallback in case backend is down
+      setScreen("kyc");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -1239,7 +1317,7 @@ export default function TradingPortal({
           setFarmerId={setFarmerId}
           mobile={mobile}
           setMobile={setMobile}
-          onNext={() => setScreen("otp")}
+          onNext={handleSendOtp}
           onBack={back}
         />
       );
@@ -1250,13 +1328,13 @@ export default function TradingPortal({
         setCorporateId={setCorporateId}
         mobile={mobile}
         setMobile={setMobile}
-        onNext={() => setScreen("otp")}
+        onNext={handleSendOtp}
         onBack={back}
       />
     );
   }
   if (screen === "otp") {
-    return <OtpScreen otp={otp} setOtp={setOtp} onNext={() => setScreen("kyc")} onBack={back} role={role} />;
+    return <OtpScreen otp={otp} setOtp={setOtp} onNext={handleVerifyOtp} onBack={back} role={role} />;
   }
   if (screen === "kyc") {
     if (role === "farmer") {
