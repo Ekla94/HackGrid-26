@@ -8,8 +8,37 @@
     "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
     "100%": { transform: "translate(0px, 0px) scale(1)" }
   };
+  
+  --animate-float: float 6s ease-in-out infinite;
+  --keyframes-float: {
+    "0%, 100%": { transform: "translateY(0)" },
+    "50%": { transform: "translateY(-20px)" }
+  };
+
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+  --keyframes-glow: {
+    "from": { textShadow: "0 0 10px #f59e0b, 0 0 20px #f59e0b" },
+    "to": { textShadow: "0 0 20px #f59e0b, 0 0 30px #d97706, 0 0 40px #d97706" }
+  };
+
+  --animate-slide-up-fade: slide-up-fade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --keyframes-slide-up-fade: {
+    "0%": { opacity: "0", transform: "translateY(40px)" },
+    "100%": { opacity: "1", transform: "translateY(0)" }
+  };
+  
+  --animate-text-shimmer: text-shimmer 2.5s ease-out infinite alternate;
+  --keyframes-text-shimmer: {
+    "0%": { backgroundPosition: "0% 50%" },
+    "100%": { backgroundPosition: "100% 50%" }
+  };
 }
 
-.animation-delay-2000 {
-  animation-delay: 2s;
+.animation-delay-500 { animation-delay: 0.5s; }
+.animation-delay-1000 { animation-delay: 1s; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-3000 { animation-delay: 3s; }
+
+.bg-size-200 {
+  background-size: 200% auto;
 }
