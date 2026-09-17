@@ -181,7 +181,13 @@
 
         function renderCanvas(action, payload) {
             document.querySelectorAll('.canvas-pane').forEach(el => el.classList.remove('active'));
-            document.getElementById('canvas-' + action).classList.add('active');
+            
+            const targetCanvas = document.getElementById('canvas-' + action);
+            if (targetCanvas) {
+                targetCanvas.classList.add('active');
+            } else {
+                document.getElementById('canvas-default').classList.add('active');
+            }
 
             if (action === 'VERIFIED_CROP') {
                 document.getElementById('bc-score').textContent = payload.trust_score;
