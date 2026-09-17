@@ -96,6 +96,23 @@ TOOLS = [
                 "required": []
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "penalize_farmer",
+            "description": "Reports false information submitted by a farmer and applies a penalty. Use when a small business provides proof of false crop data.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "farmer_id": {"type": "string"},
+                    "business_name": {"type": "string"},
+                    "reason": {"type": "string"},
+                    "proof_url": {"type": "string", "description": "URL to the proof document or image"}
+                },
+                "required": ["farmer_id", "business_name", "reason", "proof_url"]
+            }
+        }
     }
 ]
 
@@ -174,6 +191,10 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
             intent = "RAG_INSIGHT"
             payload = agent_tools.get_rag_insights(db)
             agent_message = "I've pulled the latest RAG insights from the database."
+        elif func_name == "penalize_farmer":
+            intent = "PENALIZED_FARMER"
+            payload = agent_tools.report_false_info(db, args.get("farmer_id", "UNKNOWN"), args.get("business_name", "Anonymous Buyer"), args.get("reason", "False Info"), args.get("proof_url", "http://proof.link"))
+            agent_message = f"Warning: I have recorded the dispute. {args.get('farmer_id', 'UNKNOWN')}'s trust score has been severely penalized, and their Premium status is revoked."
     else:
         # Generative AI response
         agent_thought = "Generated response using Grok API."

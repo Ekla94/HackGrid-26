@@ -37,10 +37,11 @@
         <!-- Chat Input & Quick Prompts -->
         <div class="p-4 bg-zinc-950 border-t border-amber-500/20">
             <div class="flex flex-wrap gap-2 mb-3">
-                <button onclick="sendPrompt('Verify 1000kg Nashik Onions')" class="text-xs bg-black text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 transition">🔍 Verify 1000kg Onions</button>
+                <button onclick="sendPrompt('Verify 1000kg Nashik Onions for FMR-007')" class="text-xs bg-black text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 transition">🔍 Verify 1000kg Onions</button>
                 <button onclick="sendPrompt('Find best mandi arbitrage for Tomatoes')" class="text-xs bg-black text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 transition">📈 Arbitrage Margins</button>
                 <button onclick="sendPrompt('Draft a B2B contract for 500 MT Onions')" class="text-xs bg-black text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 transition">📝 Draft Smart Contract</button>
                 <button onclick="sendPrompt('Show RAG insights from past trades')" class="text-xs bg-black text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 transition">📊 Past Trade Insights</button>
+                <button onclick="sendPrompt('Report FMR-007 for false information about Tomato quality. Proof: https://link-to-proof')" class="text-xs bg-red-900/20 text-red-500 hover:bg-red-900/40 border border-red-500/30 rounded-full px-3 py-1 transition">⚠️ Report False Info</button>
             </div>
             <form id="chat-form" class="flex items-center">
                 <input type="text" id="chat-input" class="flex-1 border border-zinc-700 bg-zinc-900 text-white rounded-l-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Ask KhetiNex to execute a task...">
@@ -68,6 +69,7 @@
                     <div>
                         <h3 class="text-zinc-500 text-sm font-bold tracking-wider">TRUST SCORE</h3>
                         <p id="bc-score" class="text-5xl font-extrabold text-amber-500">--</p>
+                        <p id="bc-agmark" class="text-xs mt-1 text-green-400 font-bold border border-green-400/30 bg-green-400/10 inline-block px-2 py-0.5 rounded">--</p>
                     </div>
                     <div id="bc-badge" class="px-4 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold rounded-full">VERIFIED PREMIUM</div>
                 </div>
@@ -77,6 +79,7 @@
                     <li class="flex justify-between items-center"><span class="text-zinc-400">③ AI Camera Inspection</span><span id="bc-l3" class="font-bold text-amber-500">--</span></li>
                     <li class="flex justify-between items-center"><span class="text-zinc-400">④ Sensor / Lab Verification</span><span id="bc-l4" class="font-bold text-amber-500">--</span></li>
                     <li class="flex justify-between items-center"><span class="text-zinc-400">⑤ Traceability + Cross-Check</span><span id="bc-l5" class="font-bold text-amber-500">--</span></li>
+                    <li class="flex justify-between items-center border-t border-zinc-800 pt-2 mt-2"><span class="text-zinc-400 font-bold">⑥ DMI AGMARK Standards Match</span><span id="bc-l6" class="font-bold text-green-400">--</span></li>
                 </ul>
                 <div class="mt-4 pt-4 border-t border-zinc-800 text-xs text-zinc-500 break-all" id="bc-hash">Hash: --</div>
             </div>
@@ -115,6 +118,27 @@
             <div class="bg-zinc-950 border border-amber-500/20 p-6 rounded-lg text-amber-500">
                 <h3 class="font-bold mb-2 flex items-center text-white"><svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Data Extracted from Database</h3>
                 <pre id="rag-data" class="text-xs font-mono bg-black p-4 rounded border border-zinc-800 text-zinc-400 overflow-x-auto"></pre>
+            </div>
+        </div>
+
+        <!-- Penalized Farmer Layer -->
+        <div id="canvas-PENALIZED_FARMER" class="canvas-pane max-w-2xl mx-auto space-y-4">
+            <h2 class="text-2xl font-bold text-red-500 border-b border-red-500/20 pb-2">Dispute & Penalization Record</h2>
+            <div class="bg-zinc-950 p-6 rounded-lg shadow-sm border border-red-500/50">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-zinc-500 text-sm font-bold tracking-wider">NEW TRUST SCORE</h3>
+                        <p id="pen-score" class="text-5xl font-extrabold text-red-500">--</p>
+                    </div>
+                    <div class="px-4 py-2 bg-red-900/30 border border-red-500/50 text-red-500 font-bold rounded-full animate-pulse">PREMIUM REVOKED</div>
+                </div>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex justify-between items-center"><span class="text-zinc-400">Target Farmer ID</span><span id="pen-fid" class="font-bold text-white">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-zinc-400">Reporting Business</span><span id="pen-biz" class="font-bold text-white">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-zinc-400">Reason</span><span id="pen-reason" class="font-bold text-white text-right max-w-xs">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-zinc-400">Penalty Applied</span><span id="pen-deduction" class="font-bold text-red-500">--</span></li>
+                </ul>
+                <div class="mt-4 pt-4 border-t border-zinc-800 text-xs text-zinc-500 break-all">Proof URL: <a id="pen-proof" href="#" target="_blank" class="text-blue-400 hover:underline">--</a></div>
             </div>
         </div>
 
@@ -194,11 +218,16 @@
                 document.getElementById('bc-badge').className = `px-4 py-2 font-bold rounded-full ${payload.is_verified ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-red-900/20 text-red-400 border border-red-900/50'}`;
                 document.getElementById('bc-badge').textContent = payload.is_verified ? 'VERIFIED PREMIUM' : 'STANDARD GRADE';
                 
+                document.getElementById('bc-agmark').textContent = `AGMARK ${payload.agmark_grade || ''} | Max Moisture: ${(payload.agmark_moisture_limit*100) || 0}%`;
+
                 document.getElementById('bc-l1').textContent = `${(payload.breakdown.field * 100).toFixed(0)}% ✓`;
                 document.getElementById('bc-l2').textContent = `${(payload.breakdown.ndvi * 100).toFixed(0)}% ✓`;
                 document.getElementById('bc-l3').textContent = `${(payload.breakdown.ai * 100).toFixed(0)}% ✓`;
                 document.getElementById('bc-l4').textContent = `${(payload.breakdown.sensor * 100).toFixed(0)}% ✓`;
                 document.getElementById('bc-l5').textContent = `${(payload.breakdown.trace * 100).toFixed(0)}% ✓`;
+                if (document.getElementById('bc-l6') && payload.breakdown.agmark) {
+                    document.getElementById('bc-l6').textContent = `${(payload.breakdown.agmark * 100).toFixed(0)}% ✓`;
+                }
                 document.getElementById('bc-hash').textContent = `Immutable Hash: ${payload.hash}`;
             } 
             else if (action === 'FOUND_ARBITRAGE') {
@@ -211,7 +240,28 @@
                 } else {
                     map.setView(payload.coords, 6);
                 }
-                L.marker(payload.coords).addTo(map).bindPopup(`${payload.best_market} APMC`).openPopup();
+                
+                // Clear existing markers (a simple way is to remove all layer elements but we'll just re-init for hackathon if needed)
+                map.eachLayer((layer) => {
+                    if (layer instanceof L.Marker) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                // Add market destination
+                L.marker(payload.coords).addTo(map).bindPopup(`<b class='text-black'>${payload.best_market} APMC</b>`).openPopup();
+                
+                // Add cold storage safe-havens (blue pins or circle markers)
+                if (payload.cold_storages && payload.cold_storages.length > 0) {
+                    payload.cold_storages.forEach(cs => {
+                        L.circleMarker(cs.coords, {
+                            color: '#3b82f6',
+                            fillColor: '#60a5fa',
+                            fillOpacity: 0.8,
+                            radius: 8
+                        }).addTo(map).bindPopup(`<b class='text-blue-600'>Cold Storage</b><br>${cs.name}`);
+                    });
+                }
                 
                 setTimeout(() => map.invalidateSize(), 100);
             }
@@ -220,6 +270,15 @@
             }
             else if (action === 'RAG_INSIGHT') {
                 document.getElementById('rag-data').textContent = payload.raw_context;
+            }
+            else if (action === 'PENALIZED_FARMER') {
+                document.getElementById('pen-score').textContent = payload.new_trust_score;
+                document.getElementById('pen-fid').textContent = payload.farmer_id;
+                document.getElementById('pen-biz').textContent = payload.business;
+                document.getElementById('pen-reason').textContent = payload.reason;
+                document.getElementById('pen-deduction').textContent = `-${payload.penalty_applied} Points`;
+                document.getElementById('pen-proof').href = payload.proof_url;
+                document.getElementById('pen-proof').textContent = payload.proof_url;
             }
         }
 
