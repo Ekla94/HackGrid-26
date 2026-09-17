@@ -31,57 +31,147 @@ def get_db():
 class ChatRequest(BaseModel):
     message: str
 
+import json
+from openai import OpenAI
+
+# Define tools for OpenAI
+TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "verify_crop",
+            "description": "Verifies a crop batch for a farmer using BioChain.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "farmer_id": {"type": "string"},
+                    "crop_name": {"type": "string"}
+                },
+                "required": ["farmer_id", "crop_name"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate_arbitrage",
+            "description": "Finds the best market arbitrage for a crop.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "crop_name": {"type": "string"},
+                    "source_mandi": {"type": "string"},
+                    "quantity_kg": {"type": "number"}
+                },
+                "required": ["crop_name", "source_mandi", "quantity_kg"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "draft_contract",
+            "description": "Drafts a B2B smart contract between an FPO and a buyer. You must generate the contract clauses first and pass them to this function.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "fpo_name": {"type": "string"},
+                    "buyer_name": {"type": "string"},
+                    "crop_name": {"type": "string"},
+                    "quantity_tons": {"type": "number"},
+                    "clauses": {"type": "string", "description": "The generated legal clauses for the contract."}
+                },
+                "required": ["fpo_name", "buyer_name", "crop_name", "quantity_tons", "clauses"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_rag_insights",
+            "description": "Retrieves insights from past trades via RAG.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    }
+]
+
 @app.post("/api/agent/chat")
 def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
-    msg = req.message.lower()
+    xai_key = os.environ.get("XAI_API_KEY")
+    if not xai_key:
+        return {
+            "agent_thought": "Error: XAI_API_KEY is not set.",
+            "agent_message": "Please set the XAI_API_KEY environment variable in the backend to use the Grok API generative features.",
+            "action_type": "ERROR",
+            "payload": {}
+        }
+        
+    client = OpenAI(
+        api_key=xai_key,
+        base_url="https://api.xai.com/v1",
+    )
     
-    intent = "RAG_INSIGHT"
-    if "verify" in msg or "check" in msg or "layer" in msg:
-        intent = "VERIFIED_CROP"
-    elif "arbitrage" in msg or "margin" in msg or "market" in msg or "best buyer" in msg or "price" in msg or "best" in msg:
-        intent = "FOUND_ARBITRAGE"
-    elif "yield" in msg or "plant" in msg or "history" in msg or "recommend" in msg or "intelligence" in msg:
-        intent = "FARMER_CROP_INTELLIGENCE"
-    elif "database" in msg or "schema" in msg or "review" in msg:
-        intent = "VIEW_DATABASE"
-    elif "contract" in msg or "draft" in msg or "agreement" in msg:
-        intent = "DRAFTED_CONTRACT"
-
+    msg = req.message
+    
+    system_prompt = "You are the KhetiNex Agent, an autonomous generative AI assistant for farmers and small businesses. You are a contract regulator, agriculture expert, and problem solver. Use tools to verify crops, calculate arbitrage, draft contracts, or get insights when appropriate. Otherwise, answer questions directly and helpfully."
+    
+    try:
+        response = client.chat.completions.create(
+            model="grok-beta",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": msg}
+            ],
+            tools=TOOLS,
+            tool_choice="auto"
+        )
+    except Exception as e:
+        return {
+            "agent_thought": "Failed to call Grok API.",
+            "agent_message": f"An error occurred while calling the Grok API: {str(e)}",
+            "action_type": "ERROR",
+            "payload": {}
+        }
+        
+    choice = response.choices[0]
+    
+    intent = "CHAT"
     payload = {}
-    if intent == "VERIFIED_CROP":
-        crop = "Onions" if "onion" in msg else "Tomatoes"
-        payload = agent_tools.verify_biochain(db, "FMR-007", crop)
-    elif intent == "FOUND_ARBITRAGE":
-        crop = "onion" if "onion" in msg else "tomato"
-        payload = agent_tools.calculate_arbitrage(crop, "nashik", 1000.0)
-    elif intent == "FARMER_CROP_INTELLIGENCE":
-        import re
-        match = re.search(r"FRM-\d+", msg.upper())
-        fid = match.group(0) if match else "FRM-8842"
-        payload = agent_tools.get_farmer_history_and_recommendations(fid, db)
-    elif intent == "VIEW_DATABASE":
-        payload = agent_tools.get_database_summary(db)
-    elif intent == "DRAFTED_CONTRACT":
-        crop = "Onions" if "onion" in msg else "Tomatoes"
-        tons = 500 if "500" in msg else 10
-        payload = agent_tools.draft_smart_contract(db, "Kisan FPO", "Fresh Foods Inc", crop, tons, None)
-    else:
-        payload = agent_tools.get_rag_insights(db)
-
-    agent_thought = f"Detected intent '{intent}'. Executed tool successfully."
+    agent_thought = ""
+    agent_message = ""
     
-    if intent == "FOUND_ARBITRAGE":
-        agent_message = f"I found the best arbitrage opportunity in {payload.get('best_market', 'your local market')}, yielding a net profit of INR {payload.get('net_profit', 0):,.2f} after transport costs."
-    elif intent == "VERIFIED_CROP":
-        hash_val = payload.get('hash', '0x00000000')[:10]
-        agent_message = f"Verification complete. Trust score is {payload.get('trust_score')}% with Immutable Hash: {hash_val}..."
-    elif intent == "FARMER_CROP_INTELLIGENCE":
-        agent_message = "I have analyzed the farmer's history and recommended the best crop for rotation to maximize yield and avoid soil depletion."
-    elif intent == "DRAFTED_CONTRACT":
-        agent_message = f"I have drafted the smart contract. Total valuation is INR {payload.get('total_value', 0):,.2f}."
+    if choice.message.tool_calls:
+        tool_call = choice.message.tool_calls[0]
+        func_name = tool_call.function.name
+        args = json.loads(tool_call.function.arguments)
+        
+        agent_thought = f"Calling tool {func_name} with arguments {args}"
+        
+        if func_name == "verify_crop":
+            intent = "VERIFIED_CROP"
+            payload = agent_tools.verify_biochain(db, args.get("farmer_id", "FMR-007"), args.get("crop_name", "Onions"))
+            agent_message = f"I have verified the crop batch for farmer {args.get('farmer_id', 'FMR-007')}. See the profile on the dashboard."
+        elif func_name == "calculate_arbitrage":
+            intent = "FOUND_ARBITRAGE"
+            payload = agent_tools.calculate_arbitrage(args.get("crop_name", "onion"), args.get("source_mandi", "nashik"), float(args.get("quantity_kg", 1000.0)))
+            agent_message = f"I've calculated the best arbitrage route for {args.get('quantity_kg', 1000)} kg of {args.get('crop_name', 'onions')}."
+        elif func_name == "draft_contract":
+            intent = "DRAFTED_CONTRACT"
+            payload = agent_tools.draft_smart_contract(db, args.get("fpo_name", "Kisan FPO"), args.get("buyer_name", "Fresh Foods Inc"), args.get("crop_name", "Onions"), int(args.get("quantity_tons", 10)), args.get("clauses", "1. Standard terms apply."))
+            agent_message = "I have drafted the smart contract based on your parameters."
+        elif func_name == "get_rag_insights":
+            intent = "RAG_INSIGHT"
+            payload = agent_tools.get_rag_insights(db)
+            agent_message = "I've pulled the latest RAG insights from the database."
     else:
-        agent_message = "I have extracted the requested insights from the database. Please review the dashboard."
-
+        # Generative AI response
+        agent_thought = "Generated response using Grok API."
+        agent_message = choice.message.content
+        
     return {
         "agent_thought": agent_thought,
         "agent_message": agent_message,

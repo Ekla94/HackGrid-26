@@ -90,29 +90,10 @@ def calculate_arbitrage(crop: str, source_city: str, quantity_kg: float):
         "coords": city_coords.get(best_market.lower(), [19.0760, 72.8777])
     }
 
-def draft_smart_contract(db: Session, fpo: str, buyer: str, crop: str, tons: int, ai_model):
+def draft_smart_contract(db: Session, fpo: str, buyer: str, crop: str, tons: int, clauses: str):
     total = tons * 1000 * 48.0
     
-    prompt = f"""<|system|>
-You are a legal AI assistant. Write professional contracts.
-<|user|>
-Draft a B2B Agricultural Forward Contract between Seller: {fpo} and Buyer: {buyer} for {tons} MT of {crop}. Valuation: INR {total:,.2f}. Include 30% advance escrow and spoilage limits.
-<|assistant|>
-"""
-    
-    text = ""
-    if ai_model is not None:
-        try:
-            output = ai_model(prompt, max_new_tokens=250, do_sample=False, return_full_text=False)
-            text = output[0]['generated_text'].strip()
-            if "<|assistant|>" in text:
-                text = text.split("<|assistant|>")[-1].strip()
-        except Exception as e:
-            text = f"AI Error: {str(e)}"
-    else:
-        text = "Model is still loading..."
-        
-    fallback = '1. Advance Escrow: 30% secured.\n2. Release upon delivery.\n3. 4% Spoilage limit.'
+    text = clauses if clauses else '1. Advance Escrow: 30% secured.\n2. Release upon delivery.\n3. 4% Spoilage limit.'
     
     contract_string = f"""====================================================
 B2B AGRICULTURAL FORWARD CONTRACT
@@ -124,7 +105,7 @@ Commodity:    {crop.upper()} ({tons} Metric Tons)
 Valuation:    INR {total:,.2f}
 
 AI CLAUSES:
-{text if text else fallback}
+{text}
 ===================================================="""
 
     new_contract = Contract(
