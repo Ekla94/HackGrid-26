@@ -1,0 +1,1 @@
+{"name": "khetinex-root", "private": true, "scripts": {"build": "npm --prefix biochain-frontend install && npm --prefix biochain-frontend run build"}, "devDependencies": {}}
