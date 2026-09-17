@@ -74,21 +74,21 @@ const farmerScreenLabels = [
   "Payout",
 ];
 
-const gold = "#d4aa57";
-const goldBright = "#f3cf7a";
-const ink = "#121511";
-const panel = "#1b2119";
-const panelRaised = "#22291f";
-const olive = "#889a6b";
-const parchment = "#f4ecd9";
-const muted = "#a7ad99";
+const gold = "var(--tp-gold)";
+const goldBright = "var(--tp-gold-bright)";
+const ink = "var(--tp-ink)";
+const panel = "var(--tp-panel)";
+const panelRaised = "var(--tp-panel-raised)";
+const olive = "var(--tp-olive)";
+const parchment = "var(--tp-parchment)";
+const muted = "var(--tp-muted)";
 
 const baseInputStyle: React.CSSProperties = {
   width: "100%",
   minHeight: 46,
   borderRadius: 14,
-  border: "1px solid rgba(255,255,255,.1)",
-  background: "rgba(18,21,17,.88)",
+  border: "1px solid var(--tp-border)",
+  background: "var(--tp-input-bg)",
   color: parchment,
   padding: "0 14px",
   fontSize: 13,
@@ -105,10 +105,10 @@ function IconBadge({
   tone?: "gold" | "olive" | "green" | "red";
 }) {
   const tones = {
-    gold: { bg: "rgba(212,170,87,.14)", color: goldBright, border: "rgba(212,170,87,.28)" },
-    olive: { bg: "rgba(136,154,107,.16)", color: "#cbdbb0", border: "rgba(136,154,107,.3)" },
-    green: { bg: "rgba(100,157,103,.16)", color: "#b9e2b5", border: "rgba(100,157,103,.3)" },
-    red: { bg: "rgba(213,131,101,.16)", color: "#f1ad97", border: "rgba(213,131,101,.3)" },
+    gold: { bg: "var(--tp-tone-gold-bg)", color: "var(--tp-tone-gold-color)", border: "var(--tp-tone-gold-border)" },
+    olive: { bg: "var(--tp-tone-olive-bg)", color: "var(--tp-tone-olive-color)", border: "var(--tp-tone-olive-border)" },
+    green: { bg: "var(--tp-tone-green-bg)", color: "var(--tp-tone-green-color)", border: "var(--tp-tone-green-border)" },
+    red: { bg: "var(--tp-tone-red-bg)", color: "var(--tp-tone-red-color)", border: "var(--tp-tone-red-border)" },
   };
   const toneStyle = tones[tone];
   return (
@@ -138,10 +138,10 @@ function StatusPill({
   tone?: "gold" | "green" | "olive" | "red";
 }) {
   const colors = {
-    gold: { bg: "rgba(212,170,87,.13)", color: "#e7c879", border: "rgba(212,170,87,.22)" },
-    green: { bg: "rgba(100,157,103,.14)", color: "#add4a8", border: "rgba(100,157,103,.25)" },
-    olive: { bg: "rgba(136,154,107,.14)", color: "#c0cb9d", border: "rgba(136,154,107,.23)" },
-    red: { bg: "rgba(213,131,101,.13)", color: "#e6a18d", border: "rgba(213,131,101,.24)" },
+    gold: { bg: "var(--tp-pill-gold-bg)", color: "var(--tp-pill-gold-color)", border: "var(--tp-pill-gold-border)" },
+    green: { bg: "var(--tp-pill-green-bg)", color: "var(--tp-pill-green-color)", border: "var(--tp-pill-green-border)" },
+    olive: { bg: "var(--tp-pill-olive-bg)", color: "var(--tp-pill-olive-color)", border: "var(--tp-pill-olive-border)" },
+    red: { bg: "rgba(213,131,101,.13)", color: "var(--tp-tone-red-color)", border: "rgba(213,131,101,.24)" },
   };
   const color = colors[tone];
   return (
@@ -197,7 +197,7 @@ function PrimaryButton({
         gap: 10,
         borderRadius: 14,
         border: isGold ? "1px solid rgba(243,207,122,.55)" : `1px solid ${isQuiet ? "rgba(255,255,255,.1)" : "rgba(212,170,87,.32)"}`,
-        background: isGold ? "linear-gradient(135deg, #e5ba61, #b17b35)" : isQuiet ? "rgba(255,255,255,.045)" : "transparent",
+        background: isGold ? "var(--tp-gold)" : isQuiet ? "rgba(255,255,255,.045)" : "transparent",
         color: isGold ? "#17170f" : parchment,
         fontSize: 13,
         fontWeight: 800,
@@ -224,8 +224,8 @@ function BackButton({ onClick }: { onClick: () => void }) {
         width: 34,
         height: 34,
         borderRadius: 10,
-        border: "1px solid rgba(255,255,255,.1)",
-        background: "rgba(255,255,255,.04)",
+        border: "1px solid var(--tp-border)",
+        background: "var(--tp-border-light)",
         color: parchment,
         display: "grid",
         placeItems: "center",
@@ -533,7 +533,7 @@ function LoginScreen({
           <Field label="Corporate GSTIN / CIN" value={corporateId} onChange={setCorporateId} placeholder="27AABCM1234C1Z7" suffix="Verified" />
           <Field label="Authorized Mobile Number" value={mobile} onChange={setMobile} placeholder="+91 98 7654 3210" type="tel" suffix="SMS" />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 12, borderRadius: 14, background: "rgba(136,154,107,.08)", border: "1px solid rgba(136,154,107,.18)", marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 12, borderRadius: 14, background: "var(--tp-tone-olive-bg)", border: "1px solid var(--tp-tone-olive-border)", marginBottom: 20 }}>
           <ShieldCheck size={18} color={olive} />
           <span style={{ color: muted, fontSize: 11 }}>256-bit encrypted corporate session with biometric 2FA</span>
         </div>
@@ -571,7 +571,7 @@ function FarmerLoginScreen({
           <Field label="Kisan Registration / FPO ID" value={farmerId} onChange={setFarmerId} placeholder="KISAN-MP-20841" suffix="Active" />
           <Field label="Mobile Number" value={mobile} onChange={setMobile} placeholder="+91 98 7654 3210" type="tel" suffix="OTP" />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 12, borderRadius: 14, background: "rgba(136,154,107,.08)", border: "1px solid rgba(136,154,107,.18)", marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 12, borderRadius: 14, background: "var(--tp-tone-olive-bg)", border: "1px solid var(--tp-tone-olive-border)", marginBottom: 20 }}>
           <Sprout size={18} color={olive} />
           <span style={{ color: muted, fontSize: 11 }}>Sehore Cluster FPO · Government e-NAM synchronized</span>
         </div>
@@ -701,9 +701,9 @@ function DashboardScreen({ onNext, onBack }: { onNext: () => void; onBack: () =>
         <div style={{ marginTop: 16 }}>
           <div style={{ color: gold, fontSize: 10, textTransform: "uppercase", letterSpacing: ".15em", fontWeight: 800 }}>Live Mandi Spot Tickers</div>
           <div style={{ marginTop: 8 }}>
-            <ListRow icon={Wheat} title="Soybean (FAQ)" detail="Indore APMC · ₹4,850/qtl" right={<span style={{ color: "#add4a8", fontSize: 11, fontWeight: 700 }}>+2.4%</span>} tone="gold" />
-            <ListRow icon={Wheat} title="Sharbati Wheat" detail="Sehore Mandi · ₹2,340/qtl" right={<span style={{ color: "#add4a8", fontSize: 11, fontWeight: 700 }}>+0.8%</span>} tone="olive" />
-            <ListRow icon={Wheat} title="Nashik Red Onion" detail="Lasalgaon · ₹1,520/qtl" right={<span style={{ color: "#e6a18d", fontSize: 11, fontWeight: 700 }}>-1.1%</span>} tone="red" />
+            <ListRow icon={Wheat} title="Soybean (FAQ)" detail="Indore APMC · ₹4,850/qtl" right={<span style={{ color: "var(--tp-tone-green-color)", fontSize: 11, fontWeight: 700 }}>+2.4%</span>} tone="gold" />
+            <ListRow icon={Wheat} title="Sharbati Wheat" detail="Sehore Mandi · ₹2,340/qtl" right={<span style={{ color: "var(--tp-tone-green-color)", fontSize: 11, fontWeight: 700 }}>+0.8%</span>} tone="olive" />
+            <ListRow icon={Wheat} title="Nashik Red Onion" detail="Lasalgaon · ₹1,520/qtl" right={<span style={{ color: "var(--tp-tone-red-color)", fontSize: 11, fontWeight: 700 }}>-1.1%</span>} tone="red" />
           </div>
         </div>
         <div style={{ marginTop: 22 }}>
@@ -827,10 +827,10 @@ function FarmerLotScreen({
           </div>
           <Field label="Ready for Dispatch Date" value={harvestDate} onChange={setHarvestDate} suffix="Date" />
         </div>
-        <div style={{ padding: 12, borderRadius: 14, background: "rgba(100,157,103,.08)", border: "1px solid rgba(100,157,103,.2)", marginBottom: 20 }}>
+        <div style={{ padding: 12, borderRadius: 14, background: "var(--tp-tone-green-bg)", border: "1px solid var(--tp-tone-green-border)", marginBottom: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
             <span style={{ color: muted }}>Mandi Benchmark Rate:</span>
-            <span style={{ color: "#add4a8", fontWeight: 800 }}>₹2,310 / qtl</span>
+            <span style={{ color: "var(--tp-tone-green-color)", fontWeight: 800 }}>₹2,310 / qtl</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginTop: 4 }}>
             <span style={{ color: muted }}>Premium over Mandi:</span>
@@ -897,18 +897,18 @@ function BidsScreen({
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6, fontSize: 11, color: muted }}>
                 <span>{b.location}</span>
-                <span style={{ color: "#add4a8" }}>{b.tons} MT available</span>
+                <span style={{ color: "var(--tp-tone-green-color)" }}>{b.tons} MT available</span>
               </div>
             </button>
           ))}
         </div>
 
-        <div style={{ padding: 14, borderRadius: 16, background: "rgba(18,21,17,.9)", border: "1px solid rgba(212,170,87,.25)", marginBottom: 20 }}>
+        <div style={{ padding: 14, borderRadius: 16, background: "var(--tp-input-bg)", border: "1px solid var(--tp-tone-gold-border)", marginBottom: 20 }}>
           <div style={{ color: gold, fontSize: 10, textTransform: "uppercase", letterSpacing: ".15em", fontWeight: 800 }}>Forward Term Sheet</div>
           <div style={{ marginTop: 8, fontSize: 11, color: muted, lineHeight: 1.6 }}>
             <div>Seller: <strong style={{ color: parchment }}>{selectedBid}</strong></div>
             <div>Commodity: <strong style={{ color: parchment }}>Soybean · 180 Metric Tons</strong></div>
-            <div>Escrow Terms: <strong style={{ color: "#add4a8" }}>30% Advance Escrow Lock · 70% Weighbridge Release</strong></div>
+            <div>Escrow Terms: <strong style={{ color: "var(--tp-tone-green-color)" }}>30% Advance Escrow Lock · 70% Weighbridge Release</strong></div>
           </div>
         </div>
 
@@ -973,13 +973,13 @@ function FarmerOffersScreen({
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6, fontSize: 11, color: muted }}>
                 <span>{b.location}</span>
-                <span style={{ color: "#add4a8" }}>{b.pickup}</span>
+                <span style={{ color: "var(--tp-tone-green-color)" }}>{b.pickup}</span>
               </div>
             </button>
           ))}
         </div>
 
-        <div style={{ padding: 14, borderRadius: 16, background: "rgba(18,21,17,.9)", border: "1px solid rgba(212,170,87,.25)", marginBottom: 20 }}>
+        <div style={{ padding: 14, borderRadius: 16, background: "var(--tp-input-bg)", border: "1px solid var(--tp-tone-gold-border)", marginBottom: 20 }}>
           <div style={{ color: gold, fontSize: 10, textTransform: "uppercase", letterSpacing: ".15em", fontWeight: 800 }}>Guaranteed Escrow Lock</div>
           <div style={{ marginTop: 6, fontSize: 11, color: muted, lineHeight: 1.5 }}>
             Buyer escrow funds will be locked in HDFC custodian account before truck leaves your farm.
@@ -1026,7 +1026,7 @@ function QcScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }
                 textAlign: "left",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#add4a8", fontWeight: 700, fontSize: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--tp-tone-green-color)", fontWeight: 700, fontSize: 12 }}>
                 <CheckCircle2 size={16} /> Approve Lot
               </div>
               <div style={{ fontSize: 10, color: muted, marginTop: 4 }}>Full Escrow Release</div>
@@ -1045,7 +1045,7 @@ function QcScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }
                 textAlign: "left",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#e6a18d", fontWeight: 700, fontSize: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--tp-tone-red-color)", fontWeight: 700, fontSize: 12 }}>
                 <Scale size={16} /> Apply Deductions
               </div>
               <div style={{ fontSize: 10, color: muted, marginTop: 4 }}>Quality Adjustment</div>
@@ -1059,8 +1059,8 @@ function QcScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }
           </div>
         )}
 
-        <div style={{ padding: 12, borderRadius: 14, background: "rgba(136,154,107,.08)", border: "1px solid rgba(136,154,107,.18)", marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#add4a8", fontSize: 11, fontWeight: 700 }}>
+        <div style={{ padding: 12, borderRadius: 14, background: "var(--tp-tone-olive-bg)", border: "1px solid var(--tp-tone-olive-border)", marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--tp-tone-green-color)", fontSize: 11, fontWeight: 700 }}>
             <ClipboardCheck size={16} /> BioChain Quality Hash Verified: 0x9f4a...28b1
           </div>
         </div>
@@ -1091,7 +1091,7 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
                 height: 100,
                 borderRadius: 14,
                 border: "1px solid rgba(212,170,87,.3)",
-                background: "rgba(18,21,17,.9)",
+                background: "var(--tp-input-bg)",
                 color: parchment,
                 padding: 12,
                 fontSize: 13,
@@ -1120,11 +1120,11 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
             </button>
           </div>
         ) : (
-          <div style={{ marginTop: 12, padding: 14, borderRadius: 16, background: "rgba(100,157,103,.1)", border: "1px solid rgba(100,157,103,.3)" }}>
+          <div style={{ marginTop: 12, padding: 14, borderRadius: 16, background: "var(--tp-tone-green-bg)", border: "1px solid var(--tp-tone-green-border)" }}>
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <Sparkles size={20} color="#add4a8" />
               <div>
-                <div style={{ color: "#add4a8", fontSize: 12, fontWeight: 800 }}>KhetiNex AI Agent Verdict</div>
+                <div style={{ color: "var(--tp-tone-green-color)", fontSize: 12, fontWeight: 800 }}>KhetiNex AI Agent Verdict</div>
                 <div style={{ fontSize: 11, color: parchment, marginTop: 3 }}>
                   "Harvest parameters verified as FAQ standard. Moisture within tolerance (11.4%). Verified for dispatch."
                 </div>
@@ -1147,14 +1147,14 @@ function SettlementScreen({ onBack }: { onBack: () => void }) {
     <ScreenShell current="settlement" title="Escrow execution" eyebrow="09 / Settlement" onBack={onBack}>
       <div style={{ paddingTop: 10 }}>
         <SectionTitle kicker="Smart Contract Executed" title="Escrow disbursed to FPO." body="Automated bank transfer completed via RTGS/NEFT with BioChain cryptographic stamp." />
-        <div style={{ padding: 16, borderRadius: 18, background: panelRaised, border: "1px solid rgba(255,255,255,.08)", margin: "16px 0 20px" }}>
+        <div style={{ padding: 16, borderRadius: 18, background: panelRaised, border: "1px solid var(--tp-border)", margin: "16px 0 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: muted, fontSize: 11 }}>Contract Status</span>
             <StatusPill tone="green">Fulfilled & Settled</StatusPill>
           </div>
           <div style={{ marginTop: 14, color: parchment, fontSize: 26, fontWeight: 800 }}>₹8,49,600</div>
-          <div style={{ marginTop: 4, color: "#add4a8", fontSize: 11 }}>Disbursed to KisanSetu FPO Escrow</div>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,.07)", marginTop: 14, paddingTop: 12, fontSize: 11, color: muted, display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ marginTop: 4, color: "var(--tp-tone-green-color)", fontSize: 11 }}>Disbursed to KisanSetu FPO Escrow</div>
+          <div style={{ borderTop: "1px solid var(--tp-border)", marginTop: 14, paddingTop: 12, fontSize: 11, color: muted, display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}><span>Advance Escrow (30%):</span><strong style={{ color: parchment }}>₹2,54,880 (Cleared)</strong></div>
             <div style={{ display: "flex", justifyContent: "space-between" }}><span>Delivery Release (70%):</span><strong style={{ color: parchment }}>₹5,94,720 (Cleared)</strong></div>
             <div style={{ display: "flex", justifyContent: "space-between" }}><span>BioChain Tx:</span><code style={{ color: goldBright }}>0x7b3e...9a41</code></div>
@@ -1172,14 +1172,14 @@ function FarmerPayoutScreen({ onBack }: { onBack: () => void }) {
     <ScreenShell current="settlement" title="Direct DBT payout" eyebrow="09 / Payout" onBack={onBack} role="farmer">
       <div style={{ paddingTop: 10 }}>
         <SectionTitle kicker="Payment Confirmation" title="Funds credited to bank account." body="Your payout has been transferred directly via automated e-mandate." />
-        <div style={{ padding: 16, borderRadius: 18, background: panelRaised, border: "1px solid rgba(100,157,103,.3)", margin: "16px 0 20px" }}>
+        <div style={{ padding: 16, borderRadius: 18, background: panelRaised, border: "1px solid var(--tp-tone-green-border)", margin: "16px 0 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: muted, fontSize: 11 }}>DBT Bank Transfer</span>
             <StatusPill tone="green">Credited</StatusPill>
           </div>
           <div style={{ marginTop: 14, color: parchment, fontSize: 26, fontWeight: 800 }}>₹1,88,800</div>
-          <div style={{ marginTop: 4, color: "#add4a8", fontSize: 11 }}>Account: SBI Sehore · ****4821</div>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,.07)", marginTop: 14, paddingTop: 12, fontSize: 11, color: muted, display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ marginTop: 4, color: "var(--tp-tone-green-color)", fontSize: 11 }}>Account: SBI Sehore · ****4821</div>
+          <div style={{ borderTop: "1px solid var(--tp-border)", marginTop: 14, paddingTop: 12, fontSize: 11, color: muted, display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}><span>UTR Number:</span><strong style={{ color: parchment }}>SBI9823471029</strong></div>
             <div style={{ display: "flex", justifyContent: "space-between" }}><span>FPO Service Fee (1%):</span><strong style={{ color: parchment }}>-₹1,900</strong></div>
             <div style={{ display: "flex", justifyContent: "space-between" }}><span>Net Received:</span><strong style={{ color: goldBright }}>₹1,86,900</strong></div>
