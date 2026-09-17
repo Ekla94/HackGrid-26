@@ -1,7 +1,20 @@
 import datetime
 import random
 from sqlalchemy.orm import Session
-from models import Contract, Farmer, HarvestRecord, BioChainVerification, ContractStatus
+from models import User, CropBatch, Contract, BioChainVerification, Farmer, HarvestRecord, SubscriptionTier, BusinessSubscription, ContractStatus
+
+def get_or_create_subscription(db: Session, business_name: str = "Demo Business"):
+    sub = db.query(BusinessSubscription).filter(BusinessSubscription.business_name == business_name).first()
+    if not sub:
+        sub = BusinessSubscription(business_name=business_name, tier=SubscriptionTier.FREE)
+        db.add(sub)
+        db.commit()
+        db.refresh(sub)
+    return sub
+
+def check_is_pro(db: Session, business_name: str = "Demo Business"):
+    sub = get_or_create_subscription(db, business_name)
+    return sub.tier == SubscriptionTier.PRO or sub.tier == SubscriptionTier.ENTERPRISE
 
 def verify_biochain(db: Session, farmer_id: str, crop_name: str):
     # Simulated validation points based on real hackathon metrics
@@ -11,14 +24,29 @@ def verify_biochain(db: Session, farmer_id: str, crop_name: str):
     req_pest_probability = random.uniform(0.01, 0.15)
     req_chemical_residue = random.uniform(0.01, 0.08)
     req_blockchain_hash = f"0x{random.getrandbits(256):064x}"
+    
+    # AGMARK Quality Standards Simulation
+    agmark_standards = {
+        "tomato": {"max_moisture": 0.85, "grade": "Grade A", "min_size_mm": 40},
+        "onion": {"max_moisture": 0.12, "grade": "Grade A", "min_size_mm": 35},
+        "potato": {"max_moisture": 0.75, "grade": "Grade A", "min_size_mm": 45}
+    }
+    
+    crop = crop_name.lower()
+    if crop not in agmark_standards:
+        crop = "tomato"
+        
+    agmark_rules = agmark_standards[crop]
+    agmark_compliance_score = random.uniform(0.8, 1.0) # Simulating lab result matching AGMARK
 
-    weights = {'field': 0.15, 'ndvi': 0.20, 'ai': 0.25, 'sensor': 0.25, 'trace': 0.15}
+    weights = {'field': 0.10, 'ndvi': 0.15, 'ai': 0.20, 'sensor': 0.20, 'trace': 0.15, 'agmark': 0.20}
     scores = {
         'field': 1.0 if req_kyc_valid and req_gps_match else 0.0,
         'ndvi': min(req_ndvi_value / 0.8, 1.0),
         'ai': 1.0 - req_pest_probability,
         'sensor': 0.95 if req_chemical_residue < 0.05 else 0.4,
-        'trace': 1.0 if req_blockchain_hash else 0.0
+        'trace': 1.0 if req_blockchain_hash else 0.0,
+        'agmark': agmark_compliance_score
     }
     trust_score = int(sum([scores[k] * weights[k] for k in weights]) * 100)
     is_verified = trust_score >= 85
@@ -38,35 +66,74 @@ def verify_biochain(db: Session, farmer_id: str, crop_name: str):
         "trust_score": trust_score,
         "is_verified": is_verified,
         "hash": req_blockchain_hash,
+        "agmark_grade": agmark_rules["grade"],
+        "agmark_moisture_limit": agmark_rules["max_moisture"],
         "breakdown": {
             "field": scores['field'],
             "ndvi": scores['ndvi'],
             "ai": scores['ai'],
             "sensor": scores['sensor'],
-            "trace": scores['trace']
+            "trace": scores['trace'],
+            "agmark": scores['agmark']
         }
     }
 
 def calculate_arbitrage(crop: str, source_city: str, quantity_kg: float):
-    # Deterministic wholesale arbitrage
-    mandi_rates = {
-        "tomato": {"mumbai": 48.0, "chennai": 32.0, "bangalore": 38.0},
-        "onion": {"mumbai": 25.0, "nashik": 15.0, "pune": 20.0},
-        "potato": {"mumbai": 30.0, "agra": 18.0, "delhi": 22.0}
+    # Simulated DMI Agmarknet REST API Data
+    # Includes AGMARK quality benchmarks and daily mandi arrivals
+    dmi_agmarknet_data = {
+        "tomato": {
+            "mumbai": {"price": 48.0, "arrival_tons": 1200, "state": "Maharashtra"},
+            "chennai": {"price": 32.0, "arrival_tons": 800, "state": "Tamil Nadu"},
+            "bangalore": {"price": 38.0, "arrival_tons": 950, "state": "Karnataka"}
+        },
+        "onion": {
+            "mumbai": {"price": 25.0, "arrival_tons": 3000, "state": "Maharashtra"},
+            "nashik": {"price": 15.0, "arrival_tons": 5000, "state": "Maharashtra"},
+            "pune": {"price": 20.0, "arrival_tons": 2500, "state": "Maharashtra"},
+            "delhi": {"price": 28.0, "arrival_tons": 1500, "state": "Delhi"}
+        },
+        "potato": {
+            "mumbai": {"price": 30.0, "arrival_tons": 2000, "state": "Maharashtra"},
+            "agra": {"price": 18.0, "arrival_tons": 4000, "state": "UP"},
+            "delhi": {"price": 22.0, "arrival_tons": 3000, "state": "Delhi"}
+        }
+    }
+    
+    # State APMC Fees & Cess (Static Lookup Table)
+    apmc_fees = {
+        "Maharashtra": 0.06, # 6% total fee/cess
+        "Delhi": 0.02,       # 2% fee
+        "Karnataka": 0.04,   # 4% fee
+        "Tamil Nadu": 0.03,  # 3% fee
+        "UP": 0.05           # 5% fee
     }
     
     crop = crop.lower()
-    if crop not in mandi_rates:
+    if crop not in dmi_agmarknet_data:
         crop = "tomato" # Fallback
         
-    rates = mandi_rates[crop]
-    # Find best market (max price)
-    best_market = max(rates, key=rates.get)
-    best_rate = rates[best_market]
+    markets = dmi_agmarknet_data[crop]
     
+    # Find best market evaluating Net Price after APMC Fee
+    best_market = None
+    max_net_rate = 0
+    best_state = ""
+    
+    for city, data in markets.items():
+        fee_percent = apmc_fees.get(data["state"], 0.05)
+        net_rate = data["price"] * (1 - fee_percent)
+        if net_rate > max_net_rate:
+            max_net_rate = net_rate
+            best_market = city
+            best_state = data["state"]
+            
     transport_cost = 150 * 35.0  # mock 150km freight
-    gross = quantity_kg * best_rate
-    net = gross - transport_cost
+    
+    # Calculate totals
+    gross_revenue = quantity_kg * markets[best_market]["price"]
+    total_apmc_fee = gross_revenue * apmc_fees.get(best_state, 0.05)
+    net_profit = gross_revenue - total_apmc_fee - transport_cost
     
     # Map coordinates for UI
     city_coords = {
@@ -79,40 +146,41 @@ def calculate_arbitrage(crop: str, source_city: str, quantity_kg: float):
         "delhi": [28.7041, 77.1025]
     }
     
+    # WDRA Open Geodata for Cold Storages near destination
+    cold_storages = []
+    if best_market == "mumbai":
+        cold_storages = [{"name": "MahaCold Storage", "coords": [19.1, 72.9]}, {"name": "Vashi APMC Cold", "coords": [19.06, 73.0]}]
+    elif best_market == "delhi":
+        cold_storages = [{"name": "Azadpur Cold Chain", "coords": [28.73, 77.17]}]
+    else:
+        cold_storages = [{"name": f"{best_market.capitalize()} Central Cold Storage", "coords": [city_coords.get(best_market, [0,0])[0] + 0.05, city_coords.get(best_market, [0,0])[1] + 0.05]}]
+    
     return {
         "crop": crop.capitalize(),
         "source": source_city.capitalize(),
         "best_market": best_market.capitalize(),
         "quantity_kg": quantity_kg,
-        "gross_revenue": gross,
+        "gross_revenue": gross_revenue,
+        "apmc_fee_deducted": total_apmc_fee,
         "transport_cost": transport_cost,
-        "net_profit": net,
-        "coords": city_coords.get(best_market.lower(), [19.0760, 72.8777])
+        "net_profit": net_profit,
+        "coords": city_coords.get(best_market.lower(), [19.0760, 72.8777]),
+        "cold_storages": cold_storages
     }
 
-def draft_smart_contract(db: Session, fpo: str, buyer: str, crop: str, tons: int, ai_model):
+def draft_smart_contract(db: Session, fpo: str, buyer: str, crop: str, tons: int, clauses: str):
     total = tons * 1000 * 48.0
     
-    prompt = f"""<|system|>
-You are a legal AI assistant. Write professional contracts.
-<|user|>
-Draft a B2B Agricultural Forward Contract between Seller: {fpo} and Buyer: {buyer} for {tons} MT of {crop}. Valuation: INR {total:,.2f}. Include 30% advance escrow and spoilage limits.
-<|assistant|>
-"""
+    agmark_standards = {
+        "tomato": {"max_moisture": 0.85, "grade": "Grade A", "min_size_mm": 40},
+        "onion": {"max_moisture": 0.12, "grade": "Grade A", "min_size_mm": 35},
+        "potato": {"max_moisture": 0.75, "grade": "Grade A", "min_size_mm": 45}
+    }
+    agmark_info = agmark_standards.get(crop.lower(), {"max_moisture": 0.85, "grade": "Grade A", "min_size_mm": 40})
     
-    text = ""
-    if ai_model is not None:
-        try:
-            output = ai_model(prompt, max_new_tokens=250, do_sample=False, return_full_text=False)
-            text = output[0]['generated_text'].strip()
-            if "<|assistant|>" in text:
-                text = text.split("<|assistant|>")[-1].strip()
-        except Exception as e:
-            text = f"AI Error: {str(e)}"
-    else:
-        text = "Model is still loading..."
-        
-    fallback = '1. Advance Escrow: 30% secured.\n2. Release upon delivery.\n3. 4% Spoilage limit.'
+    default_fallback = f'1. Advance Escrow: 30% secured.\n2. Release upon delivery.\n3. 4% Spoilage limit.\n4. AGMARK Compliance: Must meet {agmark_info["grade"]} standards (Max Moisture: {int(agmark_info["max_moisture"]*100)}%, Min Size: {agmark_info["min_size_mm"]}mm).'
+    
+    text = clauses if clauses else default_fallback
     
     contract_string = f"""====================================================
 B2B AGRICULTURAL FORWARD CONTRACT
@@ -124,7 +192,7 @@ Commodity:    {crop.upper()} ({tons} Metric Tons)
 Valuation:    INR {total:,.2f}
 
 AI CLAUSES:
-{text if text else fallback}
+{text}
 ===================================================="""
 
     new_contract = Contract(
@@ -250,4 +318,41 @@ def get_database_summary(db: Session):
         "farmers": [{"id": f.farmer_id, "name": f.name, "cluster": f.cluster, "acres": f.land_size_acres} for f in farmers],
         "harvests": [{"farmer": h.farmer_id, "crop": h.crop_name, "yield": h.yield_per_acre, "grade": h.quality_grade} for h in harvests],
         "contracts": [{"id": c.id, "seller": c.seller_id, "buyer": c.buyer_id, "amount": c.total_amount, "status": c.status.value if hasattr(c.status, 'value') else str(c.status)} for c in contracts]
+    }
+
+def report_false_info(db: Session, farmer_id: str, business_name: str, reason: str, proof_url: str):
+    from models import DisputeRecord
+    
+    # Apply standard 30 point deduction
+    penalty = 30
+    
+    dispute = DisputeRecord(
+        farmer_id=farmer_id,
+        business_name=business_name,
+        reason=reason,
+        proof_url=proof_url,
+        penalty_applied=True,
+        points_deducted=penalty
+    )
+    
+    db.add(dispute)
+    
+    # Find existing verifications and drop trust score
+    verifications = db.query(BioChainVerification).filter(BioChainVerification.farmer_id == farmer_id).all()
+    new_score = 0
+    for v in verifications:
+        v.trust_score = max(0, v.trust_score - penalty)
+        v.is_verified = False # Strip premium status
+        new_score = v.trust_score
+        
+    db.commit()
+    
+    return {
+        "farmer_id": farmer_id,
+        "business": business_name,
+        "reason": reason,
+        "proof_url": proof_url,
+        "penalty_applied": penalty,
+        "new_trust_score": new_score,
+        "premium_status_revoked": True
     }

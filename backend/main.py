@@ -6,7 +6,7 @@ from database import SessionLocal, engine, Base
 from sqlalchemy.orm import Session
 import agent_tools
 from schemas import ContractCreate
-from models import Contract, ContractStatus
+from models import Farmer, HarvestRecord, BioChainVerification, Contract, ContractStatus, SubscriptionTier, BusinessSubscription
 import datetime
 
 Base.metadata.create_all(bind=engine)
@@ -31,57 +31,216 @@ def get_db():
 class ChatRequest(BaseModel):
     message: str
 
+class UpgradeRequest(BaseModel):
+    business_name: str = "Demo Business"
+
+@app.post("/api/subscription/upgrade")
+def upgrade_subscription(req: UpgradeRequest, db: Session = Depends(get_db)):
+    sub = db.query(BusinessSubscription).filter(BusinessSubscription.business_name == req.business_name).first()
+    if not sub:
+        sub = BusinessSubscription(business_name=req.business_name, tier=SubscriptionTier.PRO)
+        db.add(sub)
+    else:
+        sub.tier = SubscriptionTier.PRO
+    db.commit()
+    return {"status": "success", "message": "Upgraded to PRO tier"}
+
+import json
+import requests
+
+# Define tools for Grok API
+TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "verify_crop",
+            "description": "Verifies a crop batch for a farmer using BioChain.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "farmer_id": {"type": "string"},
+                    "crop_name": {"type": "string"}
+                },
+                "required": ["farmer_id", "crop_name"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate_arbitrage",
+            "description": "Finds the best market arbitrage for a crop.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "crop_name": {"type": "string"},
+                    "source_mandi": {"type": "string"},
+                    "quantity_kg": {"type": "number"}
+                },
+                "required": ["crop_name", "source_mandi", "quantity_kg"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "draft_contract",
+            "description": "Drafts a B2B smart contract between an FPO and a buyer. You must generate the contract clauses first and pass them to this function.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "fpo_name": {"type": "string"},
+                    "buyer_name": {"type": "string"},
+                    "crop_name": {"type": "string"},
+                    "quantity_tons": {"type": "number"},
+                    "clauses": {"type": "string", "description": "The generated legal clauses for the contract."}
+                },
+                "required": ["fpo_name", "buyer_name", "crop_name", "quantity_tons", "clauses"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_rag_insights",
+            "description": "Retrieves insights from past trades via RAG.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "penalize_farmer",
+            "description": "Reports false information submitted by a farmer and applies a penalty. Use when a small business provides proof of false crop data.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "farmer_id": {"type": "string"},
+                    "business_name": {"type": "string"},
+                    "reason": {"type": "string"},
+                    "proof_url": {"type": "string", "description": "URL to the proof document or image"}
+                },
+                "required": ["farmer_id", "business_name", "reason", "proof_url"]
+            }
+        }
+    }
+]
+
 @app.post("/api/agent/chat")
 def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
-    msg = req.message.lower()
+    msg = req.message
     
-    intent = "RAG_INSIGHT"
-    if "verify" in msg or "check" in msg or "layer" in msg:
-        intent = "VERIFIED_CROP"
-    elif "arbitrage" in msg or "margin" in msg or "market" in msg or "best buyer" in msg or "price" in msg or "best" in msg:
-        intent = "FOUND_ARBITRAGE"
-    elif "yield" in msg or "plant" in msg or "history" in msg or "recommend" in msg or "intelligence" in msg:
-        intent = "FARMER_CROP_INTELLIGENCE"
-    elif "database" in msg or "schema" in msg or "review" in msg:
-        intent = "VIEW_DATABASE"
-    elif "contract" in msg or "draft" in msg or "agreement" in msg:
-        intent = "DRAFTED_CONTRACT"
-
+    system_prompt = "You are the KhetiNex Agent, an autonomous generative AI assistant for farmers and small businesses. You are a contract regulator, agriculture expert, and problem solver. Use tools to verify crops, calculate arbitrage, draft contracts, or get insights when appropriate. Otherwise, answer questions directly and helpfully."
+    
+    headers = {
+        "Content-Type": "application/json"
+    }
+    
+    payload_data = {
+        "model": "openai",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": msg}
+        ],
+        "tools": TOOLS,
+        "tool_choice": "auto"
+    }
+    
+    try:
+        response = requests.post(
+            "https://text.pollinations.ai/openai",
+            headers=headers,
+            json=payload_data
+        )
+        response.raise_for_status()
+        data = response.json()
+    except Exception as e:
+        error_details = str(e)
+        data = {}
+        message_data = {}
+        
+    choice = data.get("choices", [{}])[0] if data else {}
+    message_data = choice.get("message", {}) if data else {}
+    
+    intent = "CHAT"
     payload = {}
-    if intent == "VERIFIED_CROP":
-        crop = "Onions" if "onion" in msg else "Tomatoes"
-        payload = agent_tools.verify_biochain(db, "FMR-007", crop)
-    elif intent == "FOUND_ARBITRAGE":
-        crop = "onion" if "onion" in msg else "tomato"
-        payload = agent_tools.calculate_arbitrage(crop, "nashik", 1000.0)
-    elif intent == "FARMER_CROP_INTELLIGENCE":
-        import re
-        match = re.search(r"FRM-\d+", msg.upper())
-        fid = match.group(0) if match else "FRM-8842"
-        payload = agent_tools.get_farmer_history_and_recommendations(fid, db)
-    elif intent == "VIEW_DATABASE":
-        payload = agent_tools.get_database_summary(db)
-    elif intent == "DRAFTED_CONTRACT":
-        crop = "Onions" if "onion" in msg else "Tomatoes"
-        tons = 500 if "500" in msg else 10
-        payload = agent_tools.draft_smart_contract(db, "Kisan FPO", "Fresh Foods Inc", crop, tons, None)
-    else:
-        payload = agent_tools.get_rag_insights(db)
-
-    agent_thought = f"Detected intent '{intent}'. Executed tool successfully."
+    agent_thought = "Offline NLP Mode Active" if not data else ""
+    agent_message = "I have processed your request locally." if not data else ""
     
-    if intent == "FOUND_ARBITRAGE":
-        agent_message = f"I found the best arbitrage opportunity in {payload.get('best_market', 'your local market')}, yielding a net profit of INR {payload.get('net_profit', 0):,.2f} after transport costs."
-    elif intent == "VERIFIED_CROP":
-        hash_val = payload.get('hash', '0x00000000')[:10]
-        agent_message = f"Verification complete. Trust score is {payload.get('trust_score')}% with Immutable Hash: {hash_val}..."
-    elif intent == "FARMER_CROP_INTELLIGENCE":
-        agent_message = "I have analyzed the farmer's history and recommended the best crop for rotation to maximize yield and avoid soil depletion."
-    elif intent == "DRAFTED_CONTRACT":
-        agent_message = f"I have drafted the smart contract. Total valuation is INR {payload.get('total_value', 0):,.2f}."
-    else:
-        agent_message = "I have extracted the requested insights from the database. Please review the dashboard."
+    tool_calls = message_data.get("tool_calls")
+    func_name = None
+    args = {}
+    
+    if tool_calls:
+        tool_call = tool_calls[0]
+        func_name = tool_call.get("function", {}).get("name")
+        args_str = tool_call.get("function", {}).get("arguments", "{}")
+        try:
+            args = json.loads(args_str)
+        except:
+            args = {}
+            
+    # Fallback NLP Router if API fails to trigger tool_calls natively (Hackathon safeguard)
+    if not func_name:
+        msg_lower = msg.lower()
+        if "verify" in msg_lower:
+            func_name = "verify_crop"
+            args = {"farmer_id": "FMR-007", "crop_name": "Onions" if "onion" in msg_lower else "Tomato"}
+        elif "arbitrage" in msg_lower or "margin" in msg_lower:
+            func_name = "calculate_arbitrage"
+            args = {"crop_name": "tomato" if "tomato" in msg_lower else "onion", "source_mandi": "nashik", "quantity_kg": 1000}
+        elif "contract" in msg_lower or "draft" in msg_lower:
+            func_name = "draft_contract"
+            args = {"fpo_name": "Kisan FPO", "buyer_name": "Fresh Foods Inc", "crop_name": "Onions", "quantity_tons": 500}
+        elif "insight" in msg_lower or "rag" in msg_lower or "past trade" in msg_lower:
+            func_name = "get_rag_insights"
+            args = {}
+        elif "report" in msg_lower or "false info" in msg_lower or "penalize" in msg_lower:
+            func_name = "penalize_farmer"
+            args = {"farmer_id": "FMR-007", "business_name": "Anonymous Buyer", "reason": "Reported False Info", "proof_url": "https://link-to-proof"}
 
+    if func_name:
+        agent_thought = f"Executing tool: {func_name} with args {args}"
+        
+        if func_name == "verify_crop":
+            intent = "VERIFIED_CROP"
+            payload = agent_tools.verify_biochain(db, args.get("farmer_id", "FMR-007"), args.get("crop_name", "Onions"))
+            agent_message = f"I have verified the crop batch for farmer {args.get('farmer_id', 'FMR-007')}. See the profile on the dashboard."
+        elif func_name == "calculate_arbitrage":
+            intent = "FOUND_ARBITRAGE"
+            payload = agent_tools.calculate_arbitrage(args.get("crop_name", "onion"), args.get("source_mandi", "nashik"), float(args.get("quantity_kg", 1000.0)))
+            agent_message = f"I've calculated the best arbitrage route for {args.get('quantity_kg', 1000)} kg of {args.get('crop_name', 'onions')}."
+        elif func_name == "draft_contract":
+            if not agent_tools.check_is_pro(db):
+                intent = "UPGRADE_REQUIRED"
+                payload = {"feature": "AI Smart Contract Drafting", "reason": "Requires KhetiNex PRO"}
+                agent_message = "I cannot draft the smart contract. You need a KhetiNex PRO subscription to use this feature."
+            else:
+                intent = "DRAFTED_CONTRACT"
+                payload = agent_tools.draft_smart_contract(db, args.get("fpo_name", "Kisan FPO"), args.get("buyer_name", "Fresh Foods Inc"), args.get("crop_name", "Onions"), int(args.get("quantity_tons", 10)), args.get("clauses", "1. Standard terms apply."))
+                agent_message = "I have drafted the smart contract based on your parameters."
+        elif func_name == "get_rag_insights":
+            if not agent_tools.check_is_pro(db):
+                intent = "UPGRADE_REQUIRED"
+                payload = {"feature": "Market RAG Insights", "reason": "Requires KhetiNex PRO"}
+                agent_message = "I cannot fetch past trade insights. You need a KhetiNex PRO subscription to use this feature."
+            else:
+                intent = "RAG_INSIGHT"
+                payload = agent_tools.get_rag_insights(db)
+                agent_message = "I've pulled the latest RAG insights from the database."
+        elif func_name == "penalize_farmer":
+            intent = "PENALIZED_FARMER"
+            payload = agent_tools.report_false_info(db, args.get("farmer_id", "UNKNOWN"), args.get("business_name", "Anonymous Buyer"), args.get("reason", "False Info"), args.get("proof_url", "http://proof.link"))
+            agent_message = f"Warning: I have recorded the dispute. {args.get('farmer_id', 'UNKNOWN')}'s trust score has been severely penalized, and their Premium status is revoked."
+    else:
+        # Generative AI response
+        agent_thought = "Generated response using Grok API."
+        agent_message = message_data.get("content", "")
+        
     return {
         "agent_thought": agent_thought,
         "agent_message": agent_message,
