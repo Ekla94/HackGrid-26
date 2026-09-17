@@ -1217,12 +1217,17 @@ function QcScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }
 
 // 8b. Farmer Proof Screen
 function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [description, setDescription] = useState("1000kg of clean Sharbati wheat ready at Sehore mandi dock");
+  const [description, setDescription] = useState("1000kg of clean Sharbati wheat ready at Sehore mandi dock, 11.2% moisture");
   const [aiVerified, setAiVerified] = useState(false);
+  const [isCompliant, setIsCompliant] = useState(false);
   const [verdict, setVerdict] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleAnalyze = async () => {
+    if (!description.trim()) {
+      alert("Please describe your harvest lot.");
+      return;
+    }
     setIsAnalyzing(true);
     try {
       const res = await fetch("http://localhost:8000/api/biochain/verify", {
@@ -1231,11 +1236,13 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
         body: JSON.stringify({ description })
       });
       const data = await res.json();
-      setVerdict(data.verdict || "Harvest parameters verified as FAQ standard.");
+      setVerdict(data.verdict || "Harvest parameters analyzed.");
+      setIsCompliant(Boolean(data.isVerified));
       setAiVerified(true);
     } catch (err) {
       console.error(err);
-      setVerdict("Error connecting to AI Agent.");
+      setVerdict("Error connecting to AI Agent. Please verify your backend connection.");
+      setIsCompliant(false);
       setAiVerified(true);
     } finally {
       setIsAnalyzing(false);
@@ -1245,7 +1252,7 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
   return (
     <ScreenShell current="qc" title="AI harvest proof" eyebrow="08 / Dispatch" onBack={onBack} role="farmer">
       <div style={{ paddingTop: 10 }}>
-        <SectionTitle kicker="Autonomous Verification" title="Describe harvest lot." body="No complex paper filings. Our AI agent verifies grain parameters from your description and images." />
+        <SectionTitle kicker="Autonomous Verification" title="Describe harvest lot." body="No complex paper filings. Our AI agent verifies grain parameters from your description in accordance with DMI AGMARK schedules." />
         
         {!aiVerified ? (
           <div style={{ marginTop: 12 }}>
@@ -1253,6 +1260,7 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isAnalyzing}
+              placeholder="e.g. 1000kg of clean Sharbati wheat, 11.4% moisture, zero rot at Sehore mandi dock..."
               style={{
                 width: "100%",
                 height: 100,
@@ -1289,25 +1297,63 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
                 gap: 8
               }}
             >
-              {isAnalyzing ? <><RefreshCw size={16} className="animate-spin" /> Analyzing...</> : "Analyze with AI Agent"}
+              {isAnalyzing ? <><RefreshCw size={16} className="animate-spin" /> Analyzing against DMI AGMARK Standards...</> : "Analyze with AI Agent"}
             </button>
           </div>
         ) : (
-          <div style={{ marginTop: 12, padding: 14, borderRadius: 16, background: "var(--tp-tone-green-bg)", border: "1px solid var(--tp-tone-green-border)" }}>
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <Sparkles size={20} color="#add4a8" />
-              <div>
-                <div style={{ color: "var(--tp-tone-green-color)", fontSize: 12, fontWeight: 800 }}>KhetiNex AI Agent Verdict</div>
-                <div style={{ fontSize: 11, color: parchment, marginTop: 3 }}>
-                  "{verdict}"
+          <div style={{ marginTop: 14 }}>
+            <div 
+              style={{ 
+                padding: 16, 
+                borderRadius: 16, 
+                background: isCompliant ? "var(--tp-tone-green-bg)" : "var(--tp-tone-red-bg)", 
+                border: `1px solid ${isCompliant ? "var(--tp-tone-green-border)" : "var(--tp-tone-red-border)"}` 
+              }}
+            >
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <div style={{ marginTop: 2 }}>
+                  {isCompliant ? <Sparkles size={22} color="var(--tp-tone-green-color)" /> : <Scale size={22} color="var(--tp-tone-red-color)" />}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: isCompliant ? "var(--tp-tone-green-color)" : "var(--tp-tone-red-color)", fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", gap: 6 }}>
+                    {isCompliant ? "KhetiNex DMI AGMARK Certification: Approved" : "DMI AGMARK Quality Non-Compliance"}
+                  </div>
+                  <div style={{ fontSize: 12, color: parchment, marginTop: 6, lineHeight: 1.6 }}>
+                    {verdict}
+                  </div>
                 </div>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setAiVerified(false)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--tp-tone-green-color)",
+                fontSize: 12,
+                fontWeight: 700,
+                marginTop: 10,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6
+              }}
+            >
+              ← Edit Lot Description & Re-Test
+            </button>
           </div>
         )}
 
         <div style={{ marginTop: 22 }}>
-          <PrimaryButton onClick={onNext} icon={ArrowRight}>Proceed to Payout Terminal</PrimaryButton>
+          <PrimaryButton 
+            onClick={onNext} 
+            icon={ArrowRight} 
+            disabled={!isCompliant}
+          >
+            {isCompliant ? "Proceed to Payout Terminal" : "AGMARK Compliance Required to Proceed"}
+          </PrimaryButton>
         </div>
       </div>
     </ScreenShell>
