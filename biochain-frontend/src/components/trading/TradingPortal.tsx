@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -595,6 +595,20 @@ function OtpScreen({
   onBack: () => void;
   role?: BuyerRole;
 }) {
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const timerId = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(timerId);
+  }, [timeLeft]);
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  const timeString = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
   const handleChange = (index: number, val: string) => {
     const next = [...otp];
     next[index] = val.slice(-1);
@@ -607,7 +621,7 @@ function OtpScreen({
         <SectionTitle
           kicker="Security Token"
           title="Enter the 6-digit confirmation code."
-          body="A verification token was dispatched to your registered device. Demo code pre-filled."
+          body="A verification token was dispatched to your registered device."
         />
         <div style={{ display: "flex", gap: 8, margin: "22px 0 24px", justifyContent: "center" }}>
           {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -615,15 +629,15 @@ function OtpScreen({
               key={i}
               type="text"
               maxLength={1}
-              value={otp[i] || (i + 1).toString()}
+              value={otp[i]}
               onChange={(e) => handleChange(i, e.target.value)}
               style={{
                 width: 44,
                 height: 52,
                 borderRadius: 13,
-                border: "1px solid rgba(212,170,87,.4)",
-                background: "rgba(18,21,17,.95)",
-                color: goldBright,
+                border: "1px solid var(--tp-tone-gold-border)",
+                background: "var(--tp-input-bg)",
+                color: "var(--tp-tone-green-color)",
                 fontSize: 20,
                 fontWeight: 800,
                 textAlign: "center",
@@ -633,8 +647,12 @@ function OtpScreen({
           ))}
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", color: muted, fontSize: 11, marginBottom: 22 }}>
-          <span>Code expires in 04:32</span>
-          <button type="button" style={{ color: gold, background: "none", border: "none", fontWeight: 700, cursor: "pointer" }}>
+          <span>Code expires in {timeString}</span>
+          <button 
+            type="button" 
+            onClick={() => setTimeLeft(300)}
+            style={{ color: "var(--tp-tone-green-color)", background: "none", border: "none", fontWeight: 700, cursor: "pointer" }}
+          >
             Resend SMS
           </button>
         </div>
