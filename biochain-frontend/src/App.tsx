@@ -73,28 +73,50 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             
-            {/* Brand Logo */}
-            <Link 
-              to="/"
-              className="flex items-center cursor-pointer group"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <div className="bg-emerald-600/10 dark:bg-amber-500/10 p-2.5 rounded-xl mr-3 group-hover:bg-emerald-600/20 dark:group-hover:bg-amber-500/20 transition-all border border-emerald-600/30 dark:border-amber-500/30 group-hover:border-emerald-600/50 dark:group-hover:border-amber-500/50 shadow-[0_0_15px_rgba(5,150,105,0.15)] dark:shadow-[0_0_15px_rgba(245,158,11,0.15)]">
-                <Leaf className="w-6 h-6 text-emerald-600 dark:text-amber-500 transition-transform group-hover:scale-105" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold text-2xl tracking-tight text-stone-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-amber-400 transition-colors">
-                  KhetiNex
-                </span>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-700/80 dark:text-amber-500/80 -mt-1">
-                  BioChain Exchange
-                </span>
-              </div>
-            </Link>
+            {/* Brand Logo & Top-Left Branding */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              <Link 
+                to="/"
+                className="flex items-center cursor-pointer group select-none"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {/* Golden Leaf Outline Badge */}
+                <div className="bg-stone-900/90 dark:bg-black/90 p-2.5 rounded-2xl mr-3 group-hover:bg-amber-500/10 transition-all border border-amber-600/50 dark:border-amber-500/40 group-hover:border-amber-500/80 shadow-[0_0_16px_rgba(245,158,11,0.18)]">
+                  <Leaf className="w-6 h-6 text-amber-500 dark:text-amber-400 transition-transform group-hover:scale-105" />
+                </div>
+                <div className="flex flex-col justify-center">
+                  <span className="font-black text-2xl tracking-tight text-stone-900 dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors leading-none font-sans">
+                    KhetiNex
+                  </span>
+                  <div className="flex flex-col mt-1 leading-[1.05]">
+                    <span className="text-[9px] uppercase font-black tracking-[0.18em] text-amber-600 dark:text-amber-500">
+                      BIOCHAIN
+                    </span>
+                    <span className="text-[9px] uppercase font-black tracking-[0.18em] text-amber-600 dark:text-amber-500">
+                      EXCHANGE
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              {/* HOME Pill Button (matching official KhetiNex top-left layout) */}
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-xl border transition-all text-xs font-black tracking-wider uppercase ${
+                  location.pathname === '/'
+                    ? 'border-amber-500/60 bg-amber-500/15 text-amber-500 dark:text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.2)]'
+                    : 'border-amber-500/30 hover:border-amber-500/60 text-amber-600/80 dark:text-amber-500/80 hover:text-amber-500 bg-amber-500/5 hover:bg-amber-500/15'
+                }`}
+              >
+                <Leaf className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                <span>HOME</span>
+              </Link>
+            </div>
             
             {/* Desktop Navigation */}
             <nav className="hidden xl:flex items-center gap-2 lg:gap-3">
-              {navItems.map((item) => {
+              {navItems.filter((item) => item.path !== '/').map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
                   <Link 

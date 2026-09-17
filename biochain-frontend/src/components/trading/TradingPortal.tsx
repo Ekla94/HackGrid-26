@@ -13,6 +13,7 @@ import {
   FileCheck2,
   KeyRound,
   Landmark,
+  Leaf,
   MapPin,
   ReceiptIndianRupee,
   RefreshCw,
@@ -260,7 +261,29 @@ function Header({
   return (
     <header style={{ padding: "18px 20px 0" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14 }}>
-        {onBack ? <BackButton onClick={onBack} /> : <div style={{ width: 34 }} />}
+        {onBack ? (
+          <BackButton onClick={onBack} />
+        ) : (
+          <a
+            href="/"
+            aria-label="KhetiNex Home"
+            title="KhetiNex Home"
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              border: "1px solid rgba(245,158,11,0.4)",
+              background: "rgba(245,158,11,0.08)",
+              color: gold,
+              display: "grid",
+              placeItems: "center",
+              cursor: "pointer",
+              textDecoration: "none",
+            }}
+          >
+            <Leaf size={15} color={gold} />
+          </a>
+        )}
         <div style={{ textAlign: "center", minWidth: 0 }}>
           <div style={{ color: gold, fontSize: 9, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase" }}>
             {eyebrow}
