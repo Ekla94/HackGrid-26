@@ -293,7 +293,7 @@ def generate_otp(req: dict):
     # Generate a random 6-digit OTP
     otp_code = str(random.randint(100000, 999999))
     otp_store[phone] = otp_code
-    print(f"--- 🔒 SMS SENT TO {phone}: {otp_code} ---")
+    print(f"--- [SMS] SENT TO {phone}: {otp_code} ---")
     return {"status": "success", "message": f"OTP sent to {phone}", "demo_otp": otp_code}
 
 @app.post("/api/auth/otp/verify")

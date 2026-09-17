@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -585,17 +585,22 @@ function FarmerLoginScreen({
 function OtpScreen({
   otp,
   setOtp,
+  generatedOtp,
   onNext,
   onBack,
+  onResend,
   role = "buyer",
 }: {
   otp: string[];
   setOtp: (otp: string[]) => void;
+  generatedOtp: string;
   onNext: () => void;
   onBack: () => void;
+  onResend: () => void;
   role?: BuyerRole;
 }) {
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -605,14 +610,80 @@ function OtpScreen({
     return () => clearInterval(timerId);
   }, [timeLeft]);
 
+  // Focus first empty box on load
+  useEffect(() => {
+    const firstEmpty = otp.findIndex((val) => !val);
+    const target = firstEmpty === -1 ? 0 : firstEmpty;
+    inputRefs.current[target]?.focus();
+  }, []);
+
   const mins = Math.floor(timeLeft / 60);
   const secs = timeLeft % 60;
   const timeString = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
   const handleChange = (index: number, val: string) => {
+    // Restrict strictly to digits
+    const clean = val.replace(/\D/g, "");
+    if (!clean && val !== "") return;
+
+    const char = clean.slice(-1);
     const next = [...otp];
-    next[index] = val.slice(-1);
+    next[index] = char;
     setOtp(next);
+
+    // Auto-advance to next input box if a digit was entered
+    if (char && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Only allow numbers and navigation keys
+    if (
+      !/^[0-9]$/.test(e.key) &&
+      !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab"].includes(e.key)
+    ) {
+      e.preventDefault();
+      return;
+    }
+
+    if (e.key === "Backspace") {
+      if (!otp[index] && index > 0) {
+        // If current box is already empty, move to previous box and clear it
+        e.preventDefault();
+        const next = [...otp];
+        next[index - 1] = "";
+        setOtp(next);
+        inputRefs.current[index - 1]?.focus();
+      } else {
+        const next = [...otp];
+        next[index] = "";
+        setOtp(next);
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    const next = [...otp];
+    for (let i = 0; i < 6; i++) {
+      next[i] = pasted[i] || "";
+    }
+    setOtp(next);
+    const targetIndex = Math.min(pasted.length, 5);
+    inputRefs.current[targetIndex]?.focus();
+  };
+
+  const handleAutoFill = () => {
+    const code = (generatedOtp || "842915").split("");
+    setOtp(code);
+    inputRefs.current[5]?.focus();
   };
 
   return (
@@ -623,25 +694,77 @@ function OtpScreen({
           title="Enter the 6-digit confirmation code."
           body="A verification token was dispatched to your registered device."
         />
-        <div style={{ display: "flex", gap: 8, margin: "22px 0 24px", justifyContent: "center" }}>
+
+        {/* Real SMS notification banner */}
+        <div style={{
+          background: "var(--tp-tone-green-bg)",
+          border: "1px solid var(--tp-tone-green-border)",
+          borderRadius: 14,
+          padding: "12px 14px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          margin: "16px 0 12px",
+          color: parchment,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 22 }}>📲</span>
+            <div>
+              <div style={{ fontWeight: 700, color: "var(--tp-tone-green-color)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                SMS Code Dispatched:
+              </div>
+              <div style={{ marginTop: 2, fontSize: 13, color: "var(--tp-parchment)" }}>
+                Your KhetiNex OTP is: <strong style={{ letterSpacing: "0.2em", color: "var(--tp-tone-green-color)", fontWeight: 800, fontSize: 16 }}>{generatedOtp || "842915"}</strong>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleAutoFill}
+            style={{
+              background: "var(--tp-tone-green-color)",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: 8,
+              padding: "6px 12px",
+              fontSize: 11,
+              fontWeight: 800,
+              cursor: "pointer",
+              whiteSpace: "nowrap"
+            }}
+          >
+            Auto-fill
+          </button>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, margin: "20px 0 24px", justifyContent: "center" }}>
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <input
               key={i}
+              ref={(el) => { inputRefs.current[i] = el; }}
               type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               maxLength={1}
               value={otp[i]}
               onChange={(e) => handleChange(i, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(i, e)}
+              onPaste={handlePaste}
+              placeholder="·"
               style={{
                 width: 44,
                 height: 52,
                 borderRadius: 13,
-                border: "1px solid var(--tp-tone-gold-border)",
+                border: otp[i] ? "2px solid var(--tp-tone-green-color)" : "1px solid var(--tp-tone-gold-border)",
                 background: "var(--tp-input-bg)",
                 color: "var(--tp-tone-green-color)",
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: 800,
                 textAlign: "center",
                 outline: "none",
+                transition: "all 0.15s ease",
               }}
             />
           ))}
@@ -650,7 +773,10 @@ function OtpScreen({
           <span>Code expires in {timeString}</span>
           <button 
             type="button" 
-            onClick={() => setTimeLeft(300)}
+            onClick={() => {
+              setTimeLeft(300);
+              onResend();
+            }}
             style={{ color: "var(--tp-tone-green-color)", background: "none", border: "none", fontWeight: 700, cursor: "pointer" }}
           >
             Resend SMS
@@ -1252,6 +1378,7 @@ export default function TradingPortal({
   const [farmerId, setFarmerId] = useState("KISAN-MP-20841");
   const [mobile, setMobile] = useState("+91 98 7654 3210");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [generatedOtp, setGeneratedOtp] = useState("842915");
   const [commodity, setCommodity] = useState("Soybean");
   const [quantity, setQuantity] = useState("500");
   const [maxPrice, setMaxPrice] = useState("4,850");
@@ -1287,12 +1414,14 @@ export default function TradingPortal({
       });
       const data = await res.json();
       if (data.demo_otp) {
-        // Automatically prefill the OTP array for demo purposes
-        const code = data.demo_otp.split("");
-        setOtp(code);
+        setGeneratedOtp(data.demo_otp);
+        setOtp(["", "", "", "", "", ""]);
       }
     } catch (err) {
       console.error(err);
+      const fallback = Math.floor(100000 + Math.random() * 900000).toString();
+      setGeneratedOtp(fallback);
+      setOtp(["", "", "", "", "", ""]);
     } finally {
       setIsGenerating(false);
       setScreen("otp");
@@ -1301,23 +1430,31 @@ export default function TradingPortal({
 
   const handleVerifyOtp = async () => {
     setIsVerifying(true);
+    const otpCode = otp.join("");
+    if (otpCode.length < 6) {
+      alert("Please enter the complete 6-digit confirmation code.");
+      setIsVerifying(false);
+      return;
+    }
     try {
-      const otpCode = otp.join("");
       const res = await fetch("http://localhost:8000/api/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mobile, otp: otpCode })
       });
       const data = await res.json();
-      if (data.verified) {
+      if (data.verified || otpCode === generatedOtp) {
         setScreen("kyc");
       } else {
-        alert("Invalid OTP Code! Please try again.");
+        alert("Invalid OTP Code! Please enter the code shown in the SMS notification: " + generatedOtp);
       }
     } catch (err) {
       console.error(err);
-      // Fallback in case backend is down
-      setScreen("kyc");
+      if (otpCode === generatedOtp) {
+        setScreen("kyc");
+      } else {
+        alert("Invalid OTP Code! Please enter the code shown: " + generatedOtp);
+      }
     } finally {
       setIsVerifying(false);
     }
@@ -1352,7 +1489,17 @@ export default function TradingPortal({
     );
   }
   if (screen === "otp") {
-    return <OtpScreen otp={otp} setOtp={setOtp} onNext={handleVerifyOtp} onBack={back} role={role} />;
+    return (
+      <OtpScreen
+        otp={otp}
+        setOtp={setOtp}
+        generatedOtp={generatedOtp}
+        onNext={handleVerifyOtp}
+        onBack={back}
+        onResend={handleSendOtp}
+        role={role}
+      />
+    );
   }
   if (screen === "kyc") {
     if (role === "farmer") {
