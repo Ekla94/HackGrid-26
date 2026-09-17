@@ -101,26 +101,16 @@ TOOLS = [
 
 @app.post("/api/agent/chat")
 def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
-    xai_key = os.environ.get("XAI_API_KEY")
-    if not xai_key:
-        return {
-            "agent_thought": "Error: XAI_API_KEY is not set.",
-            "agent_message": "Please set the XAI_API_KEY environment variable in the backend to use the Grok API generative features.",
-            "action_type": "ERROR",
-            "payload": {}
-        }
-    
     msg = req.message
     
     system_prompt = "You are the KhetiNex Agent, an autonomous generative AI assistant for farmers and small businesses. You are a contract regulator, agriculture expert, and problem solver. Use tools to verify crops, calculate arbitrage, draft contracts, or get insights when appropriate. Otherwise, answer questions directly and helpfully."
     
     headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {xai_key}"
+        "Content-Type": "application/json"
     }
     
     payload_data = {
-        "model": "grok-beta",
+        "model": "openai",
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": msg}
@@ -131,7 +121,7 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     
     try:
         response = requests.post(
-            "https://api.xai.com/v1/chat/completions",
+            "https://text.pollinations.ai/openai",
             headers=headers,
             json=payload_data
         )
