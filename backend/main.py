@@ -6,7 +6,7 @@ from database import SessionLocal, engine, Base
 from sqlalchemy.orm import Session
 import agent_tools
 from schemas import ContractCreate
-from models import Contract, ContractStatus
+from models import Farmer, HarvestRecord, BioChainVerification, Contract, ContractStatus, SubscriptionTier, BusinessSubscription
 import datetime
 
 Base.metadata.create_all(bind=engine)
@@ -30,6 +30,20 @@ def get_db():
 
 class ChatRequest(BaseModel):
     message: str
+
+class UpgradeRequest(BaseModel):
+    business_name: str = "Demo Business"
+
+@app.post("/api/subscription/upgrade")
+def upgrade_subscription(req: UpgradeRequest, db: Session = Depends(get_db)):
+    sub = db.query(BusinessSubscription).filter(BusinessSubscription.business_name == req.business_name).first()
+    if not sub:
+        sub = BusinessSubscription(business_name=req.business_name, tier=SubscriptionTier.PRO)
+        db.add(sub)
+    else:
+        sub.tier = SubscriptionTier.PRO
+    db.commit()
+    return {"status": "success", "message": "Upgraded to PRO tier"}
 
 import json
 import requests
@@ -184,13 +198,23 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
             payload = agent_tools.calculate_arbitrage(args.get("crop_name", "onion"), args.get("source_mandi", "nashik"), float(args.get("quantity_kg", 1000.0)))
             agent_message = f"I've calculated the best arbitrage route for {args.get('quantity_kg', 1000)} kg of {args.get('crop_name', 'onions')}."
         elif func_name == "draft_contract":
-            intent = "DRAFTED_CONTRACT"
-            payload = agent_tools.draft_smart_contract(db, args.get("fpo_name", "Kisan FPO"), args.get("buyer_name", "Fresh Foods Inc"), args.get("crop_name", "Onions"), int(args.get("quantity_tons", 10)), args.get("clauses", "1. Standard terms apply."))
-            agent_message = "I have drafted the smart contract based on your parameters."
+            if not agent_tools.check_is_pro(db):
+                intent = "UPGRADE_REQUIRED"
+                payload = {"feature": "AI Smart Contract Drafting", "reason": "Requires KhetiNex PRO"}
+                agent_message = "I cannot draft the smart contract. You need a KhetiNex PRO subscription to use this feature."
+            else:
+                intent = "DRAFTED_CONTRACT"
+                payload = agent_tools.draft_smart_contract(db, args.get("fpo_name", "Kisan FPO"), args.get("buyer_name", "Fresh Foods Inc"), args.get("crop_name", "Onions"), int(args.get("quantity_tons", 10)), args.get("clauses", "1. Standard terms apply."))
+                agent_message = "I have drafted the smart contract based on your parameters."
         elif func_name == "get_rag_insights":
-            intent = "RAG_INSIGHT"
-            payload = agent_tools.get_rag_insights(db)
-            agent_message = "I've pulled the latest RAG insights from the database."
+            if not agent_tools.check_is_pro(db):
+                intent = "UPGRADE_REQUIRED"
+                payload = {"feature": "Market RAG Insights", "reason": "Requires KhetiNex PRO"}
+                agent_message = "I cannot fetch past trade insights. You need a KhetiNex PRO subscription to use this feature."
+            else:
+                intent = "RAG_INSIGHT"
+                payload = agent_tools.get_rag_insights(db)
+                agent_message = "I've pulled the latest RAG insights from the database."
         elif func_name == "penalize_farmer":
             intent = "PENALIZED_FARMER"
             payload = agent_tools.report_false_info(db, args.get("farmer_id", "UNKNOWN"), args.get("business_name", "Anonymous Buyer"), args.get("reason", "False Info"), args.get("proof_url", "http://proof.link"))

@@ -142,6 +142,23 @@
             </div>
         </div>
 
+        <!-- Upgrade Required Layer -->
+        <div id="canvas-UPGRADE_REQUIRED" class="canvas-pane max-w-2xl mx-auto space-y-4 text-center">
+            <div class="bg-gradient-to-b from-amber-900/40 to-zinc-950 p-10 rounded-lg shadow-sm border border-amber-500/50 mt-10">
+                <svg class="w-16 h-16 mx-auto text-amber-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <h2 class="text-3xl font-bold text-white mb-2">KhetiNex <span class="text-amber-500">PRO</span> Required</h2>
+                <p class="text-zinc-400 mb-6 max-w-md mx-auto">The feature <strong id="upgrade-feature" class="text-white">--</strong> is exclusively available to PRO subscribers.</p>
+                
+                <div class="space-y-3 max-w-sm mx-auto text-left mb-8">
+                    <div class="flex items-center text-sm text-zinc-300"><svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> AI Smart Contract Drafting</div>
+                    <div class="flex items-center text-sm text-zinc-300"><svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Deep Market RAG Insights</div>
+                    <div class="flex items-center text-sm text-zinc-300"><svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Unlimited DMI Arbitrage Routes</div>
+                </div>
+                
+                <button onclick="upgradeSubscription()" class="bg-amber-500 hover:bg-amber-600 text-black font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">Upgrade to PRO Now</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -279,6 +296,26 @@
                 document.getElementById('pen-deduction').textContent = `-${payload.penalty_applied} Points`;
                 document.getElementById('pen-proof').href = payload.proof_url;
                 document.getElementById('pen-proof').textContent = payload.proof_url;
+            }
+            else if (action === 'UPGRADE_REQUIRED') {
+                document.getElementById('upgrade-feature').textContent = payload.feature;
+            }
+        }
+
+        async function upgradeSubscription() {
+            try {
+                const response = await fetch('http://localhost:8000/api/subscription/upgrade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ business_name: 'Demo Business' })
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    alert('Successfully upgraded to KhetiNex PRO! You can now use premium tools.');
+                    addMessage('system', 'Subscription active! The AI Copilot premium capabilities are now unlocked.', 'UPGRADE_REQUIRED', null);
+                }
+            } catch (error) {
+                console.error("Upgrade error:", error);
             }
         }
 

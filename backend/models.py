@@ -140,3 +140,17 @@ class DisputeRecord(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     
     farmer = relationship("Farmer")
+
+class SubscriptionTier(enum.Enum):
+    FREE = "free"
+    PRO = "pro"
+    ENTERPRISE = "enterprise"
+
+class BusinessSubscription(Base):
+    __tablename__ = "business_subscriptions"
+    id = Column(Integer, primary_key=True, index=True)
+    business_name = Column(String, unique=True, index=True)
+    tier = Column(Enum(SubscriptionTier), default=SubscriptionTier.FREE)
+    is_active = Column(Boolean, default=True)
+    expires_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)

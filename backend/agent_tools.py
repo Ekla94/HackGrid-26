@@ -1,7 +1,20 @@
 import datetime
 import random
 from sqlalchemy.orm import Session
-from models import Contract, Farmer, HarvestRecord, BioChainVerification, ContractStatus
+from models import User, CropBatch, Contract, BioChainVerification, Farmer, HarvestRecord, SubscriptionTier, BusinessSubscription, ContractStatus
+
+def get_or_create_subscription(db: Session, business_name: str = "Demo Business"):
+    sub = db.query(BusinessSubscription).filter(BusinessSubscription.business_name == business_name).first()
+    if not sub:
+        sub = BusinessSubscription(business_name=business_name, tier=SubscriptionTier.FREE)
+        db.add(sub)
+        db.commit()
+        db.refresh(sub)
+    return sub
+
+def check_is_pro(db: Session, business_name: str = "Demo Business"):
+    sub = get_or_create_subscription(db, business_name)
+    return sub.tier == SubscriptionTier.PRO or sub.tier == SubscriptionTier.ENTERPRISE
 
 def verify_biochain(db: Session, farmer_id: str, crop_name: str):
     # Simulated validation points based on real hackathon metrics
