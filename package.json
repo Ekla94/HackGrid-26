@@ -1,1 +1,1 @@
-{"name": "khetinex-root", "private": true, "scripts": {"build": "npm --prefix biochain-frontend install && npm --prefix biochain-frontend run build"}, "devDependencies": {}}
+{"name": "khetinex-root", "private": true, "scripts": {"build": "cd biochain-frontend && npm install && npm run build && node -e \"require('fs').cpSync('dist', '../dist', {recursive: true})\""}}

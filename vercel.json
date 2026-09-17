@@ -1,1 +1,1 @@
-{"buildCommand": "cd biochain-frontend && npm install && npm run build", "outputDirectory": "biochain-frontend/dist", "rewrites": [{"source": "/(.*)", "destination": "/index.html"}]}
+{"buildCommand": "cd biochain-frontend && npm install && npm run build && node -e \"require('fs').cpSync('dist', '../dist', {recursive: true})\"", "outputDirectory": "dist", "rewrites": [{"source": "/(.*)", "destination": "/index.html"}]}
