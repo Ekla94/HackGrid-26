@@ -32,9 +32,9 @@ class ChatRequest(BaseModel):
     message: str
 
 import json
-from openai import OpenAI
+import requests
 
-# Define tools for OpenAI
+# Define tools for Grok API
 TOOLS = [
     {
         "type": "function",
@@ -109,45 +109,62 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
             "action_type": "ERROR",
             "payload": {}
         }
-        
-    client = OpenAI(
-        api_key=xai_key,
-        base_url="https://api.xai.com/v1",
-    )
     
     msg = req.message
     
     system_prompt = "You are the KhetiNex Agent, an autonomous generative AI assistant for farmers and small businesses. You are a contract regulator, agriculture expert, and problem solver. Use tools to verify crops, calculate arbitrage, draft contracts, or get insights when appropriate. Otherwise, answer questions directly and helpfully."
     
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {xai_key}"
+    }
+    
+    payload_data = {
+        "model": "grok-beta",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": msg}
+        ],
+        "tools": TOOLS,
+        "tool_choice": "auto"
+    }
+    
     try:
-        response = client.chat.completions.create(
-            model="grok-beta",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": msg}
-            ],
-            tools=TOOLS,
-            tool_choice="auto"
+        response = requests.post(
+            "https://api.xai.com/v1/chat/completions",
+            headers=headers,
+            json=payload_data
         )
+        response.raise_for_status()
+        data = response.json()
     except Exception as e:
+        error_details = str(e)
+        if 'response' in locals() and hasattr(response, 'text'):
+            error_details += f" | Response: {response.text}"
         return {
             "agent_thought": "Failed to call Grok API.",
-            "agent_message": f"An error occurred while calling the Grok API: {str(e)}",
+            "agent_message": f"An error occurred while calling the Grok API: {error_details}",
             "action_type": "ERROR",
             "payload": {}
         }
         
-    choice = response.choices[0]
+    choice = data.get("choices", [{}])[0]
+    message_data = choice.get("message", {})
     
     intent = "CHAT"
     payload = {}
     agent_thought = ""
     agent_message = ""
     
-    if choice.message.tool_calls:
-        tool_call = choice.message.tool_calls[0]
-        func_name = tool_call.function.name
-        args = json.loads(tool_call.function.arguments)
+    tool_calls = message_data.get("tool_calls")
+    if tool_calls:
+        tool_call = tool_calls[0]
+        func_name = tool_call.get("function", {}).get("name")
+        args_str = tool_call.get("function", {}).get("arguments", "{}")
+        try:
+            args = json.loads(args_str)
+        except:
+            args = {}
         
         agent_thought = f"Calling tool {func_name} with arguments {args}"
         
@@ -170,7 +187,7 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     else:
         # Generative AI response
         agent_thought = "Generated response using Grok API."
-        agent_message = choice.message.content
+        agent_message = message_data.get("content", "")
         
     return {
         "agent_thought": agent_thought,
