@@ -487,6 +487,123 @@ def biochain_verify(req: dict, db: Session = Depends(get_db)):
         )
     }
 
+@app.post("/api/farmer/intake/verify")
+def verify_farmer_intake(intake: dict, db: Session = Depends(get_db)):
+    crop = (intake.get("crop") or "wheat").strip().lower()
+    variety = intake.get("variety", "Standard FAQ")
+    quantity_mt = float(intake.get("quantity_mt") or 25.0)
+    moisture_pct = float(intake.get("moisture_pct") or 11.2)
+    foreign_matter_pct = float(intake.get("foreign_matter_pct") or 0.4)
+    damaged_pct = float(intake.get("damaged_pct") or 0.8)
+    storage_type = intake.get("storage_type", "covered_warehouse")
+    harvest_weather = intake.get("harvest_weather", "dry_sunny")
+    pesticide_safe = bool(intake.get("pesticide_safe", True))
+    packaging = intake.get("packaging", "50kg_new_jute")
+    pickup_location = intake.get("pickup_location", "Sehore Mandi Terminal")
+
+    crops_catalog = {
+        "wheat": {"name": "Wheat (Triticum aestivum)", "max_moisture": 12.0, "max_foreign": 1.0, "max_damage": 2.0, "std_code": "AGMARK-WHT-2004"},
+        "soybean": {"name": "Soybean (Glycine max)", "max_moisture": 12.0, "max_foreign": 1.0, "max_damage": 3.0, "std_code": "AGMARK-SOY-2001"},
+        "tomato": {"name": "Table Tomato", "max_moisture": None, "max_foreign": 0.5, "max_damage": 3.0, "std_code": "AGMARK-TOM-2008"},
+        "onion": {"name": "Rabi Onion", "max_moisture": None, "max_foreign": 1.0, "max_damage": 2.0, "std_code": "AGMARK-ONN-2004"},
+        "rice": {"name": "Paddy / Rice", "max_moisture": 14.0, "max_foreign": 1.0, "max_damage": 2.0, "std_code": "AGMARK-PDY-2002"},
+        "chana": {"name": "Bengal Gram / Chickpea", "max_moisture": 10.5, "max_foreign": 1.0, "max_damage": 2.0, "std_code": "AGMARK-CHN-2003"},
+        "potato": {"name": "Table Potato", "max_moisture": None, "max_foreign": 1.0, "max_damage": 3.0, "std_code": "AGMARK-POT-2005"},
+        "mustard": {"name": "Mustard / Rapeseed", "max_moisture": 8.0, "max_foreign": 1.0, "max_damage": 2.0, "std_code": "AGMARK-MUS-2001"},
+    }
+
+    spec = crops_catalog.get(crop, crops_catalog["wheat"])
+    crop_title = spec["name"]
+    std_code = spec["std_code"]
+    max_moisture = spec["max_moisture"]
+    max_foreign = spec["max_foreign"]
+    max_damage = spec["max_damage"]
+
+    score = 100
+    deductions = []
+    is_compliant = True
+
+    if max_moisture:
+        if moisture_pct > max_moisture + 2.0:
+            is_compliant = False
+            score -= 35
+            deductions.append(f"Statutory Moisture Limit Exceeded: {moisture_pct}% vs max {max_moisture}%. Risk of mold heating.")
+        elif moisture_pct > max_moisture:
+            diff = round(moisture_pct - max_moisture, 1)
+            deduction_pct = round(diff * 1.5, 1)
+            score -= diff * 12
+            deductions.append(f"Minor Moisture Excess ({moisture_pct}%): Contract deduction of -{deduction_pct}% applicable upon weighbridge.")
+
+    if damaged_pct > max_damage + 2.0:
+        is_compliant = False
+        score -= 30
+        deductions.append(f"Excess Damaged Grains ({damaged_pct}% vs max {max_damage}%). Exceeds statutory threshold.")
+    elif damaged_pct > max_damage:
+        diff = round(damaged_pct - max_damage, 1)
+        score -= diff * 10
+        deductions.append(f"Damage Tolerance Surcharge: {damaged_pct}% damaged grains (re-cleaning clause).")
+
+    if foreign_matter_pct > max_foreign + 1.5:
+        is_compliant = False
+        score -= 25
+        deductions.append(f"Excess Foreign Matter ({foreign_matter_pct}% vs max {max_foreign}%). Re-sieving mandatory.")
+    elif foreign_matter_pct > max_foreign:
+        diff = round(foreign_matter_pct - max_foreign, 1)
+        score -= diff * 8
+        deductions.append(f"Impurities Deduction: {foreign_matter_pct}% foreign matter.")
+
+    if storage_type in ["bare_earth", "open_yard"]:
+        score -= 20
+        deductions.append("Hazardous Outdoor Storage: Direct ground contact increases moisture absorption risk.")
+    elif storage_type == "covered_warehouse":
+        score = min(100, score + 2)
+
+    if harvest_weather == "rain_affected":
+        score -= 25
+        deductions.append("Rain During Harvest: Critical fungal/aflatoxin risk flagged. Mandates lab spot-check.")
+
+    if not pesticide_safe:
+        is_compliant = False
+        score -= 40
+        deductions.append("Pesticide Pre-Harvest Interval (PHI) Violation: Chemical residue exceeds export MRL limits.")
+
+    trust_score = max(20, min(99, int(score)))
+    if trust_score < 60:
+        is_compliant = False
+
+    grade = "AGMARK Grade-1 (Special FAQ)" if trust_score >= 85 else ("AGMARK Grade-2 (Commercial Good)" if trust_score >= 65 else "Sub-Standard / Rejected")
+
+    import hashlib, time
+    cert_hash = "0x" + hashlib.sha256(f"{crop}_{variety}_{quantity_mt}_{trust_score}_{time.time()}".encode()).hexdigest()[:16]
+
+    return {
+        "status": "APPROVED" if is_compliant else "REJECTED",
+        "isVerified": is_compliant,
+        "dmiGrade": grade,
+        "stdCode": std_code,
+        "trustScore": trust_score,
+        "certificateHash": cert_hash,
+        "cropDetails": f"{crop_title} ({variety}) · {quantity_mt} MT",
+        "parametersSummary": {
+            "moisture": f"{moisture_pct}% (Limit: {max_moisture or 'N/A'}%)",
+            "foreignMatter": f"{foreign_matter_pct}% (Limit: {max_foreign}%)",
+            "damagedGrains": f"{damaged_pct}% (Limit: {max_damage}%)",
+            "storage": storage_type.replace("_", " ").title(),
+            "weather": harvest_weather.replace("_", " ").title(),
+            "pesticideSafe": "Compliant" if pesticide_safe else "Non-Compliant",
+            "pickup": pickup_location
+        },
+        "deductionClauses": deductions,
+        "b2bEscrowApproved": is_compliant,
+        "verdict": (
+            f"✅ Certified {grade}: {crop_title} lot of {quantity_mt} MT meets DMI statutory schedule {std_code}. "
+            f"Verified under trust score {trust_score}/100. Advance escrow 30% authorized."
+            if is_compliant else
+            f"❌ DMI AGMARK Quality Alert: Lot evaluated as {grade} (Trust score: {trust_score}/100). "
+            f"Failed parameters: {'; '.join(deductions[:2])}. Re-assay or mechanical re-grading required."
+        )
+    }
+
 @app.post("/api/biochain/recommend")
 def biochain_recommend(req: dict, db: Session = Depends(get_db)):
     return {

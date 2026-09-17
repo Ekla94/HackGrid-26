@@ -15,7 +15,6 @@ import {
   RefreshCw,
   Scale,
   ShieldCheck,
-  Sparkles,
   Sprout,
   Store,
   Truck,
@@ -1215,15 +1214,34 @@ function QcScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }
   );
 }
 
-// 8b. Farmer Proof Screen
+// 8b. Farmer Proof Screen (with Quick AI & Detailed B2B DMI Lot Audit)
 function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
+  const [auditMode, setAuditMode] = useState<"quick" | "structured">("structured");
+  
+  // Quick mode state
   const [description, setDescription] = useState("1000kg of clean Sharbati wheat ready at Sehore mandi dock, 11.2% moisture");
+  
+  // Structured B2B Questionnaire state
+  const [crop, setCrop] = useState("wheat");
+  const [variety, setVariety] = useState("Sharbati C-306");
+  const [quantityMt, setQuantityMt] = useState("25.0");
+  const [moisturePct, setMoisturePct] = useState("11.2");
+  const [foreignMatterPct, setForeignMatterPct] = useState("0.4");
+  const [damagedPct, setDamagedPct] = useState("0.8");
+  const [storageType, setStorageType] = useState("covered_warehouse");
+  const [harvestWeather, setHarvestWeather] = useState("dry_sunny");
+  const [pesticideSafe, setPesticideSafe] = useState(true);
+  const [packaging, setPackaging] = useState("50kg_new_jute");
+  const [pickupLocation, setPickupLocation] = useState("Sehore APMC Terminal Gate 4");
+
+  // Result state
   const [aiVerified, setAiVerified] = useState(false);
   const [isCompliant, setIsCompliant] = useState(false);
   const [verdict, setVerdict] = useState("");
+  const [auditData, setAuditData] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const handleAnalyze = async () => {
+  const handleQuickAnalyze = async () => {
     if (!description.trim()) {
       alert("Please describe your harvest lot.");
       return;
@@ -1238,6 +1256,7 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
       const data = await res.json();
       setVerdict(data.verdict || "Harvest parameters analyzed.");
       setIsCompliant(Boolean(data.isVerified));
+      setAuditData(null);
       setAiVerified(true);
     } catch (err) {
       console.error(err);
@@ -1249,58 +1268,334 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
     }
   };
 
+  const handleStructuredAudit = async () => {
+    setIsAnalyzing(true);
+    try {
+      const payload = {
+        crop,
+        variety,
+        quantity_mt: parseFloat(quantityMt) || 25.0,
+        moisture_pct: parseFloat(moisturePct) || 11.2,
+        foreign_matter_pct: parseFloat(foreignMatterPct) || 0.4,
+        damaged_pct: parseFloat(damagedPct) || 0.8,
+        storage_type: storageType,
+        harvest_weather: harvestWeather,
+        pesticide_safe: pesticideSafe,
+        packaging,
+        pickup_location: pickupLocation
+      };
+      const res = await fetch("http://localhost:8000/api/farmer/intake/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      setAuditData(data);
+      setVerdict(data.verdict);
+      setIsCompliant(Boolean(data.isVerified));
+      setAiVerified(true);
+    } catch (err) {
+      console.error(err);
+      setVerdict("Error conducting DMI AGMARK statutory audit.");
+      setIsCompliant(false);
+      setAiVerified(true);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <ScreenShell current="qc" title="AI harvest proof" eyebrow="08 / Dispatch" onBack={onBack} role="farmer">
       <div style={{ paddingTop: 10 }}>
-        <SectionTitle kicker="Autonomous Verification" title="Describe harvest lot." body="No complex paper filings. Our AI agent verifies grain parameters from your description in accordance with DMI AGMARK schedules." />
-        
-        {!aiVerified ? (
-          <div style={{ marginTop: 12 }}>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              disabled={isAnalyzing}
-              placeholder="e.g. 1000kg of clean Sharbati wheat, 11.4% moisture, zero rot at Sehore mandi dock..."
-              style={{
-                width: "100%",
-                height: 100,
-                borderRadius: 14,
-                border: "1px solid rgba(212,170,87,.3)",
-                background: "var(--tp-input-bg)",
-                color: parchment,
-                padding: 12,
-                fontSize: 13,
-                outline: "none",
-                boxSizing: "border-box",
-                resize: "none",
-                opacity: isAnalyzing ? 0.6 : 1
-              }}
-            />
+        <SectionTitle 
+          kicker="DMI AGMARK Verification" 
+          title="Harvest lot quality & traceability." 
+          body="Structured intake of crop genetics, moisture, storage environment, and surroundings audited against statutory DMI schedules for B2B buyers." 
+        />
+
+        {/* Mode Selector Tabs */}
+        {!aiVerified && (
+          <div style={{ display: "flex", gap: 8, margin: "14px 0 16px", background: "var(--tp-panel)", padding: 4, borderRadius: 12, border: "1px solid var(--tp-border)" }}>
             <button
               type="button"
-              onClick={handleAnalyze}
-              disabled={isAnalyzing}
+              onClick={() => setAuditMode("structured")}
               style={{
-                width: "100%",
-                marginTop: 12,
-                minHeight: 46,
-                borderRadius: 14,
-                background: isAnalyzing ? "var(--tp-border)" : "linear-gradient(135deg, #e5ba61, #b17b35)",
-                color: isAnalyzing ? muted : "#121511",
-                fontSize: 13,
+                flex: 1,
+                padding: "8px 12px",
+                borderRadius: 9,
+                fontSize: 11,
                 fontWeight: 800,
                 border: "none",
-                cursor: isAnalyzing ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8
+                cursor: "pointer",
+                background: auditMode === "structured" ? "var(--tp-tone-green-color)" : "transparent",
+                color: auditMode === "structured" ? "#ffffff" : muted,
+                transition: "all 0.2s"
               }}
             >
-              {isAnalyzing ? <><RefreshCw size={16} className="animate-spin" /> Analyzing against DMI AGMARK Standards...</> : "Analyze with AI Agent"}
+              📋 B2B Lot Audit (Recommended)
+            </button>
+            <button
+              type="button"
+              onClick={() => setAuditMode("quick")}
+              style={{
+                flex: 1,
+                padding: "8px 12px",
+                borderRadius: 9,
+                fontSize: 11,
+                fontWeight: 800,
+                border: "none",
+                cursor: "pointer",
+                background: auditMode === "quick" ? "var(--tp-tone-green-color)" : "transparent",
+                color: auditMode === "quick" ? "#ffffff" : muted,
+                transition: "all 0.2s"
+              }}
+            >
+              ⚡ Quick AI Text Description
             </button>
           </div>
+        )}
+        
+        {!aiVerified ? (
+          auditMode === "quick" ? (
+            /* Quick Text Mode */
+            <div style={{ marginTop: 8 }}>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                disabled={isAnalyzing}
+                placeholder="e.g. 1000kg of clean Sharbati wheat, 11.2% moisture, stored in pucca warehouse at Sehore mandi dock..."
+                style={{
+                  width: "100%",
+                  height: 110,
+                  borderRadius: 14,
+                  border: "1px solid rgba(212,170,87,.3)",
+                  background: "var(--tp-input-bg)",
+                  color: parchment,
+                  padding: 12,
+                  fontSize: 13,
+                  outline: "none",
+                  boxSizing: "border-box",
+                  resize: "none",
+                  opacity: isAnalyzing ? 0.6 : 1
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleQuickAnalyze}
+                disabled={isAnalyzing}
+                style={{
+                  width: "100%",
+                  marginTop: 12,
+                  minHeight: 46,
+                  borderRadius: 14,
+                  background: isAnalyzing ? "var(--tp-border)" : "linear-gradient(135deg, #e5ba61, #b17b35)",
+                  color: isAnalyzing ? muted : "#121511",
+                  fontSize: 13,
+                  fontWeight: 800,
+                  border: "none",
+                  cursor: isAnalyzing ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8
+                }}
+              >
+                {isAnalyzing ? <><RefreshCw size={16} className="animate-spin" /> Analyzing DMI AGMARK Standards...</> : "Run Quick AI Assessment"}
+              </button>
+            </div>
+          ) : (
+            /* Structured B2B Questionnaire */
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 6 }}>
+              {/* Tier 1: Commodity */}
+              <div style={{ padding: 12, borderRadius: 14, background: "var(--tp-input-bg)", border: "1px solid var(--tp-border)" }}>
+                <div style={{ fontSize: 10, textTransform: "uppercase", color: "var(--tp-tone-green-color)", fontWeight: 800, letterSpacing: ".1em", marginBottom: 8 }}>
+                  Tier 1 · Commodity & Cultivar Specification
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Crop Type</label>
+                    <select
+                      value={crop}
+                      onChange={(e) => setCrop(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 8px", fontSize: 12 }}
+                    >
+                      <option value="wheat">Wheat (Triticum aestivum)</option>
+                      <option value="soybean">Soybean (Glycine max)</option>
+                      <option value="tomato">Tomato (Table Fresh)</option>
+                      <option value="onion">Rabi Onion (Nashik Red)</option>
+                      <option value="rice">Paddy / Basmati Rice</option>
+                      <option value="chana">Bengal Gram / Chickpea</option>
+                      <option value="mustard">Mustard / Rapeseed</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Variety / Cultivar</label>
+                    <input
+                      type="text"
+                      value={variety}
+                      onChange={(e) => setVariety(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 10px", fontSize: 12, boxSizing: "border-box" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Quantity (MT)</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={quantityMt}
+                      onChange={(e) => setQuantityMt(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 10px", fontSize: 12, boxSizing: "border-box" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Tier 2: Physical Parameters */}
+              <div style={{ padding: 12, borderRadius: 14, background: "var(--tp-input-bg)", border: "1px solid var(--tp-border)" }}>
+                <div style={{ fontSize: 10, textTransform: "uppercase", color: "var(--tp-tone-green-color)", fontWeight: 800, letterSpacing: ".1em", marginBottom: 8 }}>
+                  Tier 2 · Physical Quality Parameters (DMI Tolerances)
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Moisture (%)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={moisturePct}
+                      onChange={(e) => setMoisturePct(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 8px", fontSize: 12, boxSizing: "border-box" }}
+                    />
+                    <span style={{ fontSize: 9, color: "var(--tp-tone-green-color)", marginTop: 2, display: "block" }}>DMI Limit: ≤12.0%</span>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Foreign Matter (%)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={foreignMatterPct}
+                      onChange={(e) => setForeignMatterPct(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 8px", fontSize: 12, boxSizing: "border-box" }}
+                    />
+                    <span style={{ fontSize: 9, color: "var(--tp-tone-green-color)", marginTop: 2, display: "block" }}>DMI Limit: ≤1.0%</span>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Damaged (%)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={damagedPct}
+                      onChange={(e) => setDamagedPct(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 8px", fontSize: 12, boxSizing: "border-box" }}
+                    />
+                    <span style={{ fontSize: 9, color: "var(--tp-tone-green-color)", marginTop: 2, display: "block" }}>DMI Limit: ≤2.0%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tier 3: Storage & Surroundings */}
+              <div style={{ padding: 12, borderRadius: 14, background: "var(--tp-input-bg)", border: "1px solid var(--tp-border)" }}>
+                <div style={{ fontSize: 10, textTransform: "uppercase", color: "var(--tp-tone-green-color)", fontWeight: 800, letterSpacing: ".1em", marginBottom: 8 }}>
+                  Tier 3 · Farm Surroundings & Storage Facility
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Storage Facility</label>
+                    <select
+                      value={storageType}
+                      onChange={(e) => setStorageType(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 8px", fontSize: 12 }}
+                    >
+                      <option value="covered_warehouse">Covered Pucca Warehouse</option>
+                      <option value="grain_silo">Metal Grain Silo</option>
+                      <option value="open_shed">Covered Plinth Shed</option>
+                      <option value="bare_earth">Outdoor Tarpaulin Ground</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Harvest Weather</label>
+                    <select
+                      value={harvestWeather}
+                      onChange={(e) => setHarvestWeather(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 8px", fontSize: 12 }}
+                    >
+                      <option value="dry_sunny">Dry & Sunny Weather</option>
+                      <option value="humid">High Humidity</option>
+                      <option value="rain_affected">Unseasonal Rain Ingress</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                  <input
+                    type="checkbox"
+                    id="pesticideCheck"
+                    checked={pesticideSafe}
+                    onChange={(e) => setPesticideSafe(e.target.checked)}
+                    style={{ accentColor: "var(--tp-tone-green-color)", width: 16, height: 16 }}
+                  />
+                  <label htmlFor="pesticideCheck" style={{ fontSize: 11, color: parchment, cursor: "pointer" }}>
+                    Complied with Pre-Harvest Interval (Zero harmful pesticide residues)
+                  </label>
+                </div>
+              </div>
+
+              {/* Tier 4: Packaging & Dispatch */}
+              <div style={{ padding: 12, borderRadius: 14, background: "var(--tp-input-bg)", border: "1px solid var(--tp-border)" }}>
+                <div style={{ fontSize: 10, textTransform: "uppercase", color: "var(--tp-tone-green-color)", fontWeight: 800, letterSpacing: ".1em", marginBottom: 8 }}>
+                  Tier 4 · Packaging & Terminal Location
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 8 }}>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Packaging Type</label>
+                    <select
+                      value={packaging}
+                      onChange={(e) => setPackaging(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 8px", fontSize: 12 }}
+                    >
+                      <option value="50kg_new_jute">50kg New Jute/HDPE Bags</option>
+                      <option value="sound_second_hand">Sound Reusable Bags</option>
+                      <option value="loose_bulk">Loose Bulk in Trolley</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 10, color: muted, display: "block", marginBottom: 4 }}>Pickup Terminal / Gate</label>
+                    <input
+                      type="text"
+                      value={pickupLocation}
+                      onChange={(e) => setPickupLocation(e.target.value)}
+                      style={{ width: "100%", height: 38, borderRadius: 10, background: "var(--tp-panel)", color: parchment, border: "1px solid var(--tp-border)", padding: "0 10px", fontSize: 12, boxSizing: "border-box" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleStructuredAudit}
+                disabled={isAnalyzing}
+                style={{
+                  width: "100%",
+                  minHeight: 46,
+                  borderRadius: 14,
+                  background: isAnalyzing ? "var(--tp-border)" : "linear-gradient(135deg, #e5ba61, #b17b35)",
+                  color: isAnalyzing ? muted : "#121511",
+                  fontSize: 13,
+                  fontWeight: 800,
+                  border: "none",
+                  cursor: isAnalyzing ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  marginTop: 4
+                }}
+              >
+                {isAnalyzing ? <><RefreshCw size={16} className="animate-spin" /> Verifying against DMI Standards...</> : "Execute Statutory DMI AGMARK Audit"}
+              </button>
+            </div>
+          )
         ) : (
+          /* Certified Audit Result Presentation */
           <div style={{ marginTop: 14 }}>
             <div 
               style={{ 
@@ -1312,15 +1607,41 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
             >
               <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                 <div style={{ marginTop: 2 }}>
-                  {isCompliant ? <Sparkles size={22} color="var(--tp-tone-green-color)" /> : <Scale size={22} color="var(--tp-tone-red-color)" />}
+                  {isCompliant ? <BadgeCheck size={26} color="var(--tp-tone-green-color)" /> : <Scale size={26} color="var(--tp-tone-red-color)" />}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: isCompliant ? "var(--tp-tone-green-color)" : "var(--tp-tone-red-color)", fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", gap: 6 }}>
-                    {isCompliant ? "KhetiNex DMI AGMARK Certification: Approved" : "DMI AGMARK Quality Non-Compliance"}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ color: isCompliant ? "var(--tp-tone-green-color)" : "var(--tp-tone-red-color)", fontSize: 13, fontWeight: 800 }}>
+                      {auditData ? auditData.dmiGrade : (isCompliant ? "DMI AGMARK Certified Grade-A" : "DMI AGMARK Quality Alert")}
+                    </div>
+                    {auditData && (
+                      <span style={{ fontSize: 11, background: "var(--tp-panel)", padding: "2px 8px", borderRadius: 6, color: goldBright, fontFamily: "monospace" }}>
+                        Score: {auditData.trustScore}/100
+                      </span>
+                    )}
                   </div>
+                  
                   <div style={{ fontSize: 12, color: parchment, marginTop: 6, lineHeight: 1.6 }}>
                     {verdict}
                   </div>
+
+                  {auditData && (
+                    <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--tp-border)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, fontSize: 11 }}>
+                      <div><span style={{ color: muted }}>Schedule Code:</span> <strong style={{ color: parchment }}>{auditData.stdCode}</strong></div>
+                      <div><span style={{ color: muted }}>BioChain Cert:</span> <code style={{ color: goldBright }}>{auditData.certificateHash}</code></div>
+                      <div><span style={{ color: muted }}>Storage Audit:</span> <strong style={{ color: parchment }}>{auditData.parametersSummary.storage}</strong></div>
+                      <div><span style={{ color: muted }}>Chemical Safety:</span> <strong style={{ color: "var(--tp-tone-green-color)" }}>{auditData.parametersSummary.pesticideSafe}</strong></div>
+                    </div>
+                  )}
+
+                  {auditData && auditData.deductionClauses && auditData.deductionClauses.length > 0 && (
+                    <div style={{ marginTop: 10, background: "rgba(239, 68, 68, 0.1)", padding: "8px 10px", borderRadius: 8 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "var(--tp-tone-red-color)", textTransform: "uppercase" }}>Contract Deduction Clauses:</div>
+                      {auditData.deductionClauses.map((c: string, idx: number) => (
+                        <div key={idx} style={{ fontSize: 11, color: parchment, marginTop: 2 }}>• {c}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1341,7 +1662,7 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
                 gap: 6
               }}
             >
-              ← Edit Lot Description & Re-Test
+              ← Re-Audit Parameters / Edit Intake Data
             </button>
           </div>
         )}
