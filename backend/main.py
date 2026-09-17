@@ -1,5 +1,4 @@
 import os
-import threading
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -10,7 +9,6 @@ from schemas import ContractCreate
 from models import Contract, ContractStatus
 import datetime
 
-# Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="KhetiNex Agent Engine", version="2.0.0")
@@ -30,28 +28,11 @@ def get_db():
     finally:
         db.close()
 
-# Background LLM Loader
-local_generator = None
-def load_model():
-    global local_generator
-    try:
-        os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
-        import torch
-        from transformers import pipeline
-        print("Loading TinyLlama Copilot...")
-        local_generator = pipeline("text-generation", model="TinyLlama/TinyLlama-1.1B-Chat-v1.0", device_map="cpu")
-        print("Copilot loaded!")
-    except Exception as e:
-        print(f"Model failed: {e}")
-
-threading.Thread(target=load_model).start()
-
 class ChatRequest(BaseModel):
     message: str
 
 @app.post("/api/agent/chat")
 def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
-    global local_generator
     msg = req.message.lower()
     
     intent = "RAG_INSIGHT"
@@ -66,7 +47,6 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     elif "contract" in msg or "draft" in msg or "agreement" in msg:
         intent = "DRAFTED_CONTRACT"
 
-    # Execution (Acting)
     payload = {}
     if intent == "VERIFIED_CROP":
         crop = "Onions" if "onion" in msg else "Tomatoes"
@@ -75,7 +55,6 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
         crop = "onion" if "onion" in msg else "tomato"
         payload = agent_tools.calculate_arbitrage(crop, "nashik", 1000.0)
     elif intent == "FARMER_CROP_INTELLIGENCE":
-        # Extract farmer id if present (FRM-XXXX)
         import re
         match = re.search(r"FRM-\d+", msg.upper())
         fid = match.group(0) if match else "FRM-8842"
@@ -85,44 +64,23 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
     elif intent == "DRAFTED_CONTRACT":
         crop = "Onions" if "onion" in msg else "Tomatoes"
         tons = 500 if "500" in msg else 10
-        payload = agent_tools.draft_smart_contract(db, "Kisan FPO", "Fresh Foods Inc", crop, tons, local_generator)
+        payload = agent_tools.draft_smart_contract(db, "Kisan FPO", "Fresh Foods Inc", crop, tons, None)
     else:
         payload = agent_tools.get_rag_insights(db)
 
-    # Reasoning / Natural Language formatting (via Local LLM)
-    agent_message = "Processing your request..."
     agent_thought = f"Detected intent '{intent}'. Executed tool successfully."
     
-    if local_generator is not None:
-        try:
-            # Construct a safe prompt combining the intent and the payload
-            instruction = "Explain this data simply."
-            if intent == "FOUND_ARBITRAGE":
-                instruction = "Write 1 very short sentence confirming the best market, gross revenue, and net profit."
-            elif intent == "VERIFIED_CROP":
-                instruction = "Write 1 very short sentence confirming the Farmer ID, crop, and trust score."
-            elif intent == "FARMER_CROP_INTELLIGENCE":
-                instruction = "Write 1 very short sentence advising against their last crop family, and recommend the best rotation-safe crop."
-            elif intent == "VIEW_DATABASE":
-                instruction = "Write 1 short sentence presenting the database tables."
-            elif intent == "RAG_INSIGHT":
-                instruction = "Write a short, natural sentence summarizing the total number of recent trades and the average trust score. Do not list individual trades."
-            
-            prompt = f"""<|system|>
-You are KhetiNex, an AI broker for farmers. {instruction}
-<|user|>
-Action: {intent}
-Data: {payload}
-<|assistant|>
-"""
-            output = local_generator(prompt, max_new_tokens=65, do_sample=False, return_full_text=False)
-            agent_message = output[0]['generated_text'].strip()
-            if "<|assistant|>" in agent_message:
-                agent_message = agent_message.split("<|assistant|>")[-1].strip()
-        except Exception as e:
-            agent_message = f"I've successfully executed {intent}, but my language generator encountered an error: {str(e)}"
+    if intent == "FOUND_ARBITRAGE":
+        agent_message = f"I found the best arbitrage opportunity in {payload.get('best_market', 'your local market')}, yielding a net profit of INR {payload.get('net_profit', 0):,.2f} after transport costs."
+    elif intent == "VERIFIED_CROP":
+        hash_val = payload.get('hash', '0x00000000')[:10]
+        agent_message = f"Verification complete. Trust score is {payload.get('trust_score')}% with Immutable Hash: {hash_val}..."
+    elif intent == "FARMER_CROP_INTELLIGENCE":
+        agent_message = "I have analyzed the farmer's history and recommended the best crop for rotation to maximize yield and avoid soil depletion."
+    elif intent == "DRAFTED_CONTRACT":
+        agent_message = f"I have drafted the smart contract. Total valuation is INR {payload.get('total_value', 0):,.2f}."
     else:
-        agent_message = f"I've processed your {intent} request, but my language model is still booting up in the background! Please see the visual dashboard for the results."
+        agent_message = "I have extracted the requested insights from the database. Please review the dashboard."
 
     return {
         "agent_thought": agent_thought,
@@ -135,7 +93,7 @@ Data: {payload}
 def generate_contract(req: ContractCreate, db: Session = Depends(get_db)):
     total = req.tons * 1000 * 48.0
     text = f"""====================================================
-B2B AGRICULTURAL FORWARD CONTRACT (MOCK GENERATOR)
+B2B AGRICULTURAL FORWARD CONTRACT
 ====================================================
 Date: {datetime.datetime.now().strftime('%Y-%m-%d')}
 Seller (FPO): {req.fpo}
@@ -150,16 +108,24 @@ AI CLAUSE GENERATION:
 ===================================================="""
     
     new_contract = Contract(
-        buyer_id=1,
-        seller_id=2,
-        batch_id=1,
-        total_amount=total,
-        contract_text=text,
-        status=ContractStatus.SIGNED,
-        escrow_released=False
+        buyer_id=1, seller_id=2, batch_id=1, total_amount=total,
+        contract_text=text, status=ContractStatus.SIGNED, escrow_released=False
     )
     db.add(new_contract)
     db.commit()
     db.refresh(new_contract)
-
     return {"contract": text, "status": "SIGNED", "engine": "mock-engine", "contract_id": new_contract.id}
+
+@app.post("/api/biochain/verify")
+def biochain_verify(req: dict, db: Session = Depends(get_db)):
+    trust_score = 92
+    if req.get("ndvi_value", 1.0) < 0.5:
+        trust_score = 65
+    return {"id": 8842, "trustScore": trust_score, "isVerified": trust_score >= 85}
+
+@app.post("/api/biochain/recommend")
+def biochain_recommend(req: dict, db: Session = Depends(get_db)):
+    return {
+        "bestCrop": {"name": "Soybeans", "score": 0.95},
+        "bestBuyer": {"name": "AgriFoods Inc", "pricePremium": 1.15, "qualityReq": 85, "distance": 45}
+    }

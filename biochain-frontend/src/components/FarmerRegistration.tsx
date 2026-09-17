@@ -61,24 +61,24 @@ export default function FarmerRegistration() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mt-8 mb-8">
-        <div className="bg-green-700 px-8 py-6">
-          <h1 className="text-2xl font-bold text-white">BioChain Direct</h1>
-          <p className="text-green-100 mt-1">Farmer & Field Registration Module</p>
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-zinc-950 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.1)] border border-amber-500/20 overflow-hidden mt-8 mb-8">
+        <div className="bg-amber-500/5 border-b border-amber-500/20 px-8 py-6">
+          <h1 className="text-2xl font-bold text-amber-500">BioChain Direct</h1>
+          <p className="text-zinc-400 mt-1">Farmer & Field Registration Module</p>
         </div>
 
         <div className="p-8">
           {successMessage && (
-            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
-              <p className="text-green-800 font-medium">{successMessage}</p>
+            <div className="mb-6 bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+              <CheckCircle2 className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              <p className="text-amber-400 font-medium">{successMessage}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="fullName" className="block text-sm font-medium text-zinc-300 mb-1">
                 Farmer Full Name
               </label>
               <input
@@ -89,13 +89,13 @@ export default function FarmerRegistration() {
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-green-600 outline-none transition-shadow"
+                className="w-full px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="phone" className="block text-sm font-medium text-zinc-300 mb-1">
                   Phone Number
                 </label>
                 <input
@@ -106,12 +106,12 @@ export default function FarmerRegistration() {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-green-600 outline-none transition-shadow"
+                  className="w-full px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="fpo" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="fpo" className="block text-sm font-medium text-zinc-300 mb-1">
                   FPO Affiliation
                 </label>
                 <select
@@ -120,7 +120,7 @@ export default function FarmerRegistration() {
                   value={formData.fpo}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-green-600 outline-none transition-shadow bg-white"
+                  className="w-full px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow"
                 >
                   <option value="" disabled>Select an FPO...</option>
                   <option value="Nashik Onion FPO">Nashik Onion FPO</option>
@@ -131,7 +131,7 @@ export default function FarmerRegistration() {
             </div>
 
             <div>
-              <label htmlFor="farmSize" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="farmSize" className="block text-sm font-medium text-zinc-300 mb-1">
                 Farm Size (in Acres)
               </label>
               <input
@@ -144,12 +144,12 @@ export default function FarmerRegistration() {
                 value={formData.farmSize}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-green-600 outline-none transition-shadow"
+                className="w-full px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-zinc-300 mb-1">
                 Location Coordinates (Lat / Long)
               </label>
               <div className="flex flex-col md:flex-row gap-3">
@@ -160,7 +160,7 @@ export default function FarmerRegistration() {
                   value={formData.latitude}
                   onChange={handleChange}
                   required
-                  className="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-green-600 outline-none transition-shadow"
+                  className="w-full md:flex-1 px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
                 />
                 <input
                   type="text"
@@ -169,24 +169,24 @@ export default function FarmerRegistration() {
                   value={formData.longitude}
                   onChange={handleChange}
                   required
-                  className="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-green-600 outline-none transition-shadow"
+                  className="w-full md:flex-1 px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
                 />
                 <button
                   type="button"
                   onClick={handleGetLocation}
-                  className="w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg border border-gray-200 transition-colors whitespace-nowrap"
+                  className="w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium rounded-lg border border-zinc-700 transition-colors whitespace-nowrap"
                 >
-                  <MapPin className="w-4 h-4" />
+                  <MapPin className="w-4 h-4 text-amber-500" />
                   Get Current Location
                 </button>
               </div>
             </div>
 
-            <div className="pt-4 mt-8 border-t border-gray-100">
+            <div className="pt-4 mt-8 border-t border-zinc-800">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-lg transition-colors focus:outline-none focus:ring-4 focus:ring-green-600/30 disabled:opacity-80 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-bold rounded-lg text-lg transition-all focus:outline-none focus:ring-4 focus:ring-amber-500/30 disabled:opacity-80 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(245,158,11,0.2)]"
               >
                 {isLoading ? (
                   <>

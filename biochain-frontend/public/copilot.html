@@ -9,42 +9,42 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        .loader { border-top-color: #22c55e; animation: spinner 1.5s linear infinite; }
+        .loader { border-top-color: #f59e0b; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .canvas-pane { display: none; }
         .canvas-pane.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden text-gray-800 font-sans">
+<body class="bg-black flex h-screen overflow-hidden text-zinc-300 font-sans">
 
     <!-- LEFT PANEL: Chat Interface -->
-    <div class="w-full md:w-2/5 flex flex-col bg-white border-r border-gray-200 shadow-xl z-10 relative">
-        <div class="p-4 bg-green-700 text-white flex items-center shadow-md">
+    <div class="w-full md:w-2/5 flex flex-col bg-zinc-950 border-r border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.05)] z-10 relative">
+        <div class="p-4 bg-zinc-950 text-amber-500 flex items-center border-b border-amber-500/20">
             <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
             <h1 class="font-bold text-xl tracking-wide">KhetiNex Copilot</h1>
         </div>
 
-        <div id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+        <div id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-900">
             <!-- Initial AI Greeting -->
             <div class="flex items-start">
-                <div class="bg-green-100 p-3 rounded-lg rounded-tl-none shadow-sm text-sm text-gray-800 w-5/6">
-                    <strong>KhetiNex Agent:</strong> Hello! I am your autonomous agri-broker. I can verify crops, find arbitrage margins, and draft contracts. How can I help your FPO today?
+                <div class="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg rounded-tl-none shadow-sm text-sm text-amber-500 w-5/6">
+                    <strong class="text-white">KhetiNex Agent:</strong> Hello! I am your autonomous agri-broker. I can verify crops, find arbitrage margins, and draft contracts. How can I help your FPO today?
                 </div>
             </div>
         </div>
 
         <!-- Chat Input & Quick Prompts -->
-        <div class="p-4 bg-white border-t border-gray-200">
+        <div class="p-4 bg-zinc-950 border-t border-amber-500/20">
             <div class="flex flex-wrap gap-2 mb-3">
-                <button onclick="sendPrompt('Verify 1000kg Nashik Onions')" class="text-xs bg-gray-100 hover:bg-green-100 border border-gray-300 rounded-full px-3 py-1 transition">🔍 Verify 1000kg Onions</button>
-                <button onclick="sendPrompt('Find best mandi arbitrage for Tomatoes')" class="text-xs bg-gray-100 hover:bg-green-100 border border-gray-300 rounded-full px-3 py-1 transition">📈 Arbitrage Margins</button>
-                <button onclick="sendPrompt('Draft a B2B contract for 500 MT Onions')" class="text-xs bg-gray-100 hover:bg-green-100 border border-gray-300 rounded-full px-3 py-1 transition">📝 Draft Smart Contract</button>
-                <button onclick="sendPrompt('Show RAG insights from past trades')" class="text-xs bg-gray-100 hover:bg-green-100 border border-gray-300 rounded-full px-3 py-1 transition">📊 Past Trade Insights</button>
+                <button onclick="sendPrompt('Verify 1000kg Nashik Onions')" class="text-xs bg-black text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 transition">🔍 Verify 1000kg Onions</button>
+                <button onclick="sendPrompt('Find best mandi arbitrage for Tomatoes')" class="text-xs bg-black text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 transition">📈 Arbitrage Margins</button>
+                <button onclick="sendPrompt('Draft a B2B contract for 500 MT Onions')" class="text-xs bg-black text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 transition">📝 Draft Smart Contract</button>
+                <button onclick="sendPrompt('Show RAG insights from past trades')" class="text-xs bg-black text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 transition">📊 Past Trade Insights</button>
             </div>
             <form id="chat-form" class="flex items-center">
-                <input type="text" id="chat-input" class="flex-1 border border-gray-300 rounded-l-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ask KhetiNex to execute a task...">
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white p-3 rounded-r-lg transition">
+                <input type="text" id="chat-input" class="flex-1 border border-zinc-700 bg-zinc-900 text-white rounded-l-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Ask KhetiNex to execute a task...">
+                <button type="submit" class="bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-bold p-3 rounded-r-lg transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                 </button>
             </form>
@@ -52,9 +52,9 @@
     </div>
 
     <!-- RIGHT PANEL: Artifact Canvas -->
-    <div class="w-full md:w-3/5 bg-gray-100 relative p-6 overflow-y-auto">
+    <div class="w-full md:w-3/5 bg-black relative p-6 overflow-y-auto">
         <!-- Default State -->
-        <div id="canvas-default" class="canvas-pane active flex flex-col items-center justify-center h-full text-gray-400">
+        <div id="canvas-default" class="canvas-pane active flex flex-col items-center justify-center h-full text-zinc-600">
             <svg class="w-24 h-24 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
             <p class="text-lg">Dynamic Artifact Canvas</p>
             <p class="text-sm">Artifacts generated by the AI will appear here.</p>
@@ -62,59 +62,59 @@
 
         <!-- BioChain Layer -->
         <div id="canvas-VERIFIED_CROP" class="canvas-pane max-w-2xl mx-auto space-y-4">
-            <h2 class="text-2xl font-bold text-gray-800 border-b pb-2">BioChain 5-Layer Profile</h2>
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 class="text-2xl font-bold text-white border-b border-amber-500/20 pb-2">BioChain 5-Layer Profile</h2>
+            <div class="bg-zinc-950 p-6 rounded-lg shadow-sm border border-amber-500/20">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h3 class="text-gray-500 text-sm font-bold tracking-wider">TRUST SCORE</h3>
-                        <p id="bc-score" class="text-5xl font-extrabold text-green-600">--</p>
+                        <h3 class="text-zinc-500 text-sm font-bold tracking-wider">TRUST SCORE</h3>
+                        <p id="bc-score" class="text-5xl font-extrabold text-amber-500">--</p>
                     </div>
-                    <div id="bc-badge" class="px-4 py-2 bg-green-100 text-green-800 font-bold rounded-full">VERIFIED PREMIUM</div>
+                    <div id="bc-badge" class="px-4 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold rounded-full">VERIFIED PREMIUM</div>
                 </div>
                 <ul class="space-y-3 text-sm">
-                    <li class="flex justify-between items-center"><span class="text-gray-700">① Farmer & Field Verification</span><span id="bc-l1" class="font-bold text-green-600">--</span></li>
-                    <li class="flex justify-between items-center"><span class="text-gray-700">② Satellite / NDVI Verification</span><span id="bc-l2" class="font-bold text-green-600">--</span></li>
-                    <li class="flex justify-between items-center"><span class="text-gray-700">③ AI Camera Inspection</span><span id="bc-l3" class="font-bold text-green-600">--</span></li>
-                    <li class="flex justify-between items-center"><span class="text-gray-700">④ Sensor / Lab Verification</span><span id="bc-l4" class="font-bold text-green-600">--</span></li>
-                    <li class="flex justify-between items-center"><span class="text-gray-700">⑤ Traceability + Cross-Check</span><span id="bc-l5" class="font-bold text-green-600">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-zinc-400">① Farmer & Field Verification</span><span id="bc-l1" class="font-bold text-amber-500">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-zinc-400">② Satellite / NDVI Verification</span><span id="bc-l2" class="font-bold text-amber-500">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-zinc-400">③ AI Camera Inspection</span><span id="bc-l3" class="font-bold text-amber-500">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-zinc-400">④ Sensor / Lab Verification</span><span id="bc-l4" class="font-bold text-amber-500">--</span></li>
+                    <li class="flex justify-between items-center"><span class="text-zinc-400">⑤ Traceability + Cross-Check</span><span id="bc-l5" class="font-bold text-amber-500">--</span></li>
                 </ul>
-                <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400 break-all" id="bc-hash">Hash: --</div>
+                <div class="mt-4 pt-4 border-t border-zinc-800 text-xs text-zinc-500 break-all" id="bc-hash">Hash: --</div>
             </div>
         </div>
 
         <!-- Arbitrage Map Layer -->
         <div id="canvas-FOUND_ARBITRAGE" class="canvas-pane max-w-3xl mx-auto space-y-4">
-            <h2 class="text-2xl font-bold text-gray-800 border-b pb-2">Arbitrage Network</h2>
+            <h2 class="text-2xl font-bold text-white border-b border-amber-500/20 pb-2">Arbitrage Network</h2>
             <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
-                    <p class="text-xs text-gray-500 uppercase font-bold">Best Market</p>
-                    <p id="arb-market" class="text-xl font-bold text-gray-800">--</p>
+                <div class="bg-zinc-950 p-4 rounded-lg shadow-sm border border-amber-500/20 border-l-4 border-l-amber-500">
+                    <p class="text-xs text-zinc-500 uppercase font-bold">Best Market</p>
+                    <p id="arb-market" class="text-xl font-bold text-white">--</p>
                 </div>
-                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
-                    <p class="text-xs text-gray-500 uppercase font-bold">Net Profit (After Freight)</p>
-                    <p id="arb-profit" class="text-xl font-bold text-green-600">--</p>
+                <div class="bg-zinc-950 p-4 rounded-lg shadow-sm border border-amber-500/20 border-l-4 border-l-green-500">
+                    <p class="text-xs text-zinc-500 uppercase font-bold">Net Profit (After Freight)</p>
+                    <p id="arb-profit" class="text-xl font-bold text-green-500">--</p>
                 </div>
             </div>
-            <div id="map" class="w-full h-80 bg-gray-300 rounded-lg shadow-sm z-0 relative"></div>
+            <div id="map" class="w-full h-80 bg-zinc-900 rounded-lg shadow-[0_0_15px_rgba(245,158,11,0.1)] border border-amber-500/20 z-0 relative"></div>
         </div>
 
         <!-- Contract Draft Layer -->
         <div id="canvas-DRAFTED_CONTRACT" class="canvas-pane max-w-2xl mx-auto space-y-4">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h2 class="text-2xl font-bold text-gray-800">Generated Smart Contract</h2>
-                <button onclick="downloadPDF()" class="bg-gray-800 text-white text-xs px-3 py-2 rounded shadow hover:bg-black">Download PDF</button>
+            <div class="flex justify-between items-center border-b border-amber-500/20 pb-2">
+                <h2 class="text-2xl font-bold text-white">Generated Smart Contract</h2>
+                <button onclick="downloadPDF()" class="bg-amber-500/10 text-amber-500 border border-amber-500/30 hover:bg-amber-500/20 text-xs px-3 py-2 rounded transition-colors">Download PDF</button>
             </div>
-            <div id="contract-doc" class="bg-white p-8 rounded-lg shadow-sm border border-gray-200 font-serif text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+            <div id="contract-doc" class="bg-zinc-950 p-8 rounded-lg shadow-sm border border-amber-500/20 font-serif text-sm text-zinc-300 whitespace-pre-wrap leading-relaxed">
                 --
             </div>
         </div>
 
         <!-- RAG Insights Layer -->
         <div id="canvas-RAG_INSIGHT" class="canvas-pane max-w-2xl mx-auto space-y-4">
-            <h2 class="text-2xl font-bold text-gray-800 border-b pb-2">RAG Trade Insights</h2>
-            <div class="bg-indigo-50 border border-indigo-200 p-6 rounded-lg text-indigo-900">
-                <h3 class="font-bold mb-2 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Data Extracted from Database</h3>
-                <pre id="rag-data" class="text-xs font-mono bg-white p-4 rounded border border-indigo-100 overflow-x-auto"></pre>
+            <h2 class="text-2xl font-bold text-white border-b border-amber-500/20 pb-2">RAG Trade Insights</h2>
+            <div class="bg-zinc-950 border border-amber-500/20 p-6 rounded-lg text-amber-500">
+                <h3 class="font-bold mb-2 flex items-center text-white"><svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Data Extracted from Database</h3>
+                <pre id="rag-data" class="text-xs font-mono bg-black p-4 rounded border border-zinc-800 text-zinc-400 overflow-x-auto"></pre>
             </div>
         </div>
 
@@ -135,13 +135,13 @@
             if (!msg) return;
 
             // Add user message
-            addMessage('User', msg, 'bg-blue-600 text-white self-end text-right');
+            addMessage('User', msg, 'bg-zinc-800 border border-zinc-700 text-white self-end text-right');
             input.value = '';
 
             // Loading indicator
             const loaderId = 'loader-' + Date.now();
             const history = document.getElementById('chat-history');
-            history.insertAdjacentHTML('beforeend', `<div id="${loaderId}" class="flex items-start"><div class="bg-gray-200 p-3 rounded-lg shadow-sm text-sm text-gray-500 w-16 text-center"><div class="loader ease-linear rounded-full border-2 border-t-2 border-gray-200 h-4 w-4 mx-auto"></div></div></div>`);
+            history.insertAdjacentHTML('beforeend', `<div id="${loaderId}" class="flex items-start"><div class="bg-zinc-800 p-3 rounded-lg shadow-sm w-16 text-center border border-zinc-700"><div class="loader ease-linear rounded-full border-2 border-t-2 border-zinc-600 h-4 w-4 mx-auto"></div></div></div>`);
             history.scrollTop = history.scrollHeight;
 
             try {
@@ -157,14 +157,14 @@
                 const data = await res.json();
 
                 // Add Agent thought & message
-                addMessage('Agent Thought', data.agent_thought, 'bg-yellow-50 text-yellow-800 border border-yellow-200 italic text-xs w-5/6');
-                addMessage('KhetiNex Agent', data.agent_message, 'bg-green-100 text-gray-800 rounded-tl-none w-5/6');
+                addMessage('Agent Thought', data.agent_thought, 'bg-black text-zinc-500 border border-zinc-800 italic text-xs w-5/6');
+                addMessage('KhetiNex Agent', data.agent_message, 'bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-tl-none w-5/6');
 
                 renderCanvas(data.action_type, data.payload);
 
             } catch (err) {
                 document.getElementById(loaderId)?.remove();
-                addMessage('Error', 'Connection failed. Is backend running?', 'bg-red-100 text-red-800');
+                addMessage('Error', 'Connection failed. Is backend running?', 'bg-red-900/20 text-red-400 border border-red-900/50');
             }
         });
 
@@ -172,7 +172,7 @@
             const history = document.getElementById('chat-history');
             history.insertAdjacentHTML('beforeend', `
                 <div class="flex flex-col mb-4">
-                    <span class="text-xs text-gray-500 mb-1 ${classes.includes('self-end') ? 'text-right' : ''}">${sender}</span>
+                    <span class="text-xs text-zinc-500 mb-1 ${classes.includes('self-end') ? 'text-right' : ''}">${sender}</span>
                     <div class="p-3 rounded-lg shadow-sm text-sm ${classes}">${text}</div>
                 </div>
             `);
@@ -185,7 +185,7 @@
 
             if (action === 'VERIFIED_CROP') {
                 document.getElementById('bc-score').textContent = payload.trust_score;
-                document.getElementById('bc-badge').className = `px-4 py-2 font-bold rounded-full ${payload.is_verified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+                document.getElementById('bc-badge').className = `px-4 py-2 font-bold rounded-full ${payload.is_verified ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-red-900/20 text-red-400 border border-red-900/50'}`;
                 document.getElementById('bc-badge').textContent = payload.is_verified ? 'VERIFIED PREMIUM' : 'STANDARD GRADE';
                 
                 document.getElementById('bc-l1').textContent = `${(payload.breakdown.field * 100).toFixed(0)}% ✓`;
@@ -199,16 +199,14 @@
                 document.getElementById('arb-market').textContent = payload.best_market;
                 document.getElementById('arb-profit').textContent = `₹ ${payload.net_profit.toLocaleString()}`;
                 
-                // Leaflet Map Logic
                 if (!map) {
                     map = L.map('map').setView(payload.coords, 6);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
                 } else {
                     map.setView(payload.coords, 6);
                 }
                 L.marker(payload.coords).addTo(map).bindPopup(`${payload.best_market} APMC`).openPopup();
                 
-                // Force map resize fix for hidden divs
                 setTimeout(() => map.invalidateSize(), 100);
             }
             else if (action === 'DRAFTED_CONTRACT') {
