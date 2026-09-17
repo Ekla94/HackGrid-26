@@ -6,7 +6,7 @@ interface LandingPageProps {
 
 export default function LandingPage({ onNavigate }: LandingPageProps) {
   return (
-    <div className="flex flex-col min-h-screen bg-black font-sans w-full text-zinc-200">
+    <div className="flex flex-col min-h-screen bg-black font-sans w-full text-zinc-200 overflow-x-hidden">
       {/* Hero Section */}
       <section className="relative bg-zinc-950 text-white overflow-hidden py-24 sm:py-32 flex-1 border-b border-amber-500/20">
         <div className="absolute inset-0 overflow-hidden">

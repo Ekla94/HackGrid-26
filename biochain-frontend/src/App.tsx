@@ -63,7 +63,7 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col w-full bg-black text-zinc-100 font-sans">
+    <div className="min-h-screen flex flex-col w-full bg-black text-zinc-100 font-sans overflow-x-hidden">
       {/* Website Navigation Header */}
       <header className="bg-zinc-950/90 backdrop-blur-md sticky top-0 z-40 w-full shadow-lg border-b border-amber-500/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -88,23 +88,24 @@ function App() {
             </div>
             
             {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-6">
+            <nav className="hidden xl:flex items-center gap-2 lg:gap-3">
               {navItems.map((item) => {
                 const isActive = view === item.id;
                 return (
                   <button 
                     key={item.id}
                     onClick={() => setView(item.id as AppView)}
-                    className={`relative text-xs uppercase tracking-wider font-bold transition-all duration-300 ease-in-out px-3 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer ${
+                    className={`relative text-[10px] xl:text-xs uppercase tracking-wider font-bold transition-all duration-300 ease-in-out px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg flex items-center gap-1.5 cursor-pointer ${
                       isActive 
                         ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.15)] scale-105' 
                         : 'text-zinc-400 hover:text-white hover:bg-zinc-900/60 hover:scale-105'
                     }`}
                   >
-                    <item.icon className="w-3.5 h-3.5" />
-                    {item.label}
+                    <item.icon className="w-3.5 h-3.5 shrink-0" />
+                    <span className="hidden xl:inline">{item.label}</span>
+                    <span className="xl:hidden">{item.label.split(' ')[0]}</span>
                     {item.badge && (
-                      <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      <span className="ml-0.5 text-[8px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                         {item.badge}
                       </span>
                     )}
@@ -114,34 +115,34 @@ function App() {
             </nav>
             
             {/* Header Right Actions */}
-            <div className="hidden sm:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-2 xl:gap-3">
               {isPro ? (
-                <div className="flex items-center gap-1 text-xs uppercase font-bold text-amber-500 bg-amber-900/20 px-3 py-1.5 rounded-full border border-amber-500/30 transition-all duration-300">
+                <div className="flex items-center gap-1 text-[10px] xl:text-xs uppercase font-bold text-amber-500 bg-amber-900/20 px-3 py-1.5 rounded-full border border-amber-500/30 transition-all duration-300 shrink-0">
                   <Crown className="w-3.5 h-3.5" /> PRO
                 </div>
               ) : (
                 <button 
                   onClick={() => setIsSubModalOpen(true)}
-                  className="text-xs uppercase font-bold text-black bg-white hover:bg-zinc-200 px-4 py-2 rounded-full transition-all duration-300 hover:scale-105 cursor-pointer"
+                  className="text-[10px] xl:text-xs uppercase font-bold text-black bg-white hover:bg-zinc-200 px-3 py-1.5 xl:px-4 xl:py-2 rounded-full transition-all duration-300 hover:scale-105 cursor-pointer shrink-0"
                 >
-                  Upgrade to Pro
+                  Upgrade
                 </button>
               )}
 
               <button 
                 onClick={() => setIsCopilotOpen(true)}
-                className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2.5 rounded-full transition-all duration-300 hover:border-amber-400 hover:scale-105 shadow-[0_0_15px_rgba(245,158,11,0.15)] border border-amber-500/40 cursor-pointer"
+                className="flex items-center gap-1.5 text-[10px] xl:text-xs uppercase tracking-wider font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-3 py-1.5 xl:px-4 xl:py-2.5 rounded-full transition-all duration-300 hover:border-amber-400 hover:scale-105 shadow-[0_0_15px_rgba(245,158,11,0.15)] border border-amber-500/40 cursor-pointer shrink-0"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                AI Copilot
+                Copilot
               </button>
               
               <button 
                 onClick={() => setView('portal')}
-                className="text-xs uppercase tracking-wider font-extrabold bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black px-5 py-2.5 rounded-full transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] cursor-pointer flex items-center gap-1.5"
+                className="text-[10px] xl:text-xs uppercase tracking-wider font-extrabold bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black px-4 py-1.5 xl:px-5 xl:py-2.5 rounded-full transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] cursor-pointer flex items-center gap-1 shrink-0"
               >
-                Trading Desk
-                <ArrowRight className="w-3.5 h-3.5" />
+                Trade
+                <ArrowRight className="w-3 h-3 xl:w-3.5 xl:h-3.5" />
               </button>
             </div>
 
