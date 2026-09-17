@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import BioChainDashboard from './components/BioChainDashboard';
 import FarmerRegistration from './components/FarmerRegistration';
 import LandingPage from './components/LandingPage';
 import TradingPortal from './components/trading/TradingPortal';
 import ArbitrageEngine from './components/arbitrage/ArbitrageEngine';
 import ContractStudio from './components/contracts/ContractStudio';
+import { SubscriptionPortal } from './components/SubscriptionPortal';
 import { 
   Leaf, 
   Store, 
@@ -15,7 +16,8 @@ import {
   Menu, 
   X, 
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Crown
 } from 'lucide-react';
 
 export type AppView = 'home' | 'portal' | 'arbitrage' | 'contracts' | 'dashboard' | 'registration';
@@ -24,10 +26,26 @@ function App() {
   const [view, setView] = useState<AppView>('home');
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const [isPro, setIsPro] = useState(false);
   const [contractParams, setContractParams] = useState<{ crop: string; tons: number }>({
     crop: 'Soybean',
     tons: 50,
   });
+
+  useEffect(() => {
+    checkSubscription();
+  }, []);
+
+  const checkSubscription = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/api/subscription/status?business_name=Demo Business');
+      const data = await res.json();
+      setIsPro(data.tier === 'pro' || data.tier === 'enterprise');
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleNavigateToContract = (crop: string, tons: number) => {
     setContractParams({ crop, tons });
@@ -97,6 +115,19 @@ function App() {
             
             {/* Header Right Actions */}
             <div className="hidden sm:flex items-center gap-3">
+              {isPro ? (
+                <div className="flex items-center gap-1 text-xs uppercase font-bold text-amber-500 bg-amber-900/20 px-3 py-1.5 rounded-full border border-amber-500/30">
+                  <Crown className="w-3.5 h-3.5" /> PRO
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setIsSubModalOpen(true)}
+                  className="text-xs uppercase font-bold text-black bg-white hover:bg-zinc-200 px-4 py-2 rounded-full transition-colors cursor-pointer"
+                >
+                  Upgrade to Pro
+                </button>
+              )}
+
               <button 
                 onClick={() => setIsCopilotOpen(true)}
                 className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2.5 rounded-full transition-all border border-amber-500/40 hover:border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)] cursor-pointer"
@@ -215,6 +246,17 @@ function App() {
             <iframe src="/copilot.html" className="flex-1 w-full h-full border-none bg-zinc-950" title="AI Copilot" />
           </div>
         </div>
+      )}
+
+      {/* Subscription Portal UI */}
+      {isSubModalOpen && (
+        <SubscriptionPortal 
+          onClose={() => setIsSubModalOpen(false)} 
+          onSuccess={() => {
+            setIsSubModalOpen(false);
+            setIsPro(true);
+          }} 
+        />
       )}
     </div>
   );

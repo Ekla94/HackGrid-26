@@ -45,6 +45,13 @@ def upgrade_subscription(req: UpgradeRequest, db: Session = Depends(get_db)):
     db.commit()
     return {"status": "success", "message": "Upgraded to PRO tier"}
 
+@app.get("/api/subscription/status")
+def get_subscription_status(business_name: str = "Demo Business", db: Session = Depends(get_db)):
+    sub = db.query(BusinessSubscription).filter(BusinessSubscription.business_name == business_name).first()
+    if not sub:
+        return {"tier": "free", "is_active": True}
+    return {"tier": sub.tier.value, "is_active": sub.is_active}
+
 import json
 import requests
 
