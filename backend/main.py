@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from database import SessionLocal, engine, Base
 from sqlalchemy.orm import Session
 import agent_tools
+import rag_engine
 from schemas import ContractCreate
 from models import Farmer, HarvestRecord, BioChainVerification, Contract, ContractStatus, SubscriptionTier, BusinessSubscription
 import datetime
@@ -475,15 +476,19 @@ def biochain_verify(req: dict, db: Session = Depends(get_db)):
 
     # Clean / Valid Lot
     moisture_display = f"{moisture_val}%" if moisture_val else "11.4% (FAQ Target)"
+    rag_chunks = rag_engine.retrieve_dmi_clauses(raw_desc, commodity=matched_crop_key, top_k=2)
+    rag_cit = [c["citation"] for c in rag_chunks]
+
     return {
         "id": 8842,
         "trustScore": 94,
         "isVerified": True,
         "status": "CERTIFIED",
+        "ragCitations": rag_cit,
         "verdict": (
             f"✅ DMI AGMARK Certified Grade-A: Verified {crop_title} ({qty_str}). "
             f"Parameters fully satisfy DMI Schedule ({std_code}): Moisture within {moisture_display} (Tolerance: ≤{max_moisture or 12.0}%), "
-            "organic foreign matter <0.5%, zero pest infestation. Certified for 30% escrow disbursement and transit dispatch."
+            f"organic foreign matter <0.5%, zero pest infestation. Grounded in [{rag_cit[0]}]. Certified for 30% advance escrow."
         )
     }
 
@@ -576,6 +581,16 @@ def verify_farmer_intake(intake: dict, db: Session = Depends(get_db)):
     import hashlib, time
     cert_hash = "0x" + hashlib.sha256(f"{crop}_{variety}_{quantity_mt}_{trust_score}_{time.time()}".encode()).hexdigest()[:16]
 
+    # Execute Retrieval-Augmented Generation (RAG) Grounding
+    rag_audit = rag_engine.ground_lot_with_rag(
+        crop=crop,
+        moisture_pct=moisture_pct,
+        foreign_matter_pct=foreign_matter_pct,
+        damaged_pct=damaged_pct,
+        storage_type=storage_type,
+        pesticide_safe=pesticide_safe
+    )
+
     return {
         "status": "APPROVED" if is_compliant else "REJECTED",
         "isVerified": is_compliant,
@@ -595,13 +610,54 @@ def verify_farmer_intake(intake: dict, db: Session = Depends(get_db)):
         },
         "deductionClauses": deductions,
         "b2bEscrowApproved": is_compliant,
+        "ragGrounding": {
+            "narrative": rag_audit["rag_narrative"],
+            "citations": rag_audit["citations"],
+            "retrievedChunks": rag_audit["retrieved_chunks"],
+            "knowledgeSource": rag_audit["knowledge_source"]
+        },
         "verdict": (
             f"✅ Certified {grade}: {crop_title} lot of {quantity_mt} MT meets DMI statutory schedule {std_code}. "
-            f"Verified under trust score {trust_score}/100. Advance escrow 30% authorized."
+            f"Grounding: {rag_audit['citations'][0]}. Verified under trust score {trust_score}/100. Advance escrow 30% authorized."
             if is_compliant else
             f"❌ DMI AGMARK Quality Alert: Lot evaluated as {grade} (Trust score: {trust_score}/100). "
-            f"Failed parameters: {'; '.join(deductions[:2])}. Re-assay or mechanical re-grading required."
+            f"Statutory breach under {rag_audit['citations'][0]}: {'; '.join(deductions[:2])}. Re-assay required."
         )
+    }
+
+@app.post("/api/rag/query")
+def query_rag_knowledge(req: dict):
+    query = req.get("query", "").strip()
+    commodity = req.get("commodity")
+    if not query:
+        return {"error": "Query string is required"}
+    
+    chunks = rag_engine.retrieve_dmi_clauses(query, commodity=commodity, top_k=3)
+    citations = [c["citation"] for c in chunks]
+    top = chunks[0] if chunks else None
+    
+    answer = (
+        f"Grounded in statutory DMI gazette schedule {top['citation']} ({top['title']}):\n"
+        f"{top['content']}\n"
+        f"• Statutory Limit: {top.get('statutory_limit')}\n"
+        f"• Settlement Impact: {top.get('grade_impact')}"
+    ) if top else "No statutory schedule matches this query."
+    
+    return {
+        "query": query,
+        "answer": answer,
+        "citations": citations,
+        "retrieved_chunks": chunks,
+        "engine": "KhetiNex RAG Vector Store (DMI AGMARK & FSSAI Statutory Knowledge Base)"
+    }
+
+@app.get("/api/rag/statutes")
+def get_rag_statutes(commodity: str = "wheat"):
+    chunks = rag_engine.retrieve_dmi_clauses(commodity, commodity=commodity, top_k=5)
+    return {
+        "commodity": commodity,
+        "count": len(chunks),
+        "statutes": chunks
     }
 
 @app.post("/api/biochain/recommend")

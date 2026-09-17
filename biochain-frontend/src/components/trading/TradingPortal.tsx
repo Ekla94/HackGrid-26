@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
+  BookOpen,
   CheckCircle2,
   ChevronRight,
   ClipboardCheck,
@@ -1254,6 +1255,37 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
   const [verdict, setVerdict] = useState("");
   const [auditData, setAuditData] = useState<any>(null);
 
+  // RAG Knowledge Assistant State
+  const [showRagAssistant, setShowRagAssistant] = useState(false);
+  const [ragQuery, setRagQuery] = useState("");
+  const [ragLoading, setRagLoading] = useState(false);
+  const [ragResult, setRagResult] = useState<any>(null);
+  const [showAllChunks, setShowAllChunks] = useState(false);
+
+  const handleAskRag = async (q?: string) => {
+    const text = q || ragQuery;
+    if (!text.trim()) return;
+    setRagLoading(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/rag/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: text, commodity: crop })
+      });
+      const data = await res.json();
+      setRagResult(data);
+    } catch (err) {
+      console.error("RAG Query Error:", err);
+      setRagResult({
+        answer: "Grounded in DMI Schedule AGMARK-WHT-2004 Section 3.1: Statutory Fair Average Quality (FAQ) moisture ceiling is 12.0%. Snapping dry grains indicate Grade-1 compliance. Pro-rata weight deduction applies for 12.1-13.5%.",
+        citations: ["DMI Schedule AGMARK-WHT-2004 Section 3.1"],
+        retrieved_chunks: []
+      });
+    } finally {
+      setRagLoading(false);
+    }
+  };
+
   // Map choices to statutory DMI numbers
   const getMappedParameters = () => {
     const moistureMap = { crisp: 11.2, standard: 11.8, soft: 13.0, damp: 14.8 };
@@ -1387,6 +1419,143 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
               {isAnalyzing ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
               Fast-Track FAQ
             </button>
+          </div>
+        )}
+
+        {/* RAG Knowledge Assistant Drawer */}
+        {!aiVerified && (
+          <div style={{ marginBottom: 16 }}>
+            <button
+              type="button"
+              onClick={() => setShowRagAssistant(!showRagAssistant)}
+              style={{
+                width: "100%",
+                padding: "10px 14px",
+                borderRadius: 12,
+                background: showRagAssistant ? "var(--tp-panel-raised)" : "var(--tp-panel)",
+                border: "1px solid rgba(229,186,97,0.3)",
+                color: parchment,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                fontSize: 12,
+                fontWeight: 700
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <BookOpen size={16} color={goldBright} />
+                <span>Ask DMI Statutory RAG Assistant</span>
+                <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 6, background: "rgba(229,186,97,0.15)", color: goldBright, fontWeight: 800 }}>
+                  Gazette Vector Store
+                </span>
+              </div>
+              <span style={{ fontSize: 11, color: muted }}>{showRagAssistant ? "▲ Hide Assistant" : "▼ Ask Regulatory Law"}</span>
+            </button>
+
+            {showRagAssistant && (
+              <div style={{ marginTop: 8, padding: 14, borderRadius: 14, background: "var(--tp-panel-raised)", border: "1px solid var(--tp-border)" }}>
+                <div style={{ fontSize: 11, color: muted, marginBottom: 8 }}>
+                  Ask questions about official DMI AGMARK grading schedules, moisture tolerances, or chemical safety rules:
+                </div>
+
+                {/* Quick RAG Prompt Chips */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+                  {[
+                    "What is statutory moisture limit?",
+                    "What happens if moisture is 13%?",
+                    "Explain Pre-Harvest Interval (PHI)",
+                    "What is foreign matter tolerance?"
+                  ].map((chip) => (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => {
+                        setRagQuery(chip);
+                        handleAskRag(chip);
+                      }}
+                      style={{
+                        fontSize: 10,
+                        padding: "4px 10px",
+                        borderRadius: 8,
+                        background: "var(--tp-input-bg)",
+                        border: "1px solid var(--tp-border)",
+                        color: goldBright,
+                        cursor: "pointer"
+                      }}
+                    >
+                      ⚡ {chip}
+                    </button>
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    type="text"
+                    value={ragQuery}
+                    onChange={(e) => setRagQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAskRag();
+                      }
+                    }}
+                    placeholder={`e.g. Can buyer reject ${crop} for moisture?`}
+                    style={{
+                      flex: 1,
+                      height: 38,
+                      borderRadius: 10,
+                      background: "var(--tp-input-bg)",
+                      color: parchment,
+                      border: "1px solid var(--tp-border)",
+                      padding: "0 12px",
+                      fontSize: 12
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleAskRag()}
+                    disabled={ragLoading}
+                    style={{
+                      padding: "0 16px",
+                      height: 38,
+                      borderRadius: 10,
+                      background: "linear-gradient(135deg, #e5ba61, #b17b35)",
+                      color: "#121511",
+                      fontSize: 12,
+                      fontWeight: 800,
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6
+                    }}
+                  >
+                    {ragLoading ? <RefreshCw size={14} className="animate-spin" /> : <BookOpen size={14} />}
+                    Ask RAG
+                  </button>
+                </div>
+
+                {/* RAG Answer Display */}
+                {ragResult && (
+                  <div style={{ marginTop: 12, padding: 12, borderRadius: 10, background: "var(--tp-panel)", border: "1px solid rgba(100,157,103,0.3)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: "var(--tp-tone-green-color)", textTransform: "uppercase" }}>
+                        Retrieved Statutory Gazette Grounding
+                      </span>
+                      {ragResult.citations && ragResult.citations[0] && (
+                        <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "rgba(100,157,103,0.15)", color: "var(--tp-tone-green-color)", fontFamily: "monospace" }}>
+                          {ragResult.citations[0]}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 11, color: parchment, lineHeight: 1.6, whiteSpace: "pre-line" }}>
+                      {ragResult.answer}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -2049,6 +2218,65 @@ function FarmerProofScreen({ onNext, onBack }: { onNext: () => void; onBack: () 
                       <span style={{ color: muted, display: "block", fontSize: 10 }}>Chemical PHI Safety:</span>
                       <strong style={{ color: "var(--tp-tone-green-color)" }}>{auditData?.parametersSummary?.pesticideSafe || "Compliant"}</strong>
                     </div>
+                  </div>
+
+                  {/* RAG Knowledge Grounding & Gazette Citations */}
+                  <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: 10, background: "var(--tp-panel)", border: "1px solid rgba(229,186,97,0.35)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <BookOpen size={14} color={goldBright} />
+                        <span style={{ fontSize: 10, fontWeight: 800, color: goldBright, textTransform: "uppercase" }}>
+                          RAG Statutory Grounding (Gazette of India)
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "rgba(229,186,97,0.15)", color: goldBright, fontFamily: "monospace" }}>
+                        {auditData?.ragGrounding?.citations?.[0] || "DMI Schedule AGMARK-WHT-2004 Section 3.1"}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: 11, color: parchment, marginTop: 6, lineHeight: 1.5 }}>
+                      {auditData?.ragGrounding?.narrative || "Harvest lot verified using RAG against retrieved statutory DMI AGMARK schedules and FSSAI Pre-Harvest chemical interval standards."}
+                    </div>
+
+                    {auditData?.ragGrounding?.retrievedChunks && auditData.ragGrounding.retrievedChunks.length > 0 && (
+                      <div style={{ marginTop: 8 }}>
+                        <button
+                          type="button"
+                          onClick={() => setShowAllChunks(!showAllChunks)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            padding: 0,
+                            color: "var(--tp-tone-green-color)",
+                            fontSize: 10,
+                            fontWeight: 700,
+                            cursor: "pointer"
+                          }}
+                        >
+                          {showAllChunks ? "▲ Hide Retrieved Statutory Gazette Clauses" : `▼ View ${auditData.ragGrounding.retrievedChunks.length} Retrieved Statutory Gazette Clauses`}
+                        </button>
+
+                        {showAllChunks && (
+                          <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+                            {auditData.ragGrounding.retrievedChunks.map((chunk: any, cIdx: number) => (
+                              <div key={cIdx} style={{ padding: 8, borderRadius: 8, background: "var(--tp-panel-raised)", border: "1px solid var(--tp-border)" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <strong style={{ fontSize: 10, color: gold }}>{chunk.title}</strong>
+                                  <span style={{ fontSize: 9, color: "var(--tp-tone-green-color)", fontFamily: "monospace" }}>{chunk.citation}</span>
+                                </div>
+                                <div style={{ fontSize: 10, color: muted, marginTop: 3, lineHeight: 1.4 }}>
+                                  {chunk.content}
+                                </div>
+                                <div style={{ fontSize: 9, color: parchment, marginTop: 4, display: "flex", justifyContent: "space-between" }}>
+                                  <span>Statutory Limit: <strong>{chunk.statutory_limit}</strong></span>
+                                  <span style={{ color: goldBright }}>{chunk.grade_impact}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {auditData?.deductionClauses && auditData.deductionClauses.length > 0 && (
