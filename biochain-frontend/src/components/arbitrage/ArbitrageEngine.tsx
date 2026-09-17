@@ -10,6 +10,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { getArbitrage, getLogistics, type ArbitrageResponse, type LogisticsResponse } from '../../services/api';
+import MandiProfitMap from './MandiProfitMap';
 
 interface ArbitrageEngineProps {
   onNavigateToContract?: (crop: string, tons: number) => void;
@@ -294,6 +295,15 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
             </div>
           </div>
         </div>
+
+        {/* Google Maps Optimal Marketplace Position & Profit Map */}
+        <MandiProfitMap
+          crop={crop}
+          originCluster={fpoLocation}
+          quantityKg={parseFloat(quantityKg) || 1000}
+          mandis={activeRates}
+          onLockContract={onNavigateToContract}
+        />
 
         {/* Live Mandi Comparison Matrix */}
         <div className="bg-white dark:bg-zinc-950 transition-colors duration-500 border border-stone-200 dark:border-zinc-800 rounded-2xl p-6 space-y-4">

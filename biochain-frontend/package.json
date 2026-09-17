@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.3",
+    "@vis.gl/react-google-maps": "^1.10.0",
     "autoprefixer": "^10.6.1",
     "lucide-react": "^1.46.0",
     "postcss": "^8.5.28",
@@ -20,6 +21,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@types/google.maps": "^3.66.3",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",

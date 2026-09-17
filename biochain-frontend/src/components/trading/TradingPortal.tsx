@@ -9,6 +9,7 @@ import {
   ChevronRight,
   ClipboardCheck,
   CloudSun,
+  Compass,
   Droplets,
   FileCheck2,
   KeyRound,
@@ -1008,6 +1009,30 @@ function FarmerLotScreen({
             <span style={{ color: muted }}>Premium over Mandi:</span>
             <span style={{ color: goldBright, fontWeight: 700 }}>+₹30 / qtl (BioChain Certified)</span>
           </div>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <a
+            href="/arbitrage"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "9px 13px",
+              borderRadius: 12,
+              background: "rgba(245,158,11,0.08)",
+              border: "1px solid rgba(245,158,11,0.35)",
+              color: goldBright,
+              fontSize: 11,
+              fontWeight: 750,
+              textDecoration: "none",
+            }}
+          >
+            <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <Compass size={14} color={gold} />
+              <span>Explore Best Mandi on Google Maps</span>
+            </span>
+            <span style={{ fontSize: 10, color: "var(--tp-tone-green-color)", fontWeight: 800 }}>+₹480/MT Profit →</span>
+          </a>
         </div>
         <PrimaryButton onClick={onNext}>Publish Lot to Deal Room</PrimaryButton>
       </div>

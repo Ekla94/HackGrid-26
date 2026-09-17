@@ -162,7 +162,8 @@ def agent_chat(req: ChatRequest, db: Session = Depends(get_db)):
         response = requests.post(
             "https://text.pollinations.ai/openai",
             headers=headers,
-            json=payload_data
+            json=payload_data,
+            timeout=3.5
         )
         response.raise_for_status()
         data = response.json()
