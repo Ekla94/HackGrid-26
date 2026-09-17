@@ -23,8 +23,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           <h1 className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter mb-4 leading-none text-stone-900 dark:text-white opacity-0 animate-slide-up-fade animation-delay-500">
             Welcome to <br className="hidden md:block"/>
             <div className="relative inline-block mt-2">
-              <span className="absolute -inset-2 bg-gradient-to-r from-emerald-500 to-green-600 dark:from-amber-500 dark:to-yellow-600 blur-2xl opacity-20 animate-pulse rounded-full transition-colors duration-500"></span>
-              <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 dark:from-amber-300 dark:via-yellow-500 dark:to-orange-500 bg-size-200 animate-text-shimmer animate-glow font-extrabold tracking-widest">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-green-400 to-teal-500 dark:from-amber-300 dark:via-yellow-500 dark:to-orange-500 bg-size-200 animate-text-shimmer font-extrabold tracking-widest drop-shadow-md">
                 KhetiNex
               </span>
             </div>
