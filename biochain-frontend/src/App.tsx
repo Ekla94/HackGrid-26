@@ -273,6 +273,7 @@ function App() {
           }} 
         />
       )}
+      </div>
     </div>
   );
 }
