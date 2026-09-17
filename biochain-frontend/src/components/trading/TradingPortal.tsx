@@ -396,7 +396,7 @@ function ScreenShell({
   role?: BuyerRole;
 }) {
   return (
-    <div className="w-full min-h-[90vh] flex flex-col items-center justify-center p-2 sm:p-6 bg-black">
+    <div className="w-full min-h-[90vh] flex flex-col items-center justify-center p-2 sm:p-6 bg-stone-50 dark:bg-black transition-colors duration-500">
       <div
         style={{
           width: "100%",

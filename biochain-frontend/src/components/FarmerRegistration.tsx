@@ -61,24 +61,24 @@ export default function FarmerRegistration() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-zinc-950 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.1)] border border-amber-500/20 overflow-hidden mt-8 mb-8">
-        <div className="bg-amber-500/5 border-b border-amber-500/20 px-8 py-6">
-          <h1 className="text-2xl font-bold text-amber-500">BioChain Direct</h1>
-          <p className="text-zinc-400 mt-1">Farmer & Field Registration Module</p>
+    <div className="min-h-screen bg-stone-50 dark:bg-black transition-colors duration-500 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-white dark:bg-zinc-950 transition-colors duration-500 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.1)] border border-emerald-600/20 dark:border-amber-500/20 overflow-hidden mt-8 mb-8">
+        <div className="bg-amber-500/5 border-b border-emerald-600/20 dark:border-amber-500/20 px-8 py-6">
+          <h1 className="text-2xl font-bold text-emerald-600 dark:text-amber-500">BioChain Direct</h1>
+          <p className="text-stone-600 dark:text-zinc-400 mt-1">Farmer & Field Registration Module</p>
         </div>
 
         <div className="p-8">
           {successMessage && (
-            <div className="mb-6 bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <CheckCircle2 className="w-5 h-5 text-amber-500 flex-shrink-0" />
-              <p className="text-amber-400 font-medium">{successMessage}</p>
+            <div className="mb-6 bg-emerald-600/10 dark:bg-amber-500/10 border border-emerald-600/20 dark:border-amber-500/20 rounded-lg p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-amber-500 flex-shrink-0" />
+              <p className="text-emerald-700 dark:text-amber-400 font-medium">{successMessage}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-zinc-300 mb-1">
+              <label htmlFor="fullName" className="block text-sm font-medium text-stone-700 dark:text-zinc-300 mb-1">
                 Farmer Full Name
               </label>
               <input
@@ -89,13 +89,13 @@ export default function FarmerRegistration() {
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
+                className="w-full px-4 py-2 border border-stone-300 dark:border-zinc-700 bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 text-stone-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-zinc-300 mb-1">
+                <label htmlFor="phone" className="block text-sm font-medium text-stone-700 dark:text-zinc-300 mb-1">
                   Phone Number
                 </label>
                 <input
@@ -106,12 +106,12 @@ export default function FarmerRegistration() {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
+                  className="w-full px-4 py-2 border border-stone-300 dark:border-zinc-700 bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 text-stone-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="fpo" className="block text-sm font-medium text-zinc-300 mb-1">
+                <label htmlFor="fpo" className="block text-sm font-medium text-stone-700 dark:text-zinc-300 mb-1">
                   FPO Affiliation
                 </label>
                 <select
@@ -120,7 +120,7 @@ export default function FarmerRegistration() {
                   value={formData.fpo}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow"
+                  className="w-full px-4 py-2 border border-stone-300 dark:border-zinc-700 bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 text-stone-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow"
                 >
                   <option value="" disabled>Select an FPO...</option>
                   <option value="Nashik Onion FPO">Nashik Onion FPO</option>
@@ -131,7 +131,7 @@ export default function FarmerRegistration() {
             </div>
 
             <div>
-              <label htmlFor="farmSize" className="block text-sm font-medium text-zinc-300 mb-1">
+              <label htmlFor="farmSize" className="block text-sm font-medium text-stone-700 dark:text-zinc-300 mb-1">
                 Farm Size (in Acres)
               </label>
               <input
@@ -144,12 +144,12 @@ export default function FarmerRegistration() {
                 value={formData.farmSize}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
+                className="w-full px-4 py-2 border border-stone-300 dark:border-zinc-700 bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 text-stone-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-1">
+              <label className="block text-sm font-medium text-stone-700 dark:text-zinc-300 mb-1">
                 Location Coordinates (Lat / Long)
               </label>
               <div className="flex flex-col md:flex-row gap-3">
@@ -160,7 +160,7 @@ export default function FarmerRegistration() {
                   value={formData.latitude}
                   onChange={handleChange}
                   required
-                  className="w-full md:flex-1 px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
+                  className="w-full md:flex-1 px-4 py-2 border border-stone-300 dark:border-zinc-700 bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 text-stone-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
                 />
                 <input
                   type="text"
@@ -169,20 +169,20 @@ export default function FarmerRegistration() {
                   value={formData.longitude}
                   onChange={handleChange}
                   required
-                  className="w-full md:flex-1 px-4 py-2 border border-zinc-700 bg-zinc-900 text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
+                  className="w-full md:flex-1 px-4 py-2 border border-stone-300 dark:border-zinc-700 bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 text-stone-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-shadow placeholder-zinc-500"
                 />
                 <button
                   type="button"
                   onClick={handleGetLocation}
-                  className="w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium rounded-lg border border-zinc-700 transition-colors whitespace-nowrap"
+                  className="w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-stone-200 dark:bg-zinc-800 transition-colors duration-500 hover:bg-zinc-700 text-stone-700 dark:text-zinc-300 font-medium rounded-lg border border-stone-300 dark:border-zinc-700 transition-colors whitespace-nowrap"
                 >
-                  <MapPin className="w-4 h-4 text-amber-500" />
+                  <MapPin className="w-4 h-4 text-emerald-600 dark:text-amber-500" />
                   Get Current Location
                 </button>
               </div>
             </div>
 
-            <div className="pt-4 mt-8 border-t border-zinc-800">
+            <div className="pt-4 mt-8 border-t border-stone-200 dark:border-zinc-800">
               <button
                 type="submit"
                 disabled={isLoading}

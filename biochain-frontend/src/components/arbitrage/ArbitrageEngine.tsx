@@ -97,21 +97,21 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
   const activeRates = mandiComparisonTable[crop] || mandiComparisonTable.Tomato;
 
   return (
-    <div className="w-full min-h-screen bg-black text-zinc-100 p-4 sm:p-8">
+    <div className="w-full min-h-screen bg-stone-50 dark:bg-black transition-colors duration-500 text-zinc-100 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header Banner */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-zinc-950 border border-amber-500/20 p-6 sm:p-8 rounded-2xl relative overflow-hidden shadow-2xl">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-zinc-950 transition-colors duration-500 border border-emerald-600/20 dark:border-amber-500/20 p-6 sm:p-8 rounded-2xl relative overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
           <div className="space-y-2 z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold tracking-widest uppercase">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-600/10 dark:bg-amber-500/10 border border-emerald-600/30 dark:border-amber-500/30 text-emerald-700 dark:text-amber-400 text-xs font-bold tracking-widest uppercase">
               <TrendingUp className="w-3.5 h-3.5" />
               Autonomous APMC Intelligence
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900 dark:text-white tracking-tight">
               Mandi Arbitrage Engine
             </h1>
-            <p className="text-zinc-400 text-sm sm:text-base max-w-2xl">
+            <p className="text-stone-600 dark:text-zinc-400 text-sm sm:text-base max-w-2xl">
               Cross-corridor wholesale price discovery and real-time logistics arbitrage calculation to lock in the highest net profit margins.
             </p>
           </div>
@@ -120,7 +120,7 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
             <button
               onClick={handleCalculate}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 border border-amber-500/30 hover:border-amber-500 text-amber-400 text-sm font-semibold transition-all hover:bg-zinc-800 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 border border-emerald-600/30 dark:border-amber-500/30 hover:border-emerald-500 dark:hover:border-amber-500 text-emerald-700 dark:text-amber-400 text-sm font-semibold transition-all hover:bg-stone-200 dark:hover:bg-zinc-800 disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh Spreads
@@ -132,20 +132,20 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Form Controls */}
-          <div className="bg-zinc-950 border border-zinc-800/80 p-6 rounded-2xl space-y-5">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-amber-500" />
+          <div className="bg-white dark:bg-zinc-950 transition-colors duration-500 border border-zinc-800/80 p-6 rounded-2xl space-y-5">
+            <h2 className="text-lg font-bold text-stone-900 dark:text-white flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-emerald-600 dark:text-amber-500" />
               Arbitrage Parameters
             </h2>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-2">
                 Commodity
               </label>
               <select
                 value={crop}
                 onChange={(e) => setCrop(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 border border-stone-300 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500 transition-colors"
               >
                 {crops.map((c) => (
                   <option key={c.name} value={c.name}>
@@ -156,13 +156,13 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-2">
                 Origin Cluster / FPO Center
               </label>
               <select
                 value={fpoLocation}
                 onChange={(e) => setFpoLocation(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 border border-stone-300 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500 transition-colors"
               >
                 {clusters.map((cl) => (
                   <option key={cl.name} value={cl.name}>
@@ -173,7 +173,7 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-2">
                 Volume for Dispatch (Kilograms)
               </label>
               <div className="relative">
@@ -183,10 +183,10 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
                   onChange={(e) => setQuantityKg(e.target.value)}
                   min="100"
                   step="100"
-                  className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
+                  className="w-full bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 border border-stone-300 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500 transition-colors"
                   placeholder="1000"
                 />
-                <span className="absolute right-4 top-3 text-xs text-amber-500 font-bold">
+                <span className="absolute right-4 top-3 text-xs text-emerald-600 dark:text-amber-500 font-bold">
                   {((parseFloat(quantityKg) || 0) / 1000).toFixed(1)} MT
                 </span>
               </div>
@@ -219,12 +219,12 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
           </div>
 
           {/* Optimal Arbitrage Recommendation Card */}
-          <div className="lg:col-span-2 bg-zinc-950 border border-amber-500/30 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between shadow-2xl">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="lg:col-span-2 bg-white dark:bg-zinc-950 transition-colors duration-500 border border-emerald-600/30 dark:border-amber-500/30 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between shadow-2xl">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-600/10 dark:bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
             
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-xs uppercase font-bold tracking-widest text-amber-400 flex items-center gap-2">
+                <span className="text-xs uppercase font-bold tracking-widest text-emerald-700 dark:text-amber-400 flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   AI Recommended Target Market
                 </span>
@@ -235,45 +235,45 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
 
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
                 <div>
-                  <h3 className="text-2xl sm:text-3xl font-black text-white">
+                  <h3 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-white">
                     {result?.best_market || 'Mumbai'} APMC Market
                   </h3>
-                  <p className="text-zinc-400 text-xs sm:text-sm mt-1">
+                  <p className="text-stone-600 dark:text-zinc-400 text-xs sm:text-sm mt-1">
                     Direct transit from {fpoLocation} · Distance ~165 km · Express Reefer Lane
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-zinc-400 block">Est. Net Profit</span>
-                  <span className="text-3xl sm:text-4xl font-black text-amber-400 tracking-tight">
+                  <span className="text-xs text-stone-600 dark:text-zinc-400 block">Est. Net Profit</span>
+                  <span className="text-3xl sm:text-4xl font-black text-emerald-700 dark:text-amber-400 tracking-tight">
                     ₹{result?.net_profit ? result.net_profit.toLocaleString('en-IN') : '42,750'}
                   </span>
                 </div>
               </div>
 
               {/* Metrics row */}
-              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-zinc-800">
-                <div className="bg-zinc-900/80 p-3.5 rounded-xl border border-zinc-800">
-                  <span className="text-[11px] text-zinc-400 block font-medium">Gross Wholesale</span>
-                  <span className="text-lg font-bold text-white">
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-stone-200 dark:border-zinc-800">
+                <div className="bg-zinc-900/80 p-3.5 rounded-xl border border-stone-200 dark:border-zinc-800">
+                  <span className="text-[11px] text-stone-600 dark:text-zinc-400 block font-medium">Gross Wholesale</span>
+                  <span className="text-lg font-bold text-stone-900 dark:text-white">
                     ₹{result?.gross_revenue ? result.gross_revenue.toLocaleString('en-IN') : '48,000'}
                   </span>
                   <span className="text-[10px] text-emerald-400 block mt-0.5">₹48.00 / kg</span>
                 </div>
 
-                <div className="bg-zinc-900/80 p-3.5 rounded-xl border border-zinc-800">
-                  <span className="text-[11px] text-zinc-400 block font-medium">Logistics & Freight</span>
-                  <span className="text-lg font-bold text-amber-500">
+                <div className="bg-zinc-900/80 p-3.5 rounded-xl border border-stone-200 dark:border-zinc-800">
+                  <span className="text-[11px] text-stone-600 dark:text-zinc-400 block font-medium">Logistics & Freight</span>
+                  <span className="text-lg font-bold text-emerald-600 dark:text-amber-500">
                     -₹{result?.transport_cost ? result.transport_cost.toLocaleString('en-IN') : '5,250'}
                   </span>
-                  <span className="text-[10px] text-zinc-400 block mt-0.5">150km @ ₹35/km</span>
+                  <span className="text-[10px] text-stone-600 dark:text-zinc-400 block mt-0.5">150km @ ₹35/km</span>
                 </div>
 
-                <div className="bg-zinc-900/80 p-3.5 rounded-xl border border-zinc-800">
-                  <span className="text-[11px] text-zinc-400 block font-medium">Net Profit Spread</span>
+                <div className="bg-zinc-900/80 p-3.5 rounded-xl border border-stone-200 dark:border-zinc-800">
+                  <span className="text-[11px] text-stone-600 dark:text-zinc-400 block font-medium">Net Profit Spread</span>
                   <span className="text-lg font-bold text-emerald-400">
                     +89.1%
                   </span>
-                  <span className="text-[10px] text-zinc-400 block mt-0.5">vs Local Farmgate</span>
+                  <span className="text-[10px] text-stone-600 dark:text-zinc-400 block mt-0.5">vs Local Farmgate</span>
                 </div>
               </div>
             </div>
@@ -286,7 +286,7 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
                     onNavigateToContract(crop, tons);
                   }
                 }}
-                className="flex-1 py-3 px-4 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:border-amber-500 text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="flex-1 py-3 px-4 rounded-xl bg-emerald-600/10 dark:bg-amber-500/10 hover:bg-amber-500/20 text-emerald-700 dark:text-amber-400 border border-emerald-600/30 dark:border-amber-500/30 hover:border-emerald-500 dark:hover:border-amber-500 text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 Draft Forward Contract for this Arbitrage
                 <ArrowRight className="w-4 h-4" />
@@ -296,25 +296,25 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
         </div>
 
         {/* Live Mandi Comparison Matrix */}
-        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 space-y-4">
+        <div className="bg-white dark:bg-zinc-950 transition-colors duration-500 border border-stone-200 dark:border-zinc-800 rounded-2xl p-6 space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-amber-500" />
+              <h2 className="text-lg font-bold text-stone-900 dark:text-white flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-emerald-600 dark:text-amber-500" />
                 Cross-Regional APMC Mandi Rate Comparison
               </h2>
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-stone-600 dark:text-zinc-400 mt-1">
                 Real-time price feeds calibrated with transport deductions for {crop}
               </p>
             </div>
-            <span className="text-xs text-zinc-500 hidden sm:inline">
+            <span className="text-xs text-stone-500 dark:text-zinc-500 hidden sm:inline">
               Data synchronized via BioChain Wholesale Feed
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-xs uppercase bg-zinc-900 text-zinc-400 border-b border-zinc-800">
+              <thead className="text-xs uppercase bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 text-stone-600 dark:text-zinc-400 border-b border-stone-200 dark:border-zinc-800">
                 <tr>
                   <th className="py-3 px-4 font-semibold">Terminal APMC</th>
                   <th className="py-3 px-4 font-semibold">Modal Price (₹/kg)</th>
@@ -325,34 +325,34 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
                   <th className="py-3 px-4 font-semibold text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
+              <tbody className="divide-y divide-zinc-800/60 text-stone-700 dark:text-zinc-300">
                 {activeRates.map((item, idx) => {
                   const grossRate = item.rate;
                   const freight = Math.round(item.distanceKm * 35);
                   const isBest = idx === 0;
                   return (
                     <tr key={item.mandi} className={`hover:bg-zinc-900/50 transition-colors ${isBest ? 'bg-amber-500/5' : ''}`}>
-                      <td className="py-3.5 px-4 font-bold text-white flex items-center gap-2">
-                        {isBest && <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />}
+                      <td className="py-3.5 px-4 font-bold text-stone-900 dark:text-white flex items-center gap-2">
+                        {isBest && <Sparkles className="w-4 h-4 text-emerald-600 dark:text-amber-500 shrink-0" />}
                         {item.mandi}
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-amber-400">
+                      <td className="py-3.5 px-4 font-mono font-bold text-emerald-700 dark:text-amber-400">
                         ₹{grossRate.toFixed(2)}
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-400">
+                      <td className="py-3.5 px-4 text-stone-600 dark:text-zinc-400">
                         {item.distanceKm} km
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-400">
+                      <td className="py-3.5 px-4 text-stone-600 dark:text-zinc-400">
                         {item.transitHours} hrs
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-400">
+                      <td className="py-3.5 px-4 text-stone-600 dark:text-zinc-400">
                         ₹{freight.toLocaleString('en-IN')}
                       </td>
                       <td className="py-3.5 px-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                           isBest 
                             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' 
-                            : 'bg-zinc-800 text-zinc-400'
+                            : 'bg-stone-200 dark:bg-zinc-800 transition-colors duration-500 text-stone-600 dark:text-zinc-400'
                         }`}>
                           {isBest ? 'Highest Net Margin' : 'Secondary Route'}
                         </span>
@@ -364,7 +364,7 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
                               onNavigateToContract(crop, 50);
                             }
                           }}
-                          className="text-xs text-amber-500 hover:text-amber-400 font-bold hover:underline"
+                          className="text-xs text-emerald-600 dark:text-amber-500 hover:text-emerald-700 dark:hover:text-amber-400 font-bold hover:underline"
                         >
                           Lock Rate →
                         </button>
@@ -379,36 +379,36 @@ export default function ArbitrageEngine({ onNavigateToContract }: ArbitrageEngin
 
         {/* Live Logistics Corridor Feed */}
         {logistics && (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 space-y-4">
+          <div className="bg-white dark:bg-zinc-950 transition-colors duration-500 border border-stone-200 dark:border-zinc-800 rounded-2xl p-6 space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Truck className="w-5 h-5 text-amber-500" />
+              <h2 className="text-lg font-bold text-stone-900 dark:text-white flex items-center gap-2">
+                <Truck className="w-5 h-5 text-emerald-600 dark:text-amber-500" />
                 Active Logistics Corridors & Fleet Readiness
               </h2>
               <div className="flex gap-4 text-xs">
-                <span className="text-zinc-400">
-                  Active Reefer Fleets: <strong className="text-white">{logistics.active_fleets}</strong>
+                <span className="text-stone-600 dark:text-zinc-400">
+                  Active Reefer Fleets: <strong className="text-stone-900 dark:text-white">{logistics.active_fleets}</strong>
                 </span>
-                <span className="text-zinc-400">
-                  Cold Storage Hubs: <strong className="text-white">{logistics.cold_storage_units}</strong>
+                <span className="text-stone-600 dark:text-zinc-400">
+                  Cold Storage Hubs: <strong className="text-stone-900 dark:text-white">{logistics.cold_storage_units}</strong>
                 </span>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {logistics.monitored_corridors.map((c) => (
-                <div key={c.corridor} className="bg-zinc-900 p-4 rounded-xl border border-zinc-800 space-y-2">
+                <div key={c.corridor} className="bg-stone-100 dark:bg-zinc-900 transition-colors duration-500 p-4 rounded-xl border border-stone-200 dark:border-zinc-800 space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-sm text-white">{c.corridor}</span>
+                    <span className="font-bold text-sm text-stone-900 dark:text-white">{c.corridor}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                       c.status === 'OPTIMAL' ? 'bg-emerald-900/50 text-emerald-400' : 'bg-yellow-900/50 text-yellow-400'
                     }`}>
                       {c.status}
                     </span>
                   </div>
-                  <div className="flex justify-between text-xs text-zinc-400">
+                  <div className="flex justify-between text-xs text-stone-600 dark:text-zinc-400">
                     <span>{c.distance_km} km · {c.transit_hours} hrs</span>
-                    <span className="font-mono text-zinc-300">₹{c.cost_inr.toLocaleString()}</span>
+                    <span className="font-mono text-stone-700 dark:text-zinc-300">₹{c.cost_inr.toLocaleString()}</span>
                   </div>
                 </div>
               ))}

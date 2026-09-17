@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import BioChainDashboard from './components/BioChainDashboard';
 import FarmerRegistration from './components/FarmerRegistration';
 import LandingPage from './components/LandingPage';
@@ -21,10 +22,9 @@ import {
   Moon
 } from 'lucide-react';
 
-export type AppView = 'home' | 'portal' | 'arbitrage' | 'contracts' | 'dashboard' | 'registration';
-
 function App() {
-  const [view, setView] = useState<AppView>('home');
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
@@ -51,17 +51,17 @@ function App() {
 
   const handleNavigateToContract = (crop: string, tons: number) => {
     setContractParams({ crop, tons });
-    setView('contracts');
+    navigate('/contracts');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: Leaf },
-    { id: 'portal', label: 'Trading Desk', icon: Store, badge: 'Exchange' },
-    { id: 'arbitrage', label: 'Mandi Arbitrage', icon: TrendingUp, badge: 'Live' },
-    { id: 'contracts', label: 'Contract Studio', icon: FileText },
-    { id: 'dashboard', label: 'Verification Hub', icon: ShieldCheck },
-    { id: 'registration', label: 'Farmer Onboarding', icon: UserCheck },
+    { path: '/', label: 'Home', icon: Leaf },
+    { path: '/trade', label: 'Trading Desk', icon: Store, badge: 'Exchange' },
+    { path: '/arbitrage', label: 'Mandi Arbitrage', icon: TrendingUp, badge: 'Live' },
+    { path: '/contracts', label: 'Contract Studio', icon: FileText },
+    { path: '/verification', label: 'Verification Hub', icon: ShieldCheck },
+    { path: '/onboarding', label: 'Farmer Onboarding', icon: UserCheck },
   ];
 
   return (
@@ -73,9 +73,10 @@ function App() {
           <div className="flex justify-between items-center h-20">
             
             {/* Brand Logo */}
-            <div 
+            <Link 
+              to="/"
               className="flex items-center cursor-pointer group"
-              onClick={() => { setView('home'); setMobileMenuOpen(false); }}
+              onClick={() => setMobileMenuOpen(false)}
             >
               <div className="bg-emerald-600/10 dark:bg-amber-500/10 p-2.5 rounded-xl mr-3 group-hover:bg-emerald-600/20 dark:group-hover:bg-amber-500/20 transition-all border border-emerald-600/30 dark:border-amber-500/30 group-hover:border-emerald-600/50 dark:group-hover:border-amber-500/50 shadow-[0_0_15px_rgba(5,150,105,0.15)] dark:shadow-[0_0_15px_rgba(245,158,11,0.15)]">
                 <Leaf className="w-6 h-6 text-emerald-600 dark:text-amber-500 transition-transform group-hover:scale-105" />
@@ -88,16 +89,16 @@ function App() {
                   BioChain Exchange
                 </span>
               </div>
-            </div>
+            </Link>
             
             {/* Desktop Navigation */}
             <nav className="hidden xl:flex items-center gap-2 lg:gap-3">
               {navItems.map((item) => {
-                const isActive = view === item.id;
+                const isActive = location.pathname === item.path;
                 return (
-                  <button 
-                    key={item.id}
-                    onClick={() => setView(item.id as AppView)}
+                  <Link 
+                    key={item.path}
+                    to={item.path}
                     className={`relative text-[10px] xl:text-xs uppercase tracking-wider font-bold transition-all duration-300 ease-in-out px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg flex items-center gap-1.5 cursor-pointer ${
                       isActive 
                         ? 'text-emerald-700 dark:text-amber-400 bg-emerald-600/10 dark:bg-amber-500/10 border border-emerald-600/30 dark:border-amber-500/30 shadow-[0_0_10px_rgba(5,150,105,0.15)] dark:shadow-[0_0_10px_rgba(245,158,11,0.15)] scale-105' 
@@ -112,7 +113,7 @@ function App() {
                         {item.badge}
                       </span>
                     )}
-                  </button>
+                  </Link>
                 );
               })}
             </nav>
@@ -148,7 +149,7 @@ function App() {
               </button>
               
               <button 
-                onClick={() => setView('portal')}
+                onClick={() => navigate('/trade')}
                 className="text-[10px] xl:text-xs uppercase tracking-wider font-extrabold bg-gradient-to-r from-emerald-500 to-green-600 dark:from-amber-500 dark:to-yellow-600 hover:from-emerald-400 hover:to-green-500 dark:hover:from-amber-400 dark:hover:to-yellow-500 text-white dark:text-black px-4 py-1.5 xl:px-5 xl:py-2.5 rounded-full transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(5,150,105,0.3)] dark:shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(5,150,105,0.5)] dark:hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] cursor-pointer flex items-center gap-1 shrink-0"
               >
                 Trade
@@ -177,59 +178,52 @@ function App() {
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
+        {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="xl:hidden bg-zinc-950 border-b border-amber-500/20 px-4 pt-2 pb-6 space-y-2">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setView(item.id as AppView);
-                  setMobileMenuOpen(false);
-                }}
-                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-between cursor-pointer ${
-                  view === item.id 
-                    ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' 
-                    : 'text-zinc-300 hover:bg-zinc-900'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <item.icon className="w-4 h-4 text-amber-500" />
-                  {item.label}
-                </div>
-                {item.badge && (
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            ))}
+          <div className="xl:hidden bg-white dark:bg-zinc-950 border-b border-emerald-500/20 dark:border-amber-500/20 p-4 absolute top-20 left-0 w-full shadow-2xl transition-colors duration-500">
+            <nav className="flex flex-col gap-2">
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link 
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 p-3 rounded-xl transition-all font-bold cursor-pointer ${
+                      isActive 
+                        ? 'text-emerald-700 dark:text-amber-400 bg-emerald-600/10 dark:bg-amber-500/10 border border-emerald-600/30 dark:border-amber-500/30' 
+                        : 'text-stone-500 dark:text-zinc-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200/60 dark:hover:bg-zinc-900/50'
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.label}
+                    {item.badge && (
+                      <span className="ml-auto text-[10px] px-2 py-0.5 rounded bg-emerald-600/20 dark:bg-amber-500/20 text-emerald-700 dark:text-amber-300 border border-emerald-600/30 dark:border-amber-500/30">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
           </div>
         )}
       </header>
       
       {/* Main Content Router */}
       <main className="flex-1 flex flex-col w-full animate-in fade-in duration-500 relative">
-        {view === 'home' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <LandingPage onNavigate={(v) => {
-              setView(v as AppView);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }} />
-          </div>
-        )}
-        {view === 'portal' && <div className="animate-in fade-in slide-in-from-bottom-4 duration-500"><TradingPortal /></div>}
-        {view === 'arbitrage' && <div className="animate-in fade-in slide-in-from-bottom-4 duration-500"><ArbitrageEngine onNavigateToContract={handleNavigateToContract} /></div>}
-        {view === 'contracts' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <ContractStudio 
-              initialCrop={contractParams.crop} 
-              initialTons={contractParams.tons} 
-            />
-          </div>
-        )}
-        {view === 'dashboard' && <div className="animate-in fade-in slide-in-from-bottom-4 duration-500"><BioChainDashboard /></div>}
-        {view === 'registration' && <div className="animate-in fade-in slide-in-from-bottom-4 duration-500"><FarmerRegistration /></div>}
+        <Routes>
+          <Route path="/" element={<LandingPage onNavigate={(path) => { navigate(`/${path === 'portal' ? 'trade' : path === 'dashboard' ? 'verification' : path === 'registration' ? 'onboarding' : path}`); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />} />
+          <Route path="/trade" element={<div className="animate-in fade-in slide-in-from-bottom-4 duration-500"><TradingPortal /></div>} />
+          <Route path="/arbitrage" element={<div className="animate-in fade-in slide-in-from-bottom-4 duration-500"><ArbitrageEngine onNavigateToContract={handleNavigateToContract} /></div>} />
+          <Route path="/contracts" element={
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <ContractStudio initialCrop={contractParams.crop} initialTons={contractParams.tons} />
+            </div>
+          } />
+          <Route path="/verification" element={<div className="animate-in fade-in slide-in-from-bottom-4 duration-500"><BioChainDashboard /></div>} />
+          <Route path="/onboarding" element={<div className="animate-in fade-in slide-in-from-bottom-4 duration-500"><FarmerRegistration /></div>} />
+        </Routes>
       </main>
 
       {/* Floating Copilot Button (Mobile only) */}
