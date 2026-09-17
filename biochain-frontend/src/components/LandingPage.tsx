@@ -29,25 +29,25 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           <div className="flex flex-wrap justify-center gap-4">
             <button 
               onClick={() => onNavigate('portal')}
-              className="px-7 py-3.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-extrabold rounded-full transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2.5 text-base transform hover:-translate-y-0.5 cursor-pointer"
+              className="px-7 py-3.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-extrabold rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2.5 text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
             >
               Open Trading Desk <ArrowRight className="w-5 h-5" />
             </button>
             <button 
               onClick={() => onNavigate('arbitrage')}
-              className="px-7 py-3.5 bg-zinc-900 border border-amber-500/50 hover:bg-zinc-800 text-amber-400 font-bold rounded-full transition-all flex items-center justify-center gap-2 text-base transform hover:-translate-y-0.5 cursor-pointer"
+              className="px-7 py-3.5 bg-zinc-900 border border-amber-500/50 hover:bg-zinc-800 text-amber-400 font-bold rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
             >
               Mandi Arbitrage Engine
             </button>
             <button 
               onClick={() => onNavigate('contracts')}
-              className="px-7 py-3.5 bg-zinc-900 border border-zinc-700 hover:border-amber-500 text-zinc-200 font-bold rounded-full transition-all flex items-center justify-center gap-2 text-base transform hover:-translate-y-0.5 cursor-pointer"
+              className="px-7 py-3.5 bg-zinc-900 border border-zinc-700 hover:border-amber-500 text-zinc-200 font-bold rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
             >
               AI Contract Studio
             </button>
             <button 
               onClick={() => onNavigate('dashboard')}
-              className="px-7 py-3.5 bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-white font-semibold rounded-full transition-all flex items-center justify-center text-base cursor-pointer"
+              className="px-7 py-3.5 bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-white font-semibold rounded-full transition-all duration-300 flex items-center justify-center text-base transform hover:scale-105 hover:-translate-y-1 cursor-pointer"
             >
               Verification Hub
             </button>
@@ -64,7 +64,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="p-8 bg-zinc-950 rounded-3xl border border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+            <div className="p-8 bg-zinc-950 rounded-3xl border border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
               <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mb-6 border border-amber-500/20">
                 <Globe className="w-8 h-8" />
               </div>
@@ -72,7 +72,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
               <p className="text-zinc-400 text-lg leading-relaxed">Continuous monitoring of crop health through multi-spectral satellite imagery to guarantee biomass volume and health directly from space.</p>
             </div>
             
-            <div className="p-8 bg-zinc-950 rounded-3xl border border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+            <div className="p-8 bg-zinc-950 rounded-3xl border border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
               <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mb-6 border border-amber-500/20">
                 <Shield className="w-8 h-8" />
               </div>
@@ -80,7 +80,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
               <p className="text-zinc-400 text-lg leading-relaxed">Every verification step is hashed on our BioChain, providing an unalterable audit trail for premium buyers and preventing fraud.</p>
             </div>
 
-            <div className="p-8 bg-zinc-950 rounded-3xl border border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+            <div className="p-8 bg-zinc-950 rounded-3xl border border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
               <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mb-6 border border-amber-500/20">
                 <TrendingUp className="w-8 h-8" />
               </div>
@@ -98,7 +98,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           <p className="text-xl text-zinc-400 mb-10">Join thousands of verified farmers on the BioChain network.</p>
           <button 
             onClick={() => onNavigate('registration')}
-            className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-full transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] text-lg"
+            className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(245,158,11,0.6)] text-lg"
           >
             Get Started Now
           </button>
