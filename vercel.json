@@ -1,0 +1,1 @@
+{"buildCommand": "cd biochain-frontend && npm install && npm run build", "outputDirectory": "biochain-frontend/dist", "rewrites": [{"source": "/(.*)", "destination": "/index.html"}]}

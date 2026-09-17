@@ -1388,9 +1388,6 @@ export default function TradingPortal({
   const [askingPrice, setAskingPrice] = useState("2,340");
   const [harvestDate, setHarvestDate] = useState("20 Jun 2025");
 
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-
   const back = () => {
     const index = screens.indexOf(screen);
     if (index > 0) setScreen(screens[index - 1]);
@@ -1405,7 +1402,6 @@ export default function TradingPortal({
   };
 
   const handleSendOtp = async () => {
-    setIsGenerating(true);
     try {
       const res = await fetch("http://localhost:8000/api/auth/otp/generate", {
         method: "POST",
@@ -1423,17 +1419,14 @@ export default function TradingPortal({
       setGeneratedOtp(fallback);
       setOtp(["", "", "", "", "", ""]);
     } finally {
-      setIsGenerating(false);
       setScreen("otp");
     }
   };
 
   const handleVerifyOtp = async () => {
-    setIsVerifying(true);
     const otpCode = otp.join("");
     if (otpCode.length < 6) {
       alert("Please enter the complete 6-digit confirmation code.");
-      setIsVerifying(false);
       return;
     }
     try {
@@ -1455,8 +1448,6 @@ export default function TradingPortal({
       } else {
         alert("Invalid OTP Code! Please enter the code shown: " + generatedOtp);
       }
-    } finally {
-      setIsVerifying(false);
     }
   };
 

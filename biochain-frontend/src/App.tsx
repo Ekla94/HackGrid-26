@@ -19,7 +19,8 @@ import {
   Sparkles,
   ArrowRight,
   Sun,
-  Moon
+  Moon,
+  Crown
 } from 'lucide-react';
 
 function App() {
